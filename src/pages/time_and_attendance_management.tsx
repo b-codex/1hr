@@ -6,19 +6,17 @@ import { EditOutlined, EyeOutlined, PullRequestOutlined } from '@ant-design/icon
 import DashboardCard from '../components/shared/DashboardCard';
 import { ReactElement, useEffect, useState } from 'react';
 import FullLayout from '@/layouts/full/FullLayout';
-import screenSize from './api/constants/screenSize';
 import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import moment from 'moment';
-import { db } from './api/db/firebase';
-import { calculateAbsentDays } from './api/functions/absentDays';
-import { calculatePeriodWorkingDays } from './api/functions/periodWorkingDays';
-import { calculateWorkedDays } from './api/functions/workedDays';
+
 import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
 import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
+import { db } from '@/backend/api/firebase';
+import screenSize from '@/backend/constants/screenSize';
+import { calculateAbsentDays } from '@/backend/functions/absentDays';
+import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
+import { calculateWorkedDays } from '@/backend/functions/workedDays';
 
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import { Form, Select } from 'antd';
 
 const TimeAndAttendanceManagement = () => {
 

@@ -11,7 +11,7 @@ import {
     ListItemText,
 } from "@mui/material";
 
-import { IconListCheck, IconMail, IconUser } from "@tabler/icons-react";
+import { LikeFilled, MailOutlined, UserOutlined } from "@ant-design/icons";
 
 const Profile = () => {
     const [anchorEl2, setAnchorEl2] = useState(null);
@@ -65,19 +65,19 @@ const Profile = () => {
             >
                 <MenuItem>
                     <ListItemIcon>
-                        <IconUser width={20} />
+                        <UserOutlined width={20} />
                     </ListItemIcon>
                     <ListItemText>My Profile</ListItemText>
                 </MenuItem>
                 <MenuItem>
                     <ListItemIcon>
-                        <IconMail width={20} />
+                        <MailOutlined width={20} />
                     </ListItemIcon>
                     <ListItemText>My Account</ListItemText>
                 </MenuItem>
                 <MenuItem>
                     <ListItemIcon>
-                        <IconListCheck width={20} />
+                        <LikeFilled width={20} />
                     </ListItemIcon>
                     <ListItemText>My Tasks</ListItemText>
                 </MenuItem>

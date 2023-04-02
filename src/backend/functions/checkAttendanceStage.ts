@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { batchUpdate } from '../db/batch';
-import { fetchAttendanceList } from '../db/getFunctions';
 import { months } from '../constants/months';
+import { fetchAttendanceList } from '../api/getFunctions';
+import { batchUpdate } from '../api/batch';
 
 const date: number = moment().date();
 const month: string = months[moment().month()];

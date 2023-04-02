@@ -1,7 +1,5 @@
-import {
-    IconAperture, IconCopy, IconLayoutDashboard, IconLogin, IconMoodHappy, IconTypography, IconUserPlus
-} from '@tabler/icons-react';
-import { uniqueId } from 'lodash';
+import generateID from '@/backend/constants/generateID';
+import { DashboardOutlined } from '@ant-design/icons';
 
 const Menuitems = [
     {
@@ -10,43 +8,43 @@ const Menuitems = [
     },
 
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Dashboard',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/',
     },
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Time & Attendance Management',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/time_and_attendance_management',
     },
 
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Leave Management',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/leave_management',
     },
 
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Performance Management',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/performance_management',
     },
 
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Talent Acquisition',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/talent_acquisition',
     },
 
     {
-        id: uniqueId(),
+        id: generateID(),
         title: 'Training & Development',
-        icon: IconLayoutDashboard,
+        icon: DashboardOutlined,
         href: '/training_and_development',
     },
     //   {
@@ -54,19 +52,19 @@ const Menuitems = [
     //     subheader: 'Utilities',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Time & Attendance Management',
     //     icon: IconTypography,
     //     href: '/tam',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Typography',
     //     icon: IconTypography,
     //     href: '/utilities/typography',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Shadow',
     //     icon: IconCopy,
     //     href: '/utilities/shadow',
@@ -76,13 +74,13 @@ const Menuitems = [
     //     subheader: 'Auth',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Login',
     //     icon: IconLogin,
     //     href: '/authentication/login',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Register',
     //     icon: IconUserPlus,
     //     href: '/authentication/register',
@@ -92,13 +90,13 @@ const Menuitems = [
     //     subheader: 'Extra',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Icons',
     //     icon: IconMoodHappy,
     //     href: '/icons',
     //   },
     //   {
-    //     id: uniqueId(),
+    //     id: generateID(),
     //     title: 'Sample Page',
     //     icon: IconAperture,
     //     href: '/sample-page',
