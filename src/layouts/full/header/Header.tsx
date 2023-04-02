@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 // components
 import Profile from './Profile';
-import { IconBellRinging, IconMenu } from '@tabler/icons-react';
+import { BellOutlined, MenuOutlined } from '@ant-design/icons';
 
 interface ItemType {
     toggleMobileSidebar: (event: React.MouseEvent<HTMLElement>) => void;
@@ -44,7 +44,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
                         },
                     }}
                 >
-                    <IconMenu width="20" height="20" />
+                    <MenuOutlined width="20" height="20" />
                 </IconButton>
 
                 <IconButton
@@ -55,7 +55,7 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
                     aria-haspopup="true"
                 >
                     <Badge variant="dot" color="primary">
-                        <IconBellRinging size="21" stroke="1.5" />
+                        <BellOutlined size={21} />
                     </Badge>
 
                 </IconButton>

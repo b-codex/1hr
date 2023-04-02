@@ -1,13 +1,20 @@
-import { months } from '@/pages/api/constants/months';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Backdrop, Box, Button, Card, CardContent, CardHeader, Divider, Fade, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
-import { Col, Form, Input, Row, Space } from 'antd';
-import { useState } from 'react';
 
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Alert, Backdrop, Box, Button, Card, CardContent, CardHeader, Divider, Fade, Modal, Paper, Snackbar, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { Col, Form, Input, Row, Select, Space, Spin, DatePicker, TimePicker, message } from 'antd';
+import { useEffect, useState } from 'react';
+
+import { db } from '@/backend/api/firebase';
+import { groupBy } from '@/backend/constants/groupBy';
+import { months } from '@/backend/constants/months';
+
+import { days } from '@/backend/constants/days';
+import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
+import moment from 'moment';
+import { AttendanceData } from '@/backend/models/attendanceData';
+import { updateAttendanceList } from '@/backend/api/TAM/updateAttendanceList';
+
+import { CloseOutlined } from "@ant-design/icons";
 
 const EmployeeAttendanceEdit = ({
     attendanceData,
@@ -20,44 +27,88 @@ const EmployeeAttendanceEdit = ({
 }
 ) => {
 
+    const [loading, setLoading] = useState<boolean>(false);
+
+    // getting HR Settings from the database
+    const [shiftTypes, setShiftTypes] = useState<any[]>([]);
+    useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
+        const data: any[] = [];
+        snapshot.docs.map((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        const groupedSettings: any = groupBy("type", data);
+
+        const shiftTypes: any[] = groupedSettings["Shift Type"];
+        setShiftTypes(shiftTypes);
+
+    }), []);
+
+    const [formValidated, setFormValidated] = useState<string>("");
+
     let attendance: any = [];
     let keys: string[] = [];
     let month1: string = '';
     let month2: string = '';
     let month1Data: string[] = [];
     let month2Data: string[] = [];
-
     if (attendanceData) {
         attendance = attendanceData.attendance;
         keys = Object.keys(attendance);
-        month1 = keys[0]
-        month2 = keys[1]
+        month1 = keys[0];
+        month2 = keys[1];
         const tempMonth = month1;
-        if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) {
-        }
+        if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) { }
+
         else if (months.indexOf(month1) === 0 && months.indexOf(month2) === 11) {
-            month1 = month2
-            month2 = tempMonth
+            month1 = month2;
+            month2 = tempMonth;
         }
+
         else if (months.indexOf(month1) > months.indexOf(month2)) {
-            month1 = month2
-            month2 = tempMonth
+            month1 = month2;
+            month2 = tempMonth;
         }
-        month1Data = Object.keys(attendance[month1])
-        month2Data = Object.keys(attendance[month2])
+
+        month1Data = Object.keys(attendance[month1]);
+        month2Data = Object.keys(attendance[month2]);
     }
 
-    const onFinish = (values: any) => {
-        console.log('Received values of form:', values);
-    };
+    const [workingDays, setWorkingDays] = useState<string[]>([]);
+    useEffect(() => {
+        if (attendanceData) {
+            attendance = attendanceData.attendance;
+            keys = Object.keys(attendance);
+            month1 = keys[0];
+            month2 = keys[1];
+            const tempMonth = month1;
+            if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) { }
+
+            else if (months.indexOf(month1) === 0 && months.indexOf(month2) === 11) {
+                month1 = month2;
+                month2 = tempMonth;
+            }
+
+            else if (months.indexOf(month1) > months.indexOf(month2)) {
+                month1 = month2;
+                month2 = tempMonth;
+            }
+
+            month1Data = Object.keys(attendance[month1]);
+            month2Data = Object.keys(attendance[month2]);
+
+            if (shiftTypes.length > 0) {
+                const shift: any = shiftTypes.find(value => value.name === attendanceData.associatedShiftType);
+                const workingDays: string[] = shift['workingDays'] ?? [];
+
+                setWorkingDays(workingDays);
+            }
+        }
+    }, [attendanceData, shiftTypes]);
 
     const [form] = Form.useForm();
-
-    const [age, setAge] = useState('');
-
-    const handleChange = (event: SelectChangeEvent) => {
-        setAge(event.target.value as string);
-    };
 
     return (
         <Modal
@@ -75,31 +126,61 @@ const EmployeeAttendanceEdit = ({
         >
             <Fade in={open} style={{ height: "90vh", overflowY: "scroll" }}>
                 <Box sx={{ position: 'absolute' as 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', bgcolor: '#ffffff', p: 4, }}>
-                    <Typography id="modal-title" variant="h6" component="h2" style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif" }}>
-                        Attendance List - {attendanceData && attendanceData.attendancePeriod} Period
-                    </Typography>
-                    <Divider style={{ margin: "15px 0" }} />
-                    <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
-                        Please input P for Present, H for Half Day, A for Absent
-                    </Typography>
-                    <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
-                        If you have to declare overtime, do so before submitting
-                    </Typography>
-                    <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginTop: '20px', fontFamily: "Montserrat, sans-serif", }}>
-                        <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='pt-3 pb-3 pr-3'>Period working days: {attendanceData && attendanceData.periodWorkingDays} days</Typography>
-                        <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Worked days: {attendanceData && attendanceData.workedDays} days</Typography>
-                        <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Absent days: {attendanceData && attendanceData.absentDays} days</Typography>
-                    </div>
+                    <CloseOutlined className={'text-[#3f3d56] text-3xl hover:drop-shadow-lg hover:text-[#ffe6a7] hover:bg-[#3f3d56]'} onClick={() => setOpen(false)} style={{ position: 'absolute', right: 20, top: 20, borderRadius: "50%" }} />
 
-                    <TableContainer
-                        component={Paper}
-                        sx={{ width: "100%", color: '#3f3d56' }}
+                    <Form
+                        form={form}
+                        autoComplete="off"
                     >
+                        {/* modal header */}
+                        <div className="">
+                            <Typography id="modal-title" variant="h6" component="h2" style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif" }}>
+                                Attendance List - {attendanceData && attendanceData.attendancePeriod} Period
+                            </Typography>
 
-                        <Form
-                            form={form}
-                            onFinish={onFinish}
-                            autoComplete="off"
+                            <Divider style={{ margin: "15px 0" }} />
+
+                            <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
+                                Please input P for Present, H for Half Day, A for Absent
+                            </Typography>
+
+                            <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
+                                If you have to declare overtime, do so before submitting
+                            </Typography>
+
+                            {/* <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', marginTop: '20px', fontFamily: "Montserrat, sans-serif", }}>
+                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='pt-3 pb-3 pr-3'>Period working days: {attendanceData && attendanceData.periodWorkingDays} days</Typography>
+                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Worked days: {attendanceData && attendanceData.workedDays} days</Typography>
+                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Absent days: {attendanceData && attendanceData.absentDays} days</Typography>
+                        </div> */}
+
+                            <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+
+                            <Form.Item
+                                name="associatedShiftType"
+                                label="Shift Type"
+                                initialValue={attendanceData?.associatedShiftType}
+                            >
+                                <Select
+                                    style={{ width: "100%" }}
+                                    options={[...shiftTypes].map(value => ({ label: value.name, value: value.name }))}
+                                    onChange={(value) => {
+                                        const chosenShiftType: any = shiftTypes.find(shiftType => shiftType.name === value);
+                                        const workingDays: string[] = chosenShiftType.workingDays;
+
+                                        setWorkingDays(workingDays);
+                                    }}
+                                    dropdownStyle={{ zIndex: 2000 }}
+                                />
+                            </Form.Item>
+
+                            <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
+                        </div>
+
+
+                        <TableContainer
+                            component={Paper}
+                            sx={{ width: "100%", color: '#3f3d56' }}
                         >
 
                             <Table
@@ -219,75 +300,92 @@ const EmployeeAttendanceEdit = ({
                                             Presence
                                         </TableCell>
 
+                                        {/* data for the first month */}
                                         {
                                             month1Data.length > 0 &&
-                                            month1Data.map((value: any, index: number) => (
-                                                <TableCell
-                                                    sx={{
-                                                        borderRight: "1px solid #D3D3D3",
-                                                        backgroundColor: attendance[month1][value] ? "" : "gray",
-                                                        fontFamily: "Montserrat, sans-serif",
-                                                    }}
-                                                    key={index}
-                                                >
-                                                    {
-                                                        attendance[month1][value] ?
+                                            month1Data.map((value: any, index: number) => {
 
-                                                            <Form.Item
-                                                                name={[month1, value]}
-                                                                rules={[{ required:true }]}
-                                                            >
-                                                                <Select
-                                                                    value={attendance[month1][value]}
-                                                                    fullWidth
-                                                                >
-                                                                    <MenuItem value={"P"}>P</MenuItem>
-                                                                    <MenuItem value={"A"}>A</MenuItem>
-                                                                    <MenuItem value={"H"}>H</MenuItem>
-                                                                </Select>
-                                                            </Form.Item>
+                                                const year: number = attendanceData.attendancePeriod === "January" ? attendanceData.year - 1 : attendanceData.year;
 
+                                                const date: moment.Moment = moment(`${month1} ${value}, ${year}`, "MMMM DD, YYYY");
 
+                                                const dayInString: string = days[date.day()];
+                                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
 
-
-                                                            :
-                                                            ''
-                                                    }
-                                                </TableCell>
-                                            ))
+                                                return (
+                                                    <>
+                                                        <TableCell
+                                                            sx={{
+                                                                borderRight: "1px solid #D3D3D3",
+                                                                backgroundColor: dayInWorkingDays ? "" : "gray",
+                                                                fontFamily: "Montserrat, sans-serif",
+                                                            }}
+                                                            key={index}
+                                                        >
+                                                            {
+                                                                dayInWorkingDays ?
+                                                                    <Form.Item
+                                                                        name={[month1, value]}
+                                                                        rules={[{ required: true, message: "" }]}
+                                                                        initialValue={attendance[month1][value]}
+                                                                    >
+                                                                        <Select
+                                                                            style={{ width: 60 }}
+                                                                            options={['P', 'H', 'A'].map(value => ({ label: value, value: value }))}
+                                                                            dropdownStyle={{ zIndex: 2000 }}
+                                                                        />
+                                                                    </Form.Item>
+                                                                    :
+                                                                    ''
+                                                            }
+                                                        </TableCell>
+                                                    </>
+                                                )
+                                            })
                                         }
 
-
+                                        {/* data for the second month */}
                                         {
                                             month2Data.length > 0 &&
-                                            month2Data.map((value: any, index: number) => (
-                                                <TableCell
-                                                    sx={{
-                                                        borderRight: "1px solid #D3D3D3",
-                                                        backgroundColor: attendance[month1][value] ? "" : "gray",
-                                                        fontFamily: "Montserrat, sans-serif",
-                                                    }}
-                                                    key={index}
-                                                >
-                                                    {
-                                                        attendance[month1][value] ?
-                                                            <input
-                                                                style={{
-                                                                    border: "1px solid #D3D3D3",
-                                                                    borderRadius: "4px",
-                                                                    textAlign: "center",
-                                                                }}
-                                                                pattern="[A-Z]*"
-                                                                size={1}
-                                                                maxLength={1}
-                                                                minLength={1}
-                                                                value={attendance[month1][value]}
-                                                            />
-                                                            :
-                                                            ''
-                                                    }
-                                                </TableCell>
-                                            ))
+                                            month2Data.map((value: any, index: number) => {
+
+                                                const year: number = attendanceData.year;
+
+                                                const date: moment.Moment = moment(`${month2} ${value}, ${year}`, "MMMM DD, YYYY");
+
+                                                const dayInString: string = days[date.day()];
+                                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
+
+                                                return (
+                                                    <>
+                                                        <TableCell
+                                                            sx={{
+                                                                borderRight: "1px solid #D3D3D3",
+                                                                backgroundColor: dayInWorkingDays ? "" : "gray",
+                                                                fontFamily: "Montserrat, sans-serif",
+                                                            }}
+                                                            key={index}
+                                                        >
+                                                            {
+                                                                dayInWorkingDays ?
+                                                                    <Form.Item
+                                                                        name={[month2, value]}
+                                                                        rules={[{ required: true, message: "" }]}
+                                                                        initialValue={attendance[month2][value]}
+                                                                    >
+                                                                        <Select
+                                                                            style={{ width: 60 }}
+                                                                            options={['P', 'H', 'A'].map(value => ({ label: value, value: value }))}
+                                                                            dropdownStyle={{ zIndex: 2000 }}
+                                                                        />
+                                                                    </Form.Item>
+                                                                    :
+                                                                    ''
+                                                            }
+                                                        </TableCell>
+                                                    </>
+                                                )
+                                            })
                                         }
                                     </TableRow>
                                     {/* Present or Absent Values */}
@@ -296,99 +394,71 @@ const EmployeeAttendanceEdit = ({
                                 </TableBody>
                             </Table>
 
-                        </Form>
-                    </TableContainer>
+                            {/* </Form> */}
+                        </TableContainer>
 
-                    <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
+                        <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
 
-                    <Box>
-                        <Row align="middle" justify="space-around">
-                            <Col xs={24} xl={11} xxl={11}>
-                                <Card style={{ padding: "2em", }}>
+                        <Box>
+                            <Row align="middle" justify="space-around">
 
-                                    <CardHeader title="Overtime" />
+                                {/* Overtime Section */}
+                                <Col xs={24} xl={11} xxl={11}>
+                                    <Card style={{ padding: "2em", }}>
 
-                                    <CardContent
-                                        style={{
-                                            overflowY: 'scroll',
-                                            height: '300px',
-                                        }}
-                                    >
-                                        <Form.List name="users">
-                                            {(fields, { add, remove }) => (
-                                                <>
-                                                    {fields.map(({ key, name, ...restField }) => (
-                                                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                                                            <Form.Item
-                                                                {...restField}
-                                                                name={[name, 'first']}
-                                                                rules={[{ required: true, message: 'Missing first name' }]}
-                                                            >
-                                                                <Input placeholder="First Name" />
-                                                            </Form.Item>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                name={[name, 'last']}
-                                                                rules={[{ required: true, message: 'Missing last name' }]}
-                                                            >
-                                                                <Input placeholder="Last Name" />
-                                                            </Form.Item>
-                                                            <MinusCircleOutlined onClick={() => remove(name)} />
-                                                        </Space>
-                                                    ))}
-                                                    <Row align={"middle"} justify={"center"}>
-                                                        <Form.Item>
-                                                            <Button
-                                                                variant="outlined"
-                                                                onClick={() => add()}
-                                                                startIcon={<PlusOutlined />}
-                                                            >
-                                                                Add
-                                                            </Button>
-                                                        </Form.Item>
-                                                    </Row>
-                                                </>
-                                            )}
-                                        </Form.List>
-                                    </CardContent>
-                                </Card>
-                            </Col>
+                                        <CardHeader title="Overtime" />
 
-                            <Col xs={24} xl={11} xxl={11}>
-                                <Card style={{ padding: "2em", }}>
-
-                                    <CardHeader title="Comments" />
-
-                                    <CardContent
-                                        style={{
-                                            overflowY: 'scroll',
-                                            height: '300px',
-                                        }}
-                                    >
-                                        <Form
-                                            name="dynamic_form_nest_item"
-                                            onFinish={onFinish}
-                                            style={{ maxWidth: 600 }}
-                                            autoComplete="off"
+                                        <CardContent
+                                            style={{
+                                                overflowY: 'scroll',
+                                                height: '300px',
+                                            }}
                                         >
-                                            <Form.List name="users">
+                                            <Typography>
+                                                If overtime data already exists, it will be updated.
+                                            </Typography>
+
+                                            <Divider style={{ margin: "1em" }} />
+
+                                            <Form.List name="overtime">
                                                 {(fields, { add, remove }) => (
                                                     <>
                                                         {fields.map(({ key, name, ...restField }) => (
                                                             <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                                                                 <Form.Item
                                                                     {...restField}
-                                                                    name={[name, 'first']}
-                                                                    rules={[{ required: true, message: 'Missing first name' }]}
+                                                                    name={[name, 'date']}
+                                                                    rules={[{ required: true, message: '' }]}
                                                                 >
-                                                                    <Input placeholder="First Name" />
+                                                                    <DatePicker
+                                                                        style={{ width: "100%", zIndex: 2000 }}
+                                                                        placeholder='Overtime Date'
+                                                                        format={"MMMM DD, YYYY"}
+                                                                    />
                                                                 </Form.Item>
+
                                                                 <Form.Item
                                                                     {...restField}
-                                                                    name={[name, 'last']}
-                                                                    rules={[{ required: true, message: 'Missing last name' }]}
+                                                                    name={[name, 'timeFrom']}
+                                                                    rules={[{ required: true, message: '' }]}
                                                                 >
-                                                                    <Input placeholder="Last Name" />
+                                                                    <TimePicker
+                                                                        use12Hours
+                                                                        format="h:mm A"
+                                                                        placeholder='From'
+                                                                    />
+                                                                </Form.Item>
+
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, 'timeTo']}
+                                                                    rules={[{ required: true, message: '' }]}
+                                                                >
+                                                                    <TimePicker
+                                                                        use12Hours
+                                                                        format="h:mm A"
+                                                                        placeholder='To'
+                                                                    />
                                                                 </Form.Item>
                                                                 <MinusCircleOutlined onClick={() => remove(name)} />
                                                             </Space>
@@ -407,12 +477,189 @@ const EmployeeAttendanceEdit = ({
                                                     </>
                                                 )}
                                             </Form.List>
-                                        </Form>
-                                    </CardContent>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Box>
+                                        </CardContent>
+                                    </Card>
+                                </Col>
+
+                                {/* Comments Section */}
+                                <Col xs={24} xl={11} xxl={11}>
+                                    <Card style={{ padding: "2em", }}>
+
+                                        <CardHeader title="Comments" />
+
+                                        <CardContent
+                                            style={{
+                                                overflowY: 'scroll',
+                                                height: '300px',
+                                            }}
+                                        >
+
+                                            <Typography>
+                                                If comment data already exists, it will be updated.
+                                            </Typography>
+
+                                            <Divider style={{ margin: "1em" }} />
+
+                                            <Form.List name="comments">
+                                                {(fields, { add, remove }) => (
+                                                    <>
+                                                        {fields.map(({ key, name, ...restField }) => (
+                                                            <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="center">
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, 'text']}
+                                                                    rules={[{ required: true, message: 'Required' }]}
+                                                                >
+                                                                    <Input.TextArea rows={2} cols={115} placeholder="Your comment here..." />
+                                                                </Form.Item>
+                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+                                                            </Space>
+                                                        ))}
+                                                        <Row align={"middle"} justify={"center"}>
+                                                            <Form.Item>
+                                                                <Button
+                                                                    variant="outlined"
+                                                                    onClick={() => add()}
+                                                                    startIcon={<PlusOutlined />}
+                                                                >
+                                                                    Add
+                                                                </Button>
+                                                            </Form.Item>
+                                                        </Row>
+                                                    </>
+                                                )}
+                                            </Form.List>
+                                        </CardContent>
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </Box>
+
+                    </Form>
+
+                    <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
+
+                    <Row align={"middle"} justify={"end"}>
+
+                        {
+                            (() => {
+                                if (formValidated === "") {
+                                    return (
+                                        <>
+                                        </>
+                                    );
+                                }
+
+                                if (formValidated === "Validation Error") {
+                                    return (
+                                        <>
+                                            <Alert severity="error" sx={{ width: '100%' }}>
+                                                Check your form inputs and try again.
+                                            </Alert>
+                                        </>
+                                    );
+                                }
+
+                                if (formValidated === "Update Error") {
+                                    return (
+                                        <>
+                                            <Alert severity="error" sx={{ width: '100%' }}>
+                                                Request failed. Try saving again.
+                                            </Alert>
+                                        </>
+                                    );
+                                }
+                            })()
+                        }
+
+                        <Button
+                            variant='contained'
+                            disabled={loading}
+                            onClick={() => {
+                                form.validateFields().then(async (values) => {
+                                    setLoading(true);
+
+                                    const keys: string[] = Object.keys(values);
+                                    keys.forEach((key) => {
+                                        if (values[key] === undefined) values[key] = null;
+                                    });
+
+                                    // console.log("values:", values);
+                                    // console.log("attendanceData: ", attendanceData);
+
+                                    const overtime: any[] = values.overtime === null ? [] : values.overtime;
+                                    overtime.forEach((value) => {
+                                        const date = value.date;
+                                        const timeFrom = value.timeFrom;
+                                        const timeTo = value.timeTo;
+
+                                        value.date = date.format("MMMM DD, YYYY");
+                                        value.timeFrom = timeFrom.format("h:mm A");
+                                        value.timeTo = timeTo.format("h:mm A");
+                                    });
+
+                                    const overtimeData: any[] = attendanceData.overtime;
+                                    overtimeData.push(overtime);
+
+                                    const commentData: any[] = attendanceData.comments;
+                                    if (values.comments !== null) commentData.push(...values.comments);
+
+                                    const updatedAttendanceData: AttendanceData = {
+                                        employeeID: attendanceData.employeeID,
+                                        attendancePeriod: attendanceData.attendancePeriod,
+                                        year: attendanceData.year,
+                                        state: "Draft",
+                                        comments: commentData,
+                                        attendance: {
+                                            [month1]: values[month1],
+                                            [month2]: values[month2],
+                                        },
+                                        overtime: overtimeData,
+                                        modificationRequested: attendanceData.modificationRequested,
+                                        modifications: [...attendanceData.modifications],
+                                        stage: attendanceData.stage,
+                                        associatedShiftType: values.associatedShiftType,
+                                    };
+
+                                    // console.log("values:", values);
+                                    // console.log("updatedAttendanceData: ", updatedAttendanceData);
+
+                                    await updateAttendanceList(updatedAttendanceData, attendanceData.id)
+                                        .then((res: boolean) => {
+                                            console.log("res: ", res);
+
+                                            if (res === true) {
+                                                setOpen(false);
+                                                setLoading(false);
+                                                message.success("Updated.");
+                                                form.resetFields();
+                                                setFormValidated("");
+                                            }
+
+                                            if (res === false) {
+                                                setFormValidated("Update Error");
+                                                setLoading(false);
+                                            }
+                                        })
+                                        .catch((err: any) => {
+                                            console.log("error updating attendance list: ", err);
+                                            setFormValidated("Update Error");
+                                            setLoading(false);
+                                        });
+
+                                    setLoading(false);
+                                }).catch((err) => {
+                                    setLoading(false);
+                                    setFormValidated("Validation Error");
+                                    console.log("Validation Error: ", err);
+                                });
+                            }}
+                        >
+                            {loading ? <Spin size='small' /> : "Save"}
+                        </Button>
+
+                    </Row>
+
                 </Box>
             </Fade>
         </Modal>
