@@ -1,21 +1,26 @@
-import FullLayout from '@/layouts/full/FullLayout';
-import { EditOutlined, EyeOutlined, PullRequestOutlined } from '@ant-design/icons';
-import { Box } from '@mui/material';
+import {
+    Box
+} from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
-import moment from 'moment';
-import { ReactElement, useEffect, useState } from 'react';
+import { EditOutlined, DeleteOutlined, PullRequestOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
 import DashboardCard from '../components/shared/DashboardCard';
+import { ReactElement, useEffect, useState } from 'react';
+import FullLayout from '@/layouts/full/FullLayout';
+import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import moment from 'moment';
 
+import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
+import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
 import { db } from '@/backend/api/firebase';
 import screenSize from '@/backend/constants/screenSize';
 import { calculateAbsentDays } from '@/backend/functions/absentDays';
 import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
-import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
-import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
+import { Button } from '@mui/material';
+import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequest';
+import { Modal } from 'antd';
 
-const TimeAndAttendanceManagement = () => {
+const LeaveManagement = () => {
 
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -23,6 +28,8 @@ const TimeAndAttendanceManagement = () => {
     const [attendanceListViewModalOpen, setAttendanceListViewModalOpen] = useState<boolean>(false);
     const [attendanceListEditModalOpen, setAttendanceListEditModalOpen] = useState<boolean>(false);
     const [activeAttendanceData, setActiveAttendanceDate] = useState<any>();
+
+    const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
 
     const [hrSettings, setHrSettings] = useState<any[]>([]);
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
@@ -37,7 +44,7 @@ const TimeAndAttendanceManagement = () => {
         setHrSettings(data);
     }), []);
 
-    useEffect(() => onSnapshot(collection(db, "attendance"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "leaveManagement"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -85,61 +92,90 @@ const TimeAndAttendanceManagement = () => {
         }
     }), [hrSettings]);
 
+    const leaveRequestDelete = (id: string) => {
+        Modal.confirm({
+            title: 'Confirm',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Are you sure?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk() {
+                // deleteDemo(id)
+                //     .then((res: boolean) => {
+                //         if (res) {
+                //             message.success('Deleted Successfully');
+                //         }
+                //         else {
+                //             message.error('An Error Occurred.');
+                //         }
+                //     });
+            }
+        });
+    };
+
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'id',
-            headerName: 'ID',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'attendancePeriod',
-            headerName: 'Attendance Period',
+            field: 'leaveRequestID',
+            headerName: 'Leave Request ID',
             flex: 1,
             hideable: false,
         },
         {
-            field: 'year',
-            headerName: 'Year',
+            field: 'leaveState',
+            headerName: 'Leave State',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'state',
-            headerName: 'State',
+            field: 'leaveStage',
+            headerName: 'Leave Stage',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'stage',
-            headerName: 'Stage',
+            field: 'leaveType',
+            headerName: 'Leave Type',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'associatedShiftType',
-            headerName: 'Associated Shift Type',
+            field: 'authorizedDays',
+            headerName: 'Authorized Days',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'periodWorkingDays',
-            headerName: 'Period Working Days',
+            field: 'firstDayOfLeave',
+            headerName: 'First Day of Leave',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'workedDays',
-            headerName: 'Worked Days',
+            field: 'lastDayOfLeave',
+            headerName: 'Last Day of Leave',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'absentDays',
-            headerName: 'Absent Days',
+            field: 'dateOfReturn',
+            headerName: 'Date of Return',
             flex: 1,
             // hideable: false,
+        },
+        {
+            field: 'numberOfLeaveDaysRequested',
+            headerName: 'Number of Leave Days Requested',
+            flex: 1.5,
+            // hideable: false,
+            type: 'number',
+        },
+        {
+            field: 'balanceLeaveDays',
+            headerName: 'Balance Leave Days',
+            flex: 1,
+            // hideable: false,
+            type: 'number',
         },
         {
             field: "actions",
@@ -151,47 +187,48 @@ const TimeAndAttendanceManagement = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='View'
-                        icon={<EyeOutlined />}
+                        label='Edit'
+                        icon={<EditOutlined />}
                         onClick={() => {
-                            setActiveAttendanceDate(params.row);
-                            setAttendanceListViewModalOpen(true);
+                            // setActiveAttendanceDate(params.row);
+                            // setAttendanceListViewModalOpen(true);
+                        }}
+                        showInMenu
+                    />,
+                    <GridActionsCellItem
+                        key={1}
+                        label='Delete'
+                        icon={<DeleteOutlined color='red' />}
+                        onClick={() => {
+                            leaveRequestDelete(params.row.id);
                         }}
                         showInMenu
                     />
-                ]
-                // if (params.row.stage === 'Open') {
-                actionArray.push(<GridActionsCellItem
-                    key={2}
-                    label='Edit'
-                    icon={<EditOutlined />}
-                    onClick={() => {
-                        setActiveAttendanceDate(params.row)
-                        setAttendanceListEditModalOpen(true);
-                    }}
-                    showInMenu
-                />)
-                // }
-                if (params.row.stage === 'Closed') {
-                    actionArray.push(<GridActionsCellItem
-                        key={2}
-                        label='Request Modification'
-                        icon={<PullRequestOutlined />}
-                        onClick={() => {
-                            // requestModification(params.row)
-                        }}
-                        showInMenu
-                    />)
-                }
+                ];
 
                 return actionArray;
             }
         },
     ];
 
+    const AddButton = () => {
+        return (
+            <>
+                <Button
+                    variant='contained'
+                    onClick={() => {
+                        setAddLeaveRequestModalVisible(true);
+                    }}
+                >
+                    Request Leave
+                </Button>
+            </>
+        );
+    };
+
     return (
         <>
-            <DashboardCard title="Time & Attendance Management">
+            <DashboardCard title="Leave Management" action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -224,22 +261,15 @@ const TimeAndAttendanceManagement = () => {
                 </Box>
             </DashboardCard>
 
-            <EmployeeAttendanceListView
-                open={attendanceListViewModalOpen}
-                setOpen={setAttendanceListViewModalOpen}
-                attendanceData={activeAttendanceData}
-            />
-
-            <EmployeeAttendanceEdit
-                open={attendanceListEditModalOpen}
-                setOpen={setAttendanceListEditModalOpen}
-                attendanceData={activeAttendanceData}
+            <EmployeeAddLeaveRequestModal
+                open={addLeaveRequestModalVisible}
+                setOpen={setAddLeaveRequestModalVisible}
             />
         </>
     );
 };
 
-export default TimeAndAttendanceManagement;
-TimeAndAttendanceManagement.getLayout = function getLayout(page: ReactElement) {
+export default LeaveManagement;
+LeaveManagement.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };
