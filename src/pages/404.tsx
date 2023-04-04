@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Box, Container, Typography, Button } from "@mui/material";
 import Link from "next/link";
 import BlankLayout from '@/layouts/blank/BlankLayout';
+import Image from 'next/image';
 
 const Error = () => (
     <Box
@@ -12,10 +13,11 @@ const Error = () => (
         justifyContent="center"
     >
         <Container maxWidth="md">
-            <img
+            <Image
                 src={"/images/backgrounds/404-error-idea.gif"}
                 alt="404"
                 style={{ width: "100%", maxWidth: "500px" }}
+                priority
             />
             <Typography align="center" variant="h1" mb={4}>
                 Oops!!!

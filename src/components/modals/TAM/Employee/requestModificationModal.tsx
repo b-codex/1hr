@@ -16,8 +16,9 @@ export default function EmployeeRequestModificationModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle=''
-                children={<RequestModification />}
-            />
+            >
+                <RequestModification />
+            </CustomModal>
         </>
     );
 }

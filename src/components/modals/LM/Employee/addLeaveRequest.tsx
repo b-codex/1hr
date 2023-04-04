@@ -22,10 +22,11 @@ export default function EmployeeAddLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Add New Leave Request'
-                children={<AddLeaveRequest />}
                 width='40%'
                 height='auto'
-            />
+            >
+                <AddLeaveRequest />
+            </CustomModal>
         </>
     );
 }

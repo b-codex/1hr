@@ -27,10 +27,14 @@ export default function EmployeeEditLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Edit New Leave Request'
-                children={<EditLeaveRequest data={data} docID={docID} />}
                 width='40%'
                 height='auto'
-            />
+            >
+                <EditLeaveRequest
+                    data={data}
+                    docID={docID}
+                />
+            </CustomModal>
         </>
     );
 }
@@ -86,7 +90,7 @@ function EditLeaveRequest(
                 }
             });
         }
-    }, [data, docID]);
+    }, [data, docID, form]);
 
     return (
         <>

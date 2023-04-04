@@ -33,8 +33,12 @@ const EmployeeAttendanceEdit = ({
                 modalTitle={`Attendance List - ${attendanceData && attendanceData.attendancePeriod} Period`}
                 open={open}
                 setOpen={setOpen}
-                children={<EditComponent attendanceData={attendanceData} setOpen={setOpen} />}
-            />
+            >
+                <EditComponent
+                    attendanceData={attendanceData}
+                    setOpen={setOpen}
+                />
+            </CustomModal>
         </>
     );
 }
@@ -74,41 +78,19 @@ function EditComponent(
 
     const [formValidated, setFormValidated] = useState<string>("");
 
-    let attendance: any = [];
-    let keys: string[] = [];
-    let month1: string = '';
-    let month2: string = '';
-    let month1Data: string[] = [];
-    let month2Data: string[] = [];
-    if (attendanceData) {
-        attendance = attendanceData.attendance;
-        keys = Object.keys(attendance);
-        month1 = keys[0];
-        month2 = keys[1];
-        const tempMonth = month1;
-        if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) { }
-
-        else if (months.indexOf(month1) === 0 && months.indexOf(month2) === 11) {
-            month1 = month2;
-            month2 = tempMonth;
-        }
-
-        else if (months.indexOf(month1) > months.indexOf(month2)) {
-            month1 = month2;
-            month2 = tempMonth;
-        }
-
-        month1Data = Object.keys(attendance[month1]);
-        month2Data = Object.keys(attendance[month2]);
-    }
-
+    const [attendance, setAttendance] = useState<any[]>([]);
+    const [month1, setMonth1] = useState<any>('');
+    const [month2, setMonth2] = useState<any>('');
+    const [month1Data, setMonth1Data] = useState<any>({});
+    const [month2Data, setMonth2Data] = useState<any>({});
+    
     const [workingDays, setWorkingDays] = useState<string[]>([]);
     useEffect(() => {
         if (attendanceData) {
-            attendance = attendanceData.attendance;
-            keys = Object.keys(attendance);
-            month1 = keys[0];
-            month2 = keys[1];
+            let attendance = attendanceData.attendance;
+            let keys = Object.keys(attendance);
+            let month1 = keys[0];
+            let month2 = keys[1];
             const tempMonth = month1;
             if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) { }
 
@@ -122,8 +104,8 @@ function EditComponent(
                 month2 = tempMonth;
             }
 
-            month1Data = Object.keys(attendance[month1]);
-            month2Data = Object.keys(attendance[month2]);
+            let month1Data = Object.keys(attendance[month1]);
+            let month2Data = Object.keys(attendance[month2]);
 
             if (shiftTypes.length > 0) {
                 const shift: any = shiftTypes.find(value => value.name === attendanceData.associatedShiftType);
@@ -131,6 +113,12 @@ function EditComponent(
 
                 setWorkingDays(workingDays);
             }
+
+            setAttendance(attendance);
+            setMonth1(month1);
+            setMonth2(month2);
+            setMonth1Data(month1Data);
+            setMonth2Data(month2Data);
         }
     }, [attendanceData, shiftTypes]);
 
