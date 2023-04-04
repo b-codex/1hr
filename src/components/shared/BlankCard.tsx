@@ -11,7 +11,7 @@ const BlankCard = ({ children, className }: Props) => {
             sx={{ p: 0, position: "relative" }}
             className={className}
             elevation={9}
-            variant={undefined}
+            variant={"outlined"}
         >
             {children}
         </Card>

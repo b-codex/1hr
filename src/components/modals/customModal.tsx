@@ -1,5 +1,6 @@
-import { Backdrop, Box, Fade, Modal, Typography } from '@mui/material';
+import { Backdrop, Box, Fade, Typography } from '@mui/material';
 import { CloseOutlined } from "@ant-design/icons";
+import { Modal } from 'antd';
 
 export default function CustomModal(
     {
@@ -8,74 +9,40 @@ export default function CustomModal(
         setOpen,
         children,
         width,
-        height,
+        onOk,
+        okText,
+
     }: {
         modalTitle: string,
         open: boolean,
         setOpen: any,
         children: any,
         width?: string,
-        height?: string,
+        onOk?: () => void,
+        okText?: string,
     }
 ) {
     return (
         <>
             <Modal
                 open={open}
-                onClose={() => setOpen(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                closeAfterTransition
-                slots={{ backdrop: Backdrop }}
-                slotProps={{
-                    backdrop: {
-                        timeout: 500,
-                    },
+                title={modalTitle}
+                width={width ?? "50%"}
+                className='antd-modal-container'
+                onOk={() => onOk}
+                footer={onOk === undefined ? null : <></>}
+                okText={okText ?? "Save"}
+                onCancel={() => {
+                    setOpen(false);
                 }}
+                style={{
+                    position: 'relative',
+                    zIndex: 2000,
+                }}
+                centered={true}
+                destroyOnClose={true}
             >
-                <Fade
-                    in={open}
-                    style={{
-                        height: height || "90vh",
-                        overflowY: "scroll"
-                    }}
-                >
-                    <Box
-                        sx={{
-                            position: 'absolute' as 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: width || '80%',
-                            bgcolor: '#ffffff',
-                            p: 4,
-                        }}
-                    >
-                        <CloseOutlined
-                            onClick={() => setOpen(false)}
-                            style={{
-                                position: 'absolute',
-                                right: 20,
-                                top: 20,
-                                borderRadius: "50%"
-                            }}
-                        />
-
-                        <Typography
-                            id="modal-title"
-                            variant="h6"
-                            component="h2"
-                            style={{
-                                color: '#3f3d56',
-                                fontFamily: "Montserrat, sans-serif"
-                            }}
-                        >
-                            {modalTitle}
-                        </Typography>
-
-                        {children}
-                    </Box>
-                </Fade>
+                {children}
             </Modal>
         </>
     );

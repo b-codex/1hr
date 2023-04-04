@@ -27,8 +27,7 @@ export default function EmployeeEditLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Edit New Leave Request'
-                width='40%'
-                height='auto'
+                // width='40%'
             >
                 <EditLeaveRequest
                     data={data}

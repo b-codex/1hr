@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CustomModal from '../../customModal';
-import { DatePicker, Divider, Form, Input, Row, Select, Spin } from 'antd';
-import { Alert, Button } from '@mui/material';
+import { DatePicker, Divider, Form, Input, Row, Select, Spin, Button, Modal, message } from 'antd';
+import { Alert } from '@mui/material';
 import generateID from '@/backend/constants/generateID';
 import { db } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
@@ -22,18 +22,22 @@ export default function EmployeeAddLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Add New Leave Request'
-                width='40%'
-                height='auto'
+                width='50%'
             >
-                <AddLeaveRequest />
+                <AddLeaveRequest setOpen={setOpen} />
             </CustomModal>
         </>
     );
 }
 
-function AddLeaveRequest() {
+function AddLeaveRequest(
+    {
+        setOpen,
+    }: {
+        setOpen: any,
+    }
+) {
     const [loading, setLoading] = useState<boolean>(false);
-    const [formValidated, setFormValidated] = useState<string>("");
 
     const [form] = Form.useForm();
 
@@ -62,6 +66,66 @@ function AddLeaveRequest() {
 
     }), []);
 
+    const success = () => {
+        message.success('Success.');
+    };
+
+    const error = () => {
+        message.error('Something went wrong. Please Try Again.');
+    };
+
+    const formFailed = () => {
+        message.error('Please Make Sure All Fields Are Filled');
+    };
+
+    const onFinish = () => {
+        form.validateFields().then(async (values) => {
+            setLoading(true);
+
+            const keys: string[] = Object.keys(values);
+            keys.forEach((key) => {
+                if (values[key] === undefined) values[key] = null;
+            });
+
+            // console.log("values: ", values)
+
+            // await updateAttendanceList(updatedAttendanceData, attendanceData.id)
+            //     .then((res: boolean) => {
+            //         console.log("res: ", res);
+
+            //         if (res === true) {
+            // success();
+            // setLoading(false);
+            // setOpen(false);
+            // form.resetFields();
+
+            //         }
+
+            //         if (res === false) {
+            // error();
+            // setLoading(false);
+
+            //         }
+            //     })
+            //     .catch((err: any) => {
+            //         console.log("error updating attendance list: ", err);
+            //         formFailed();
+            //         setLoading(false);
+            //     });
+
+            setLoading(false);
+        }).catch((err) => {
+            formFailed();
+            setLoading(false);
+            console.log("Validation Error: ", err);
+        });
+    };
+
+    const onFinishFailed = (errorInfo: any) => {
+        console.log('Failed:', errorInfo);
+        formFailed();
+    };
+
     return (
         <>
             <Divider
@@ -76,6 +140,8 @@ function AddLeaveRequest() {
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
                 autoComplete="off"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
             >
                 <Form.Item
                     label="Leave Request ID"
@@ -192,92 +258,19 @@ function AddLeaveRequest() {
                         addonAfter={"Days"}
                     />
                 </Form.Item>
+
+                <Row align={"middle"} justify={"center"}>
+                    <Form.Item>
+                        <Button
+                            type='primary'
+                            loading={loading}
+                            htmlType='submit'
+                        >
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Row>
             </Form>
-
-            <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
-
-            <Row align={"middle"} justify={"end"}>
-
-                {
-                    (() => {
-                        if (formValidated === "") {
-                            return (
-                                <>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Validation Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Check your form inputs and try again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Update Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Request failed. Try saving again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-                    })()
-                }
-
-                <Button
-                    variant='contained'
-                    disabled={loading}
-                    onClick={() => {
-                        form.validateFields().then(async (values) => {
-                            setLoading(true);
-
-                            const keys: string[] = Object.keys(values);
-                            keys.forEach((key) => {
-                                if (values[key] === undefined) values[key] = null;
-                            });
-
-                            // console.log("values: ", values)
-
-                            // await updateAttendanceList(updatedAttendanceData, attendanceData.id)
-                            //     .then((res: boolean) => {
-                            //         console.log("res: ", res);
-
-                            //         if (res === true) {
-                            //             setOpen(false);
-                            //             setLoading(false);
-                            //             message.success("Updated.");
-                            //             form.resetFields();
-                            //             setFormValidated("");
-                            //         }
-
-                            //         if (res === false) {
-                            //             setFormValidated("Update Error");
-                            //             setLoading(false);
-                            //         }
-                            //     })
-                            //     .catch((err: any) => {
-                            //         console.log("error updating attendance list: ", err);
-                            //         setFormValidated("Update Error");
-                            //         setLoading(false);
-                            //     });
-
-                            setLoading(false);
-                        }).catch((err) => {
-                            setLoading(false);
-                            setFormValidated("Validation Error");
-                            console.log("Validation Error: ", err);
-                        });
-                    }}
-                >
-                    {loading ? <Spin size='small' /> : "Submit"}
-                </Button>
-
-            </Row>
         </>
     );
 }

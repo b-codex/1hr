@@ -1,33 +1,26 @@
+import FullLayout from '@/layouts/full/FullLayout';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import {
     Box
 } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { EditOutlined, DeleteOutlined, PullRequestOutlined,ExclamationCircleOutlined } from '@ant-design/icons';
-import DashboardCard from '../components/shared/DashboardCard';
-import { ReactElement, useEffect, useState } from 'react';
-import FullLayout from '@/layouts/full/FullLayout';
-import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
+import { ReactElement, useEffect, useState } from 'react';
+import DashboardCard from '../components/shared/DashboardCard';
 
-import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
-import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
 import { db } from '@/backend/api/firebase';
 import screenSize from '@/backend/constants/screenSize';
 import { calculateAbsentDays } from '@/backend/functions/absentDays';
 import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
-import { Button } from '@mui/material';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequest';
-import { Modal } from 'antd';
+import { Modal, Button } from 'antd';
 
 const LeaveManagement = () => {
 
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-
-    const [attendanceListViewModalOpen, setAttendanceListViewModalOpen] = useState<boolean>(false);
-    const [attendanceListEditModalOpen, setAttendanceListEditModalOpen] = useState<boolean>(false);
-    const [activeAttendanceData, setActiveAttendanceDate] = useState<any>();
 
     const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
 
@@ -215,7 +208,7 @@ const LeaveManagement = () => {
         return (
             <>
                 <Button
-                    variant='contained'
+                    type='primary'
                     onClick={() => {
                         setAddLeaveRequestModalVisible(true);
                     }}

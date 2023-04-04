@@ -1,4 +1,5 @@
 export interface AttendanceData {
+    id?: string,
     employeeID: string,
     attendancePeriod: string,
     year: number,

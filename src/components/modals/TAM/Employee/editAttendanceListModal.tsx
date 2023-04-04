@@ -33,6 +33,7 @@ const EmployeeAttendanceEdit = ({
                 modalTitle={`Attendance List - ${attendanceData && attendanceData.attendancePeriod} Period`}
                 open={open}
                 setOpen={setOpen}
+                width='80%'
             >
                 <EditComponent
                     attendanceData={attendanceData}
@@ -52,7 +53,7 @@ function EditComponent(
         attendanceData,
         setOpen,
     }: {
-        attendanceData: any,
+        attendanceData: AttendanceData,
         setOpen: any,
     }
 ) {
@@ -83,7 +84,7 @@ function EditComponent(
     const [month2, setMonth2] = useState<any>('');
     const [month1Data, setMonth1Data] = useState<any>({});
     const [month2Data, setMonth2Data] = useState<any>({});
-    
+
     const [workingDays, setWorkingDays] = useState<string[]>([]);
     useEffect(() => {
         if (attendanceData) {
@@ -593,11 +594,37 @@ function EditComponent(
                                 value.timeTo = timeTo.format("h:mm A");
                             });
 
-                            const overtimeData: any[] = attendanceData.overtime;
-                            overtimeData.push(overtime);
+                            const overtimeData: any[] = attendanceData.overtime.at(0) ?? [];
+                            overtimeData.push(...overtime);
 
                             const commentData: any[] = attendanceData.comments;
                             if (values.comments !== null) commentData.push(...values.comments);
+
+                            month1Data.forEach((value: any) => {
+                                const year: number = attendanceData.attendancePeriod === "January" ? attendanceData.year - 1 : attendanceData.year;
+
+                                const date: moment.Moment = moment(`${month1} ${value}, ${year}`, "MMMM DD, YYYY");
+
+                                const dayInString: string = days[date.day()];
+                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
+
+                                if (dayInWorkingDays === false) {
+                                    values[month1][value] = null;
+                                }
+                            });
+
+                            month2Data.forEach((value: any) => {
+                                const year: number = attendanceData.year;
+
+                                const date: moment.Moment = moment(`${month2} ${value}, ${year}`, "MMMM DD, YYYY");
+
+                                const dayInString: string = days[date.day()];
+                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
+
+                                if (dayInWorkingDays === false) {
+                                    values[month2][value] = null;
+                                }
+                            });
 
                             const updatedAttendanceData: AttendanceData = {
                                 employeeID: attendanceData.employeeID,
@@ -619,9 +646,8 @@ function EditComponent(
                             // console.log("values:", values);
                             // console.log("updatedAttendanceData: ", updatedAttendanceData);
 
-                            await updateAttendanceList(updatedAttendanceData, attendanceData.id)
+                            await updateAttendanceList(updatedAttendanceData, attendanceData.id as string)
                                 .then((res: boolean) => {
-                                    console.log("res: ", res);
 
                                     if (res === true) {
                                         setOpen(false);

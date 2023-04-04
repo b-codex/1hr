@@ -1,7 +1,10 @@
 import { Box, Modal, Typography, TableContainer, TableBody, TableRow, Table, TableCell, Paper, Divider, Backdrop, Fade } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { CloseOutlined } from '@ant-design/icons';
 import { months } from '@/backend/constants/months';
+import screenSize from '@/backend/constants/screenSize';
+import { DataGrid } from '@mui/x-data-grid';
+import generateID from '@/backend/constants/generateID';
 
 const EmployeeAttendanceListView = ({
     attendanceData,
@@ -41,10 +44,26 @@ const EmployeeAttendanceListView = ({
         month2Data = Object.keys(attendance[month2])
     }
 
+    const [overtime, setOvertime] = useState<any[]>([]);
+    const [comments, setComments] = useState<any[]>([]);
+    useEffect(() => {
+        if (attendanceData) {
+            const otData: any[] = attendanceData.overtime;
+            console.log("otData: ", otData);
+            otData.forEach((o) => o.id = generateID());
+            setOvertime(otData);
+
+            const commentData: any[] = attendanceData.comments;
+            commentData.forEach((c) => c.id = generateID());
+            setComments(commentData);
+        }
+    }, [attendanceData]);
+
+
     return (
         <Modal
             open={open}
-            onClose={()=>{setOpen(false)}}
+            onClose={() => { setOpen(false) }}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
             closeAfterTransition
@@ -106,17 +125,85 @@ const EmployeeAttendanceListView = ({
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    
+
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: "20px", marginBottom: "50px" }}>
                         <div style={{ flex: .48, border: "1px solid #D3D3D3", borderRadius: "10px" }}>
                             <Typography style={{ color: '#3f3d56', margin: '10px', fontFamily: "Montserrat, sans-serif", fontWeight: 'bold' }} id="modal-modal-title" component="p" align='left'>Overtime</Typography>
                             <Divider />
-                            <p style={{ textAlign: "center", margin: '10px', fontFamily: "Montserrat, sans-serif", }}>No overtime</p>
+
+                            <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+                                <div style={{ height: "300px", width: '97%' }}>
+                                    <DataGrid
+                                        rows={overtime}
+                                        // loading={loading}
+                                        columns={[
+                                            {
+                                                field: 'date',
+                                                headerName: 'Date',
+                                                flex: 1,
+                                                hideable: false,
+                                            },
+                                            {
+                                                field: 'from',
+                                                headerName: 'From',
+                                                flex: 1,
+                                                hideable: false,
+                                            },
+                                            {
+                                                field: 'to',
+                                                headerName: 'To',
+                                                flex: 1,
+                                                hideable: false,
+                                            },
+                                        ]}
+                                        autoPageSize={true}
+                                        disableRowSelectionOnClick={true}
+                                        initialState={{
+                                            columns: {
+                                                columnVisibilityModel: {
+                                                    // Hide columns status and traderName, the other columns will remain visible
+                                                    // false is hidden, true is shown
+                                                    id: !screenSize,
+                                                }
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </Box>
+
                         </div>
                         <div style={{ flex: .48, border: "1px solid #D3D3D3", borderRadius: "10px", fontFamily: "Montserrat, sans-serif", }}>
                             <Typography style={{ color: '#3f3d56', margin: '10px', fontFamily: "Montserrat, sans-serif", fontWeight: 'bold' }} id="modal-modal-title" component="p" align='left'>Comment</Typography>
                             <Divider />
-                            <p style={{ textAlign: "center", margin: '10px', fontFamily: "Montserrat, sans-serif", }}> No Comment</p>
+
+
+                            <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+                                <div style={{ height: "300px", width: '97%' }}>
+                                    <DataGrid
+                                        rows={comments}
+                                        // loading={loading}
+                                        columns={[
+                                            {
+                                                field: 'text',
+                                                headerName: 'Text',
+                                                flex: 1,
+                                                hideable: false,
+                                            },
+                                        ]}
+                                        autoPageSize={true}
+                                        disableRowSelectionOnClick={true}
+                                        initialState={{
+                                            columns: {
+                                                columnVisibilityModel: {
+                                                    // Hide columns status and traderName, the other columns will remain visible
+                                                    // false is hidden, true is shown
+                                                    id: !screenSize,
+                                                }
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </Box>
                         </div>
                     </div>
                 </Box>

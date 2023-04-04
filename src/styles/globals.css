@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+html,
+body {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
 .MuiDataGrid-cell:focus,
 .MuiDataGrid-columnHeader:focus,
 .MuiDataGrid-cell:focus-within,
@@ -23,8 +30,52 @@
     width: 100% !important;
 }
 
-.ant-picker-dropdown{
+.ant-picker-dropdown {
     z-index: 2000;
+}
+
+.MuiDataGrid-columnHeaders {
+    background-color: #3f3d56 !important;
+    color: white !important;
+    border-radius: 0px !important;
+    transition: ease-in-out 500ms;
+}
+
+/* 
+.MuiSvgIcon-root {
+    color: white !important;
+} */
+
+.MuiDataGrid-toolbarContainer {
+    background-color: #3f3d56 !important;
+    color: white !important;
+    border-radius: none !important;
+}
+
+.MuiButton-text {
+    color: white !important;
+}
+
+.MuiButton-text:hover,
+.MuiSvgIcon-root:hover {
+    color: #ffe6a7 !important;
+}
+
+.antd-modal-container {
+    position: relative;
+    z-index: 2000;
+}
+
+.MuiPaper-root {
+    z-index: 1000;
+}
+
+.ant-btn {
+    padding: .7em;
+    width: 150px;
+    height: auto;
+    text-align: center;
+    font-size: medium;
 }
 
 @media only screen and (max-width: 768px) {

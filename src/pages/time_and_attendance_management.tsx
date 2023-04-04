@@ -14,6 +14,8 @@ import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDay
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
 import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
 import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
+import { months } from '@/backend/constants/months';
+import EmployeeRequestModificationModal from '@/components/modals/TAM/Employee/requestModificationModal';
 
 const TimeAndAttendanceManagement = () => {
 
@@ -85,14 +87,67 @@ const TimeAndAttendanceManagement = () => {
         }
     }), [hrSettings]);
 
+    const [selectedMonth, setSelectedMonth] = useState<any>({});
+    const [dateList, setDateList] = useState<any>({});
+    const [requestList, setRequestList] = useState<any>({});
+    const [valueList, setValueList] = useState<any>({});
+
+    const [requestModificationModalOpen, setRequestModificationModalOpen] = useState<boolean>(false);
+
+    const requestModification = (month: any) => {
+        setSelectedMonth(month)
+        let attendance = month.attendance;
+        let keys = Object.keys(attendance);
+        let month1 = keys[0];
+        let month2 = keys[1];
+        const tempMonth = month1;
+
+        if (months.indexOf(month1) === 11 && months.indexOf(month2) === 0) { }
+
+        else if (months.indexOf(month1) === 0 && months.indexOf(month2) === 11) {
+            month1 = month2;
+            month2 = tempMonth;
+        }
+
+        else if (months.indexOf(month1) > months.indexOf(month2)) {
+            month1 = month2;
+            month2 = tempMonth;
+        }
+
+        let month1Data = Object.keys(attendance[month1]);
+        let month2Data = Object.keys(attendance[month2]);
+        const date = [...month1Data, ...month2Data];
+
+        const value: any[] = [];
+        date.map(d => {
+            if (month1Data.includes(d)) {
+                value.push(attendance[month1][d]);
+            }
+            else {
+                value.push(attendance[month2][d]);
+            }
+        });
+
+        setDateList(date);
+        setValueList(value);
+
+        const requestList: any = {
+            month: month.attendancePeriod,
+            request: [],
+        };
+
+        // console.log('selectedMonth: ', selectedMonth);
+        // console.log('dateList: ', dateList);
+        // console.log('valueList: ', valueList);
+        // console.log('requestList: ', requestList);
+
+        setRequestList(requestList);
+
+        setRequestModificationModalOpen(true);
+    }
+
     /* creating columns. */
     const columns: GridColDef[] = [
-        {
-            field: 'id',
-            headerName: 'ID',
-            flex: 1,
-            // hideable: false,
-        },
         {
             field: 'attendancePeriod',
             headerName: 'Attendance Period',
@@ -159,29 +214,33 @@ const TimeAndAttendanceManagement = () => {
                         }}
                         showInMenu
                     />
-                ]
-                // if (params.row.stage === 'Open') {
-                actionArray.push(<GridActionsCellItem
-                    key={2}
-                    label='Edit'
-                    icon={<EditOutlined />}
-                    onClick={() => {
-                        setActiveAttendanceDate(params.row)
-                        setAttendanceListEditModalOpen(true);
-                    }}
-                    showInMenu
-                />)
-                // }
+                ];
+
+                // if its open, then add the edit button to the array
+                if (params.row.stage === 'Open') {
+                    actionArray.push(<GridActionsCellItem
+                        key={2}
+                        label='Edit'
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                            setActiveAttendanceDate(params.row)
+                            setAttendanceListEditModalOpen(true);
+                        }}
+                        showInMenu
+                    />);
+                }
+
+                // if its closed, then add the request modification button to the array
                 if (params.row.stage === 'Closed') {
                     actionArray.push(<GridActionsCellItem
                         key={2}
                         label='Request Modification'
                         icon={<PullRequestOutlined />}
                         onClick={() => {
-                            // requestModification(params.row)
+                            requestModification(params.row)
                         }}
                         showInMenu
-                    />)
+                    />);
                 }
 
                 return actionArray;
@@ -234,6 +293,15 @@ const TimeAndAttendanceManagement = () => {
                 open={attendanceListEditModalOpen}
                 setOpen={setAttendanceListEditModalOpen}
                 attendanceData={activeAttendanceData}
+            />
+
+            <EmployeeRequestModificationModal
+                open={requestModificationModalOpen}
+                setOpen={setRequestModificationModalOpen}
+                month={selectedMonth.attendancePeriod ?? ""}
+                dateList={dateList}
+                valueList={valueList}
+                data={selectedMonth}
             />
         </>
     );
