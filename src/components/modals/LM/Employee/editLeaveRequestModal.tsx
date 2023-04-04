@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import CustomModal from '../../customModal';
-import { DatePicker, Divider, Form, Input, Row, Select, Spin } from 'antd';
-import { Alert, Button } from '@mui/material';
-import generateID from '@/backend/constants/generateID';
+import { updateLeaveRequest } from '@/backend/api/LM/updateLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import findDifferenceInDays from '@/backend/functions/differenceInDays';
 import { LeaveRequestData } from '@/backend/models/leaveRequestData';
+import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
+import dayjs from 'dayjs';
+import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import CustomModal from '../../customModal';
 
 export default function EmployeeEditLeaveRequestModal(
     {
@@ -27,11 +28,12 @@ export default function EmployeeEditLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Edit New Leave Request'
-                // width='40%'
+            // width='40%'
             >
                 <EditLeaveRequest
                     data={data}
                     docID={docID}
+                    setOpen={setOpen}
                 />
             </CustomModal>
         </>
@@ -42,13 +44,14 @@ function EditLeaveRequest(
     {
         data,
         docID,
+        setOpen,
     }: {
         data: any,
         docID: string,
+        setOpen: any,
     }
 ) {
     const [loading, setLoading] = useState<boolean>(false);
-    const [formValidated, setFormValidated] = useState<string>("");
 
     const [form] = Form.useForm();
 
@@ -71,9 +74,9 @@ function EditLeaveRequest(
         const leaveStages: any[] = groupedSettings["Leave Stage"] ?? [];
         const leaveStates: any[] = groupedSettings["Leave State"] ?? [];
 
-        setLeaveTypes(leaveTypes);
-        setLeaveStages(leaveStages);
-        setLeaveStates(leaveStates);
+        setLeaveTypes(leaveTypes.filter(leaveType => leaveType.active === "Yes"));
+        setLeaveStages(leaveStages.filter(leaveStage => leaveStage.active === "Yes"));
+        setLeaveStates(leaveStates.filter(leaveState => leaveState.active === "Yes"));
 
     }), []);
 
@@ -82,7 +85,7 @@ function EditLeaveRequest(
             const keys: string[] = Object.keys(data);
             keys.forEach((key: string) => {
                 if (key === "firstDayOfLeave" || key === "lastDayOfLeave" || key === "dateOfReturn") {
-
+                    form.setFieldValue(key, dayjs(data[key]));
                 }
                 else {
                     form.setFieldValue(key, data[key]);
@@ -90,6 +93,66 @@ function EditLeaveRequest(
             });
         }
     }, [data, docID, form]);
+
+    const success = () => {
+        message.success('Success.');
+    };
+
+    const error = () => {
+        message.error('Something went wrong. Please Try Again.');
+    };
+
+    const formFailed = () => {
+        message.error('Please Make Sure All Fields Are Filled');
+    };
+
+    const onFinish = () => {
+        form.validateFields().then(async (values) => {
+            setLoading(true);
+
+            const keys: string[] = Object.keys(values);
+            keys.forEach((key) => {
+                if (values[key] === undefined) values[key] = null;
+                if (key === "firstDayOfLeave" || key === "lastDayOfLeave" || key === "dateOfReturn") {
+                    values[key] = dayjs(values[key]).format("MMMM DD, YYYY");
+                }
+            });
+
+            // console.log("values: ", values);
+
+            await updateLeaveRequest(values, data.id)
+                .then((res: boolean) => {
+
+                    if (res === true) {
+                        success();
+                        setLoading(false);
+                        setOpen(false);
+                        form.resetFields();
+                    }
+
+                    if (res === false) {
+                        error();
+                        setLoading(false);
+                    }
+                })
+                .catch((err: any) => {
+                    console.log("error adding leave request: ", err);
+                    formFailed();
+                    setLoading(false);
+                });
+
+            setLoading(false);
+        }).catch((err) => {
+            formFailed();
+            setLoading(false);
+            console.log("Validation Error: ", err);
+        });
+    };
+
+    const onFinishFailed = (errorInfo: any) => {
+        console.log('Failed:', errorInfo);
+        formFailed();
+    };
 
     return (
         <>
@@ -105,11 +168,12 @@ function EditLeaveRequest(
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
                 autoComplete="off"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
             >
                 <Form.Item
                     label="Leave Request ID"
                     name="leaveRequestID"
-                    initialValue={generateID()}
                     rules={[{ required: true, message: "" }]}
                 >
                     <Input
@@ -150,6 +214,10 @@ function EditLeaveRequest(
                         style={{ width: "100%" }}
                         dropdownStyle={{ zIndex: 2000, }}
                         options={leaveTypes.map(leaveType => ({ label: leaveType.name, value: leaveType.name }))}
+                        onChange={(value) => {
+                            const res: any = leaveTypes.find(leaveType => leaveType.name === value);
+                            form.setFieldValue('authorizedDays', res.authorizedDays);
+                        }}
                     />
                 </Form.Item>
 
@@ -161,7 +229,6 @@ function EditLeaveRequest(
                     <Input
                         style={{ width: "100%" }}
                         disabled
-                        addonAfter={"Days"}
                     />
                 </Form.Item>
 
@@ -173,6 +240,17 @@ function EditLeaveRequest(
                     <DatePicker
                         style={{ width: "100%" }}
                         format={"MMMM DD, YYYY"}
+                        onChange={(date) => {
+                            const formValues: any = form.getFieldsValue();
+
+                            const lastDayOfLeave: dayjs.Dayjs | null = formValues.lastDayOfLeave;
+
+                            if (lastDayOfLeave !== undefined) {
+                                const diff: number = findDifferenceInDays(date as dayjs.Dayjs, lastDayOfLeave as dayjs.Dayjs);
+
+                                form.setFieldValue('numberOfLeaveDaysRequested', diff + 1);
+                            }
+                        }}
                     />
                 </Form.Item>
 
@@ -184,6 +262,17 @@ function EditLeaveRequest(
                     <DatePicker
                         style={{ width: "100%" }}
                         format={"MMMM DD, YYYY"}
+                        onChange={(date) => {
+                            const formValues: any = form.getFieldsValue();
+
+                            const firstDayOfLeave: dayjs.Dayjs | null = formValues.firstDayOfLeave;
+
+                            if (firstDayOfLeave !== undefined) {
+                                const diff: number = findDifferenceInDays(date as dayjs.Dayjs, firstDayOfLeave as dayjs.Dayjs);
+
+                                form.setFieldValue('numberOfLeaveDaysRequested', diff + 1);
+                            }
+                        }}
                     />
                 </Form.Item>
 
@@ -201,7 +290,7 @@ function EditLeaveRequest(
                 <Form.Item
                     label="Number of Leave Days Requested"
                     name="numberOfLeaveDaysRequested"
-                    rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     initialValue={0}
                 >
                     <Input
@@ -213,7 +302,7 @@ function EditLeaveRequest(
                 <Form.Item
                     label="Balance Leave Days"
                     name="balanceLeaveDays"
-                    rules={[{ required: true, message: "" }]}
+                // rules={[{ required: true, message: "" }]}
                 >
                     <Input
                         style={{ width: "100%" }}
@@ -221,91 +310,19 @@ function EditLeaveRequest(
                         addonAfter={"Days"}
                     />
                 </Form.Item>
+
+                <Row align={"middle"} justify={"center"}>
+                    <Form.Item>
+                        <Button
+                            type='primary'
+                            loading={loading}
+                            htmlType='submit'
+                        >
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Row>
             </Form>
-
-            <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
-
-            <Row align={"middle"} justify={"end"}>
-
-                {
-                    (() => {
-                        if (formValidated === "") {
-                            return (
-                                <>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Validation Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Check your form inputs and try again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Update Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Request failed. Try saving again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-                    })()
-                }
-
-                <Button
-                    variant='contained'
-                    disabled={loading}
-                    onClick={() => {
-                        form.validateFields().then(async (values) => {
-                            setLoading(true);
-
-                            const keys: string[] = Object.keys(values);
-                            keys.forEach((key) => {
-                                if (values[key] === undefined) values[key] = null;
-                            });
-
-
-                            // await updateAttendanceList(updatedAttendanceData, attendanceData.id)
-                            //     .then((res: boolean) => {
-                            //         console.log("res: ", res);
-
-                            //         if (res === true) {
-                            //             setOpen(false);
-                            //             setLoading(false);
-                            //             message.success("Updated.");
-                            //             form.resetFields();
-                            //             setFormValidated("");
-                            //         }
-
-                            //         if (res === false) {
-                            //             setFormValidated("Update Error");
-                            //             setLoading(false);
-                            //         }
-                            //     })
-                            //     .catch((err: any) => {
-                            //         console.log("error updating attendance list: ", err);
-                            //         setFormValidated("Update Error");
-                            //         setLoading(false);
-                            //     });
-
-                            setLoading(false);
-                        }).catch((err) => {
-                            setLoading(false);
-                            setFormValidated("Validation Error");
-                            console.log("Validation Error: ", err);
-                        });
-                    }}
-                >
-                    {loading ? <Spin size='small' /> : "Submit"}
-                </Button>
-
-            </Row>
         </>
     );
 }

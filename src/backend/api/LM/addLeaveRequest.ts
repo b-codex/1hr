@@ -1,4 +1,3 @@
-import { log } from 'console';
 import { doc, setDoc } from 'firebase/firestore';
 import { leaveManagementCollection } from '../firebase';
 import { LeaveRequestData } from './../../models/leaveRequestData';
@@ -13,7 +12,7 @@ export const addLeaveRequest = async (data: LeaveRequestData) => {
     result = await setDoc(newLeaveRequest, { ...data, id: newLeaveRequest.id, })
         .then(() => true)
         .catch(err => {
-            log(err);
+            console.log(err);
             return false;
         });
 

@@ -27,6 +27,7 @@ export interface EmployeeData {
 
     /// position information
     employmentPosition: string,
+    positionLevel: string,
     section: string,
     department: string,
     workingLocation: string,

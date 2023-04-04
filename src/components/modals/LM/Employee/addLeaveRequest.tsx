@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import CustomModal from '../../customModal';
-import { DatePicker, Divider, Form, Input, Row, Select, Spin, Button, Modal, message } from 'antd';
-import { Alert } from '@mui/material';
-import generateID from '@/backend/constants/generateID';
 import { db } from '@/backend/api/firebase';
+import generateID from '@/backend/constants/generateID';
 import { groupBy } from '@/backend/constants/groupBy';
-import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import findDifferenceInDays from '@/backend/functions/differenceInDays';
+import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
+import dayjs from 'dayjs';
+import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import CustomModal from '../../customModal';
+import { addLeaveRequest } from '@/backend/api/LM/addLeaveRequest';
 
 export default function EmployeeAddLeaveRequestModal(
     {
@@ -60,9 +62,9 @@ function AddLeaveRequest(
         const leaveStages: any[] = groupedSettings["Leave Stage"] ?? [];
         const leaveStates: any[] = groupedSettings["Leave State"] ?? [];
 
-        setLeaveTypes(leaveTypes);
-        setLeaveStages(leaveStages);
-        setLeaveStates(leaveStates);
+        setLeaveTypes(leaveTypes.filter(leaveType => leaveType.active === "Yes"));
+        setLeaveStages(leaveStages.filter(leaveStage => leaveStage.active === "Yes"));
+        setLeaveStates(leaveStates.filter(leaveState => leaveState.active === "Yes"));
 
     }), []);
 
@@ -85,33 +87,33 @@ function AddLeaveRequest(
             const keys: string[] = Object.keys(values);
             keys.forEach((key) => {
                 if (values[key] === undefined) values[key] = null;
+                if (key === "firstDayOfLeave" || key === "lastDayOfLeave" || key === "dateOfReturn") {
+                    values[key] = dayjs(values[key]).format("MMMM DD, YYYY");
+                }
             });
 
-            // console.log("values: ", values)
+            // console.log("values: ", values);
 
-            // await updateAttendanceList(updatedAttendanceData, attendanceData.id)
-            //     .then((res: boolean) => {
-            //         console.log("res: ", res);
+            await addLeaveRequest(values)
+                .then((res: boolean) => {
 
-            //         if (res === true) {
-            // success();
-            // setLoading(false);
-            // setOpen(false);
-            // form.resetFields();
+                    if (res === true) {
+                        success();
+                        setLoading(false);
+                        setOpen(false);
+                        form.resetFields();
+                    }
 
-            //         }
-
-            //         if (res === false) {
-            // error();
-            // setLoading(false);
-
-            //         }
-            //     })
-            //     .catch((err: any) => {
-            //         console.log("error updating attendance list: ", err);
-            //         formFailed();
-            //         setLoading(false);
-            //     });
+                    if (res === false) {
+                        error();
+                        setLoading(false);
+                    }
+                })
+                .catch((err: any) => {
+                    console.log("error adding leave request: ", err);
+                    formFailed();
+                    setLoading(false);
+                });
 
             setLoading(false);
         }).catch((err) => {
@@ -187,6 +189,10 @@ function AddLeaveRequest(
                         style={{ width: "100%" }}
                         dropdownStyle={{ zIndex: 2000, }}
                         options={leaveTypes.map(leaveType => ({ label: leaveType.name, value: leaveType.name }))}
+                        onChange={(value) => {
+                            const res: any = leaveTypes.find(leaveType => leaveType.name === value);
+                            form.setFieldValue('authorizedDays', res.authorizedDays);
+                        }}
                     />
                 </Form.Item>
 
@@ -198,7 +204,6 @@ function AddLeaveRequest(
                     <Input
                         style={{ width: "100%" }}
                         disabled
-                        addonAfter={"Days"}
                     />
                 </Form.Item>
 
@@ -210,6 +215,17 @@ function AddLeaveRequest(
                     <DatePicker
                         style={{ width: "100%" }}
                         format={"MMMM DD, YYYY"}
+                        onChange={(date) => {
+                            const formValues: any = form.getFieldsValue();
+
+                            const lastDayOfLeave: dayjs.Dayjs | null = formValues.lastDayOfLeave;
+
+                            if (lastDayOfLeave !== undefined) {
+                                const diff: number = findDifferenceInDays(date as dayjs.Dayjs, lastDayOfLeave as dayjs.Dayjs);
+
+                                form.setFieldValue('numberOfLeaveDaysRequested', diff + 1);
+                            }
+                        }}
                     />
                 </Form.Item>
 
@@ -221,6 +237,17 @@ function AddLeaveRequest(
                     <DatePicker
                         style={{ width: "100%" }}
                         format={"MMMM DD, YYYY"}
+                        onChange={(date) => {
+                            const formValues: any = form.getFieldsValue();
+
+                            const firstDayOfLeave: dayjs.Dayjs | null = formValues.firstDayOfLeave;
+
+                            if (firstDayOfLeave !== undefined) {
+                                const diff: number = findDifferenceInDays(date as dayjs.Dayjs, firstDayOfLeave as dayjs.Dayjs);
+
+                                form.setFieldValue('numberOfLeaveDaysRequested', diff + 1);
+                            }
+                        }}
                     />
                 </Form.Item>
 
@@ -238,7 +265,7 @@ function AddLeaveRequest(
                 <Form.Item
                     label="Number of Leave Days Requested"
                     name="numberOfLeaveDaysRequested"
-                    rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     initialValue={0}
                 >
                     <Input
@@ -250,7 +277,7 @@ function AddLeaveRequest(
                 <Form.Item
                     label="Balance Leave Days"
                     name="balanceLeaveDays"
-                    rules={[{ required: true, message: "" }]}
+                // rules={[{ required: true, message: "" }]}
                 >
                     <Input
                         style={{ width: "100%" }}

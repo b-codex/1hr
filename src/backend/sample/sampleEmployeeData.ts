@@ -26,6 +26,7 @@ export const sampleEmployeeData: EmployeeData = {
     otherAllowance: "",
     personalEmail: "",
     personalPhoneNumber: "",
+    positionLevel: "",
     probationPeriodEndDate: "",
     reasonOfLeaving: "",
     reportees: [],

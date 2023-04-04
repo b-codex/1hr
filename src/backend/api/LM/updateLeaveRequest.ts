@@ -1,4 +1,3 @@
-import { log } from "console";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { LeaveRequestData } from "../../models/leaveRequestData";
@@ -12,7 +11,7 @@ export async function updateLeaveRequest(data: LeaveRequestData, docID: string) 
     result = await updateDoc(docRef, data as any)
         .then(() => true)
         .catch(err => {
-            log(err);
+            console.log(err);
             return false;
         });
 

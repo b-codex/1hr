@@ -5,10 +5,10 @@ import { db } from "../firebase";
 export async function deleteLeaveRequest(id: string) {
     let result: boolean = await deleteDoc(doc(db, "leaveManagement", id))
         .then(() => {
-            return result = true;
+            return true;
         })
         .catch(() => {
-            return result = false;
+            return false;
         });
 
     return result;

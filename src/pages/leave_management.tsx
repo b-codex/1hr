@@ -1,21 +1,18 @@
 import FullLayout from '@/layouts/full/FullLayout';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import {
-    Box
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 import DashboardCard from '../components/shared/DashboardCard';
 
+import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import screenSize from '@/backend/constants/screenSize';
-import { calculateAbsentDays } from '@/backend/functions/absentDays';
-import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
-import { calculateWorkedDays } from '@/backend/functions/workedDays';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequest';
-import { Modal, Button } from 'antd';
+import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
+import { Button, Modal, message } from 'antd';
 
 const LeaveManagement = () => {
 
@@ -23,19 +20,8 @@ const LeaveManagement = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
-
-    const [hrSettings, setHrSettings] = useState<any[]>([]);
-    useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
-        const data: any[] = [];
-        snapshot.docs.map((doc) => {
-            data.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-
-        setHrSettings(data);
-    }), []);
+    const [editData, setEditData] = useState<any>({});
+    const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "leaveManagement"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -48,42 +34,15 @@ const LeaveManagement = () => {
 
         /* Sorting the data by date. */
         data.sort((a, b) => {
-            let date1: moment.Moment = moment(`${a.attendancePeriod} ${a.year}`, "MMMM YYYY");
-            let date2: moment.Moment = moment(`${b.attendancePeriod} ${b.year}`, "MMMM YYYY");
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
             return date1.isBefore(date2) ? -1 : 1;
         });
 
-        // checking for hrSettings length
-        if (hrSettings.length > 0) {
-            data.forEach((doc) => {
-                const shiftType: string = doc.associatedShiftType;
-
-                // getting the shift type data from hrSettings data array
-                const shiftTypeData: any = hrSettings.find((e: any) => e.name === shiftType) ?? {};
-
-                // getting the working days data from the filtered shift type data
-                const workingDays: string[] = shiftTypeData.workingDays ?? [];
-
-                // calculating the period working days based on the shift type working days
-                const periodWorkingDays: number = calculatePeriodWorkingDays(doc, workingDays);
-
-                // calculate the worked days
-                const workedDays: number = calculateWorkedDays(doc);
-
-                // calculate the absent days
-                const absentDays: number = calculateAbsentDays(doc);
-
-                // adding the period working days, worked days and absent days to the document
-                doc.periodWorkingDays = periodWorkingDays;
-                doc.workedDays = workedDays;
-                doc.absentDays = absentDays;
-            });
-
-            setDataSource(data);
-            setLoading(false);
-        }
-    }), [hrSettings]);
+        setDataSource(data);
+        setLoading(false);
+    }), []);
 
     const leaveRequestDelete = (id: string) => {
         Modal.confirm({
@@ -92,16 +51,16 @@ const LeaveManagement = () => {
             content: 'Are you sure?',
             okText: 'Yes',
             cancelText: 'No',
-            onOk() {
-                // deleteDemo(id)
-                //     .then((res: boolean) => {
-                //         if (res) {
-                //             message.success('Deleted Successfully');
-                //         }
-                //         else {
-                //             message.error('An Error Occurred.');
-                //         }
-                //     });
+            onOk: async () => {
+                await deleteLeaveRequest(id)
+                    .then((res: boolean) => {
+                        if (res) {
+                            message.success('Deleted Successfully');
+                        }
+                        else {
+                            message.error('An Error Occurred.');
+                        }
+                    });
             }
         });
     };
@@ -183,8 +142,8 @@ const LeaveManagement = () => {
                         label='Edit'
                         icon={<EditOutlined />}
                         onClick={() => {
-                            // setActiveAttendanceDate(params.row);
-                            // setAttendanceListViewModalOpen(true);
+                            setEditData(params.row);
+                            setEditLeaveRequestModalVisible(true);
                         }}
                         showInMenu
                     />,
@@ -257,6 +216,13 @@ const LeaveManagement = () => {
             <EmployeeAddLeaveRequestModal
                 open={addLeaveRequestModalVisible}
                 setOpen={setAddLeaveRequestModalVisible}
+            />
+
+            <EmployeeEditLeaveRequestModal
+                open={editLeaveRequestModalVisible}
+                setOpen={setEditLeaveRequestModalVisible}
+                data={editData}
+                docID={editData.id}
             />
         </>
     );
