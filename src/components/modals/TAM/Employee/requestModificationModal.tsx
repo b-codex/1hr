@@ -84,7 +84,7 @@ function RequestModification(
 
             setOptions(options);
         }
-    }, []);
+    }, [data]);
 
     const success = () => {
         message.success('Success.');
@@ -198,6 +198,7 @@ function RequestModification(
                         <>
                             {fields.map(({ key, name, ...restField }) => (
                                 <Row
+                                    key={key}
                                     style={{
                                         display: "flex",
                                         justifyContent: "space-around",
