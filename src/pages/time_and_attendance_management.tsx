@@ -251,7 +251,7 @@ const TimeAndAttendanceManagement = () => {
     return (
         <>
             <DashboardCard title="Time & Attendance Management">
-                <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+                <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
                             rows={dataSource}
@@ -261,14 +261,7 @@ const TimeAndAttendanceManagement = () => {
                             components={{
                                 Toolbar: GridToolbar,
                             }}
-                            // checkboxSelection={screenSize}
                             disableRowSelectionOnClick={true}
-                            onStateChange={(params: any) => {
-                                // console.log("params: ", params);
-                                const selection: string[] = params.rowSelection;
-
-                                // setSelections(selection);
-                            }}
                             initialState={{
                                 columns: {
                                     columnVisibilityModel: {
@@ -299,8 +292,6 @@ const TimeAndAttendanceManagement = () => {
                 open={requestModificationModalOpen}
                 setOpen={setRequestModificationModalOpen}
                 month={selectedMonth.attendancePeriod ?? ""}
-                dateList={dateList}
-                valueList={valueList}
                 data={selectedMonth}
             />
         </>

@@ -27,7 +27,7 @@ export default function CustomModal(
             <Modal
                 open={open}
                 title={modalTitle}
-                width={width ?? "50%"}
+                width={width ?? "fit-content"}
                 className='antd-modal-container'
                 onOk={() => onOk}
                 footer={onOk === undefined ? null : <></>}

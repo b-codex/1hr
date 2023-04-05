@@ -14,15 +14,11 @@ export default function EmployeeRequestModificationModal(
         open,
         setOpen,
         month,
-        dateList,
-        valueList,
         data,
     }: {
         open: boolean,
         setOpen: any,
         month: string,
-        dateList: any[],
-        valueList: any[],
         data: any,
     }
 ) {
@@ -35,8 +31,6 @@ export default function EmployeeRequestModificationModal(
             >
                 <RequestModification
                     setOpen={setOpen}
-                    dateList={dateList}
-                    valueList={valueList}
                     data={data}
                 />
             </CustomModal>
@@ -47,13 +41,9 @@ export default function EmployeeRequestModificationModal(
 function RequestModification(
     {
         setOpen,
-        dateList,
-        valueList,
         data,
     }: {
         setOpen: any,
-        dateList: any[],
-        valueList: any[],
         data: any,
     }
 ) {
