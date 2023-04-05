@@ -1,7 +1,7 @@
 
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Alert, Box, Button, Card, CardContent, CardHeader, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
-import { Col, DatePicker, Form, Input, Row, Select, Space, Spin, TimePicker, message } from 'antd';
+import { Alert, Box, Card, CardContent, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery } from '@mui/material';
+import { Col, DatePicker, Form, Input, Row, Select, Space, Spin, TimePicker, message, Divider, Button } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { db } from '@/backend/api/firebase';
@@ -14,7 +14,6 @@ import { AttendanceData } from '@/backend/models/attendanceData';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 
-
 const EmployeeAttendanceEdit = ({
     attendanceData,
     open,
@@ -26,6 +25,7 @@ const EmployeeAttendanceEdit = ({
 }
 ) => {
 
+    const matches = useMediaQuery('(min-width:900px)');
 
     return (
         <>
@@ -33,7 +33,7 @@ const EmployeeAttendanceEdit = ({
                 modalTitle={`Attendance List - ${attendanceData && attendanceData.attendancePeriod} Period`}
                 open={open}
                 setOpen={setOpen}
-                width='80%'
+                width={matches ? '80%' : "100%"}
             >
                 <EditComponent
                     attendanceData={attendanceData}
@@ -47,6 +47,7 @@ const EmployeeAttendanceEdit = ({
 export default EmployeeAttendanceEdit
 
 import CustomModal from '../../customModal';
+import InfoCard from '@/components/shared/InfoCard';
 
 function EditComponent(
     {
@@ -57,6 +58,8 @@ function EditComponent(
         setOpen: any,
     }
 ) {
+
+    const matches = useMediaQuery('(min-width:900px)');
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -77,7 +80,126 @@ function EditComponent(
 
     }), []);
 
-    const [formValidated, setFormValidated] = useState<string>("");
+    const success = () => {
+        message.success('Success.');
+    };
+
+    const error = () => {
+        message.error('Something went wrong. Please Try Again.');
+    };
+
+    const formFailed = () => {
+        message.error('Please Make Sure All Fields Are Filled');
+    };
+
+    const onFinish = () => {
+        form.validateFields().then(async (values) => {
+            setLoading(true);
+
+            const keys: string[] = Object.keys(values);
+            keys.forEach((key) => {
+                if (values[key] === undefined) values[key] = null;
+            });
+
+            // console.log("values:", values);
+            // console.log("attendanceData: ", attendanceData);
+
+            const overtime: any[] = values.overtime === null ? [] : values.overtime;
+            overtime.forEach((value) => {
+                const date = value.date;
+                const timeFrom = value.timeFrom;
+                const timeTo = value.timeTo;
+
+                value.date = date.format("MMMM DD, YYYY");
+                value.timeFrom = timeFrom.format("h:mm A");
+                value.timeTo = timeTo.format("h:mm A");
+            });
+
+            const overtimeData: any[] = attendanceData.overtime === undefined || attendanceData.overtime === null ? [] : attendanceData.overtime;
+            overtimeData.push(...overtime);
+
+            const commentData: any[] = attendanceData.comments;
+            if (values.comments !== null) commentData.push(...values.comments);
+
+            month1Data.forEach((value: any) => {
+                const year: number = attendanceData.attendancePeriod === "January" ? attendanceData.year - 1 : attendanceData.year;
+
+                const date: moment.Moment = moment(`${month1} ${value}, ${year}`, "MMMM DD, YYYY");
+
+                const dayInString: string = days[date.day()];
+                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
+
+                if (dayInWorkingDays === false) {
+                    values[month1][value] = null;
+                }
+            });
+
+            month2Data.forEach((value: any) => {
+                const year: number = attendanceData.year;
+
+                const date: moment.Moment = moment(`${month2} ${value}, ${year}`, "MMMM DD, YYYY");
+
+                const dayInString: string = days[date.day()];
+                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
+
+                if (dayInWorkingDays === false) {
+                    values[month2][value] = null;
+                }
+            });
+
+            const updatedAttendanceData: AttendanceData = {
+                employeeID: attendanceData.employeeID,
+                attendancePeriod: attendanceData.attendancePeriod,
+                year: attendanceData.year,
+                state: "Draft",
+                comments: commentData,
+                attendance: {
+                    [month1]: values[month1],
+                    [month2]: values[month2],
+                },
+                overtime: overtimeData,
+                modificationRequested: attendanceData.modificationRequested,
+                modifications: [...attendanceData.modifications],
+                stage: attendanceData.stage,
+                associatedShiftType: values.associatedShiftType,
+            };
+
+            // console.log("values:", values);
+            // console.log("updatedAttendanceData: ", updatedAttendanceData);
+
+            await updateAttendanceList(updatedAttendanceData, attendanceData.id as string)
+                .then((res: boolean) => {
+
+                    if (res === true) {
+                        success();
+                        setLoading(false);
+                        setOpen(false);
+                        form.resetFields();
+                    }
+
+                    if (res === false) {
+                        error();
+                        setLoading(false);
+                    }
+                })
+                .catch((err: any) => {
+                    console.log("error updating attendance list: ", err);
+                    formFailed();
+                    setLoading(false);
+                });
+
+            setLoading(false);
+        }).catch((err) => {
+            formFailed();
+            setLoading(false);
+            console.log("Validation Error: ", err);
+        });
+    };
+
+    const onFinishFailed = (errorInfo: any) => {
+        console.log('Failed:', errorInfo);
+        formFailed();
+    };
 
     const [attendance, setAttendance] = useState<any[]>([]);
     const [month1, setMonth1] = useState<any>('');
@@ -130,49 +252,50 @@ function EditComponent(
             <Form
                 form={form}
                 autoComplete="off"
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
             >
-                {/* modal header */}
-                <div className="">
-
-                    <Divider style={{ margin: "15px 0" }} />
-
-                    <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
-                        Please input P for Present, H for Half Day, A for Absent
-                    </Typography>
-
-                    <Typography id="modal-modal-title" component="h5" style={{ color: '#3f3d56', marginTop: '18px', fontFamily: "Montserrat, sans-serif", }}>
-                        If you have to declare overtime, do so before submitting
-                    </Typography>
-
-                    {/* <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', marginTop: '20px', fontFamily: "Montserrat, sans-serif", }}>
-                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='pt-3 pb-3 pr-3'>Period working days: {attendanceData && attendanceData.periodWorkingDays} days</Typography>
-                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Worked days: {attendanceData && attendanceData.workedDays} days</Typography>
-                            <Typography style={{ color: '#3f3d56', fontFamily: "Montserrat, sans-serif", fontWeight: 900 }} className='p-3'>Absent days: {attendanceData && attendanceData.absentDays} days</Typography>
-                        </div> */}
-
-                    <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-
-                    <Form.Item
-                        name="associatedShiftType"
-                        label="Shift Type"
-                        initialValue={attendanceData?.associatedShiftType}
+                <InfoCard title='Information' width='100%'>
+                    <Row
+                        style={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-around',
+                            alignItems: 'center',
+                        }}
                     >
-                        <Select
-                            style={{ width: "100%" }}
-                            options={[...shiftTypes].map(value => ({ label: value.name, value: value.name }))}
-                            onChange={(value) => {
-                                const chosenShiftType: any = shiftTypes.find(shiftType => shiftType.name === value);
-                                const workingDays: string[] = chosenShiftType.workingDays;
+                        <Col xs={24} xl={11} xxl={11}>
+                            <Typography
+                                component="h5"
+                                style={{
+                                    fontSize: "14px",
+                                }}
+                            >
+                                Please choose <b>P</b> for <em>Present</em>, <b>H</b> for <em>Half Day</em>, <b>A</b> for <em>Absent</em>
+                            </Typography>
+                        </Col>
 
-                                setWorkingDays(workingDays);
-                            }}
-                            dropdownStyle={{ zIndex: 2000 }}
-                        />
-                    </Form.Item>
+                        <Col xs={24} xl={11} xxl={11}>
+                            <Form.Item
+                                name="associatedShiftType"
+                                label="Shift Type"
+                                initialValue={attendanceData?.associatedShiftType}
+                            >
+                                <Select
+                                    style={{ width: matches ? "50%" : "100%" }}
+                                    options={[...shiftTypes].map(value => ({ label: value.name, value: value.name }))}
+                                    onChange={(value) => {
+                                        const chosenShiftType: any = shiftTypes.find(shiftType => shiftType.name === value);
+                                        const workingDays: string[] = chosenShiftType.workingDays;
 
-                    <Divider style={{ marginTop: "1em", marginBottom: "1em" }} />
-                </div>
-
+                                        setWorkingDays(workingDays);
+                                    }}
+                                    dropdownStyle={{ zIndex: 2000 }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </InfoCard>
 
                 <TableContainer
                     component={Paper}
@@ -462,9 +585,9 @@ function EditComponent(
                                                 <Row align={"middle"} justify={"center"}>
                                                     <Form.Item>
                                                         <Button
-                                                            variant="outlined"
+                                                            type="dashed"
                                                             onClick={() => add()}
-                                                            startIcon={<PlusOutlined />}
+                                                            icon={<PlusOutlined />}
                                                         >
                                                             Add
                                                         </Button>
@@ -514,9 +637,9 @@ function EditComponent(
                                                 <Row align={"middle"} justify={"center"}>
                                                     <Form.Item>
                                                         <Button
-                                                            variant="outlined"
+                                                            type="dashed"
                                                             onClick={() => add()}
-                                                            startIcon={<PlusOutlined />}
+                                                            icon={<PlusOutlined />}
                                                         >
                                                             Add
                                                         </Button>
@@ -531,155 +654,21 @@ function EditComponent(
                     </Row>
                 </Box>
 
+                <Divider />
+
+                <Row align={"middle"} justify={"end"}>
+                    <Form.Item>
+                        <Button
+                            type='primary'
+                            loading={loading}
+                            htmlType='submit'
+                        >
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Row>
+
             </Form>
-
-            <Divider style={{ marginTop: "2em", marginBottom: "2em" }} />
-
-            <Row align={"middle"} justify={"end"}>
-
-                {
-                    (() => {
-                        if (formValidated === "") {
-                            return (
-                                <>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Validation Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Check your form inputs and try again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-
-                        if (formValidated === "Update Error") {
-                            return (
-                                <>
-                                    <Alert severity="error" sx={{ width: '100%' }}>
-                                        Request failed. Try saving again.
-                                    </Alert>
-                                </>
-                            );
-                        }
-                    })()
-                }
-
-                <Button
-                    variant='contained'
-                    disabled={loading}
-                    onClick={() => {
-                        form.validateFields().then(async (values) => {
-                            setLoading(true);
-
-                            const keys: string[] = Object.keys(values);
-                            keys.forEach((key) => {
-                                if (values[key] === undefined) values[key] = null;
-                            });
-
-                            // console.log("values:", values);
-                            // console.log("attendanceData: ", attendanceData);
-
-                            const overtime: any[] = values.overtime === null ? [] : values.overtime;
-                            overtime.forEach((value) => {
-                                const date = value.date;
-                                const timeFrom = value.timeFrom;
-                                const timeTo = value.timeTo;
-
-                                value.date = date.format("MMMM DD, YYYY");
-                                value.timeFrom = timeFrom.format("h:mm A");
-                                value.timeTo = timeTo.format("h:mm A");
-                            });
-
-                            const overtimeData: any[] = attendanceData.overtime.at(0) ?? [];
-                            overtimeData.push(...overtime);
-
-                            const commentData: any[] = attendanceData.comments;
-                            if (values.comments !== null) commentData.push(...values.comments);
-
-                            month1Data.forEach((value: any) => {
-                                const year: number = attendanceData.attendancePeriod === "January" ? attendanceData.year - 1 : attendanceData.year;
-
-                                const date: moment.Moment = moment(`${month1} ${value}, ${year}`, "MMMM DD, YYYY");
-
-                                const dayInString: string = days[date.day()];
-                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
-
-                                if (dayInWorkingDays === false) {
-                                    values[month1][value] = null;
-                                }
-                            });
-
-                            month2Data.forEach((value: any) => {
-                                const year: number = attendanceData.year;
-
-                                const date: moment.Moment = moment(`${month2} ${value}, ${year}`, "MMMM DD, YYYY");
-
-                                const dayInString: string = days[date.day()];
-                                const dayInWorkingDays: boolean = workingDays.includes(dayInString);
-
-                                if (dayInWorkingDays === false) {
-                                    values[month2][value] = null;
-                                }
-                            });
-
-                            const updatedAttendanceData: AttendanceData = {
-                                employeeID: attendanceData.employeeID,
-                                attendancePeriod: attendanceData.attendancePeriod,
-                                year: attendanceData.year,
-                                state: "Draft",
-                                comments: commentData,
-                                attendance: {
-                                    [month1]: values[month1],
-                                    [month2]: values[month2],
-                                },
-                                overtime: overtimeData,
-                                modificationRequested: attendanceData.modificationRequested,
-                                modifications: [...attendanceData.modifications],
-                                stage: attendanceData.stage,
-                                associatedShiftType: values.associatedShiftType,
-                            };
-
-                            // console.log("values:", values);
-                            // console.log("updatedAttendanceData: ", updatedAttendanceData);
-
-                            await updateAttendanceList(updatedAttendanceData, attendanceData.id as string)
-                                .then((res: boolean) => {
-
-                                    if (res === true) {
-                                        setOpen(false);
-                                        setLoading(false);
-                                        message.success("Updated.");
-                                        form.resetFields();
-                                        setFormValidated("");
-                                    }
-
-                                    if (res === false) {
-                                        setFormValidated("Update Error");
-                                        setLoading(false);
-                                    }
-                                })
-                                .catch((err: any) => {
-                                    console.log("error updating attendance list: ", err);
-                                    setFormValidated("Update Error");
-                                    setLoading(false);
-                                });
-
-                            setLoading(false);
-                        }).catch((err) => {
-                            setLoading(false);
-                            setFormValidated("Validation Error");
-                            console.log("Validation Error: ", err);
-                        });
-                    }}
-                >
-                    {loading ? <Spin size='small' /> : "Save"}
-                </Button>
-
-            </Row>
         </>
     );
 }

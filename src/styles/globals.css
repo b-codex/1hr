@@ -72,7 +72,7 @@ body {
 
 .ant-btn {
     padding: .45em;
-    width: 150px;
+    width: fit-content;
     height: auto;
     text-align: center;
     font-size: medium;

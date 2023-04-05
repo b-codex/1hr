@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import CustomModal from '../../customModal';
-import { Typography } from '@mui/material';
+import { Typography, useMediaQuery } from '@mui/material';
 import InfoCard from '@/components/shared/InfoCard';
 import { Button, Col, Divider, Form, Input, Row, Select, Space, message } from 'antd';
 import { AttendanceData } from '@/backend/models/attendanceData';
@@ -22,12 +22,15 @@ export default function EmployeeRequestModificationModal(
         data: any,
     }
 ) {
+    const matches = useMediaQuery('(min-width:900px)');
+    
     return (
         <>
             <CustomModal
                 open={open}
                 setOpen={setOpen}
                 modalTitle={`Request Modification For ${month}`}
+                width={matches ? "50%" : "100%"}
             >
                 <RequestModification
                     setOpen={setOpen}
@@ -136,7 +139,6 @@ function RequestModification(
                         formFailed();
                         setLoading(false);
                     });
-
             }
             setLoading(false);
         }).catch((err) => {

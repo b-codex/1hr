@@ -215,7 +215,7 @@ const TimeAndAttendanceManagement = () => {
                 ];
 
                 // if its open, then add the edit button to the array
-                if (params.row.stage === 'Open') {
+                // if (params.row.stage === 'Open') {
                     actionArray.push(<GridActionsCellItem
                         key={2}
                         label='Edit'
@@ -226,7 +226,7 @@ const TimeAndAttendanceManagement = () => {
                         }}
                         showInMenu
                     />);
-                }
+                // }
 
                 // if its closed, then add the request modification button to the array
                 if (params.row.stage === 'Closed') {
