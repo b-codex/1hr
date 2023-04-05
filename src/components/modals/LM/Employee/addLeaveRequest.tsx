@@ -8,7 +8,7 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
 import { addLeaveRequest } from '@/backend/api/LM/addLeaveRequest';
-import screenSize from '@/backend/constants/screenSize';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function EmployeeAddLeaveRequestModal(
     {
@@ -19,13 +19,15 @@ export default function EmployeeAddLeaveRequestModal(
         setOpen: any,
     }
 ) {
+    const matches = useMediaQuery('(min-width:900px)');
+    
     return (
         <>
             <CustomModal
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Add New Leave Request'
-                width={screenSize ? "50%" : "100%"}
+                width={matches ? "50%" : "100%"}
             >
                 <AddLeaveRequest setOpen={setOpen} />
             </CustomModal>

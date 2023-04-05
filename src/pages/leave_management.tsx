@@ -1,7 +1,7 @@
 import FullLayout from '@/layouts/full/FullLayout';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Box } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { Box, useMediaQuery } from '@mui/material';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
@@ -9,14 +9,12 @@ import DashboardCard from '../components/shared/DashboardCard';
 
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
-import screenSize from '@/backend/constants/screenSize';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequest';
 import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import { Button, Modal, message } from 'antd';
-import getResponsiveColumns from '@/backend/functions/columnVisibilityModel';
+import React from 'react';
 
 const LeaveManagement = () => {
-
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -164,6 +162,23 @@ const LeaveManagement = () => {
         },
     ];
 
+    const matches = useMediaQuery('(min-width:900px)');
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({});
+    useEffect(() => {
+        setColumnVisibilityModel(
+            {
+                leaveType: matches,
+                authorizedDays: matches,
+                firstDayOfLeave: matches,
+                lastDayOfLeave: matches,
+                dateOfReturn: matches,
+                numberOfLeaveDaysRequested: matches,
+                balanceLeaveDays: matches,
+                actions: matches,
+            }
+        );
+    }, [matches]);
+
     const AddButton = () => {
         return (
             <>
@@ -182,7 +197,7 @@ const LeaveManagement = () => {
     return (
         <>
             <DashboardCard title="Leave Management" action={<AddButton />}>
-                <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
+                <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
                             rows={dataSource}
@@ -193,11 +208,10 @@ const LeaveManagement = () => {
                                 Toolbar: GridToolbar,
                             }}
                             disableRowSelectionOnClick={true}
-                            initialState={{
-                                columns: {
-                                    columnVisibilityModel: getResponsiveColumns(["leaveType", "authorizedDays", "firstDayOfLeave", "lastDayOfLeave", "dateOfReturn", "numberOfLeaveDaysRequested", "balanceLeaveDays", "actions"])
-                                },
-                            }}
+                            columnVisibilityModel={columnVisibilityModel}
+                            onColumnVisibilityModelChange={(newModel) =>
+                                setColumnVisibilityModel(newModel)
+                            }
                         />
                     </div>
                 </Box>

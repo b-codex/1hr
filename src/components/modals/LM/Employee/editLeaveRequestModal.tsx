@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
-import screenSize from '@/backend/constants/screenSize';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function EmployeeEditLeaveRequestModal(
     {
@@ -23,13 +23,15 @@ export default function EmployeeEditLeaveRequestModal(
         docID: string,
     }
 ) {
+    const matches = useMediaQuery('(min-width:900px)');
+    
     return (
         <>
             <CustomModal
                 open={open}
                 setOpen={setOpen}
-                modalTitle='Edit New Leave Request'
-                width={screenSize ? "50%" : "100%"}
+                modalTitle='Edit Leave Request'
+                width={matches ? "50%" : "100%"}
             >
                 <EditLeaveRequest
                     data={data}

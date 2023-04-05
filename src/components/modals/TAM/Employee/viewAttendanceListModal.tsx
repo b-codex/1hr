@@ -1,11 +1,9 @@
-import { Box, Modal, Typography, TableContainer, TableBody, TableRow, Table, TableCell, Paper, Divider, Backdrop, Fade } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { CloseOutlined } from '@ant-design/icons';
-import { months } from '@/backend/constants/months';
-import screenSize from '@/backend/constants/screenSize';
-import { DataGrid } from '@mui/x-data-grid';
 import generateID from '@/backend/constants/generateID';
+import { months } from '@/backend/constants/months';
+import { Box, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import { Col, Row } from 'antd';
+import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
 
 const EmployeeAttendanceListView = ({
@@ -157,15 +155,6 @@ const EmployeeAttendanceListView = ({
                                         ]}
                                         autoPageSize={true}
                                         disableRowSelectionOnClick={true}
-                                        initialState={{
-                                            columns: {
-                                                columnVisibilityModel: {
-                                                    // Hide columns status and traderName, the other columns will remain visible
-                                                    // false is hidden, true is shown
-                                                    id: !screenSize,
-                                                }
-                                            },
-                                        }}
                                     />
                                 </div>
                             </Box>
@@ -194,15 +183,6 @@ const EmployeeAttendanceListView = ({
                                         ]}
                                         autoPageSize={true}
                                         disableRowSelectionOnClick={true}
-                                        initialState={{
-                                            columns: {
-                                                columnVisibilityModel: {
-                                                    // Hide columns status and traderName, the other columns will remain visible
-                                                    // false is hidden, true is shown
-                                                    id: !screenSize,
-                                                }
-                                            },
-                                        }}
                                     />
                                 </div>
                             </Box>

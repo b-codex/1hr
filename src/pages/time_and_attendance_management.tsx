@@ -1,25 +1,22 @@
 import FullLayout from '@/layouts/full/FullLayout';
 import { EditOutlined, EyeOutlined, PullRequestOutlined } from '@ant-design/icons';
-import { Box } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { Box, useMediaQuery } from '@mui/material';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 import DashboardCard from '../components/shared/DashboardCard';
 
 import { db } from '@/backend/api/firebase';
-import screenSize from '@/backend/constants/screenSize';
+import { months } from '@/backend/constants/months';
 import { calculateAbsentDays } from '@/backend/functions/absentDays';
 import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
 import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
-import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
-import { months } from '@/backend/constants/months';
 import EmployeeRequestModificationModal from '@/components/modals/TAM/Employee/requestModificationModal';
-import getResponsiveColumns from '@/backend/functions/columnVisibilityModel';
+import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
 
 const TimeAndAttendanceManagement = () => {
-
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -249,6 +246,23 @@ const TimeAndAttendanceManagement = () => {
         },
     ];
 
+    const matches = useMediaQuery('(min-width:900px)');
+    const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({});
+    useEffect(() => {
+        setColumnVisibilityModel(
+            {
+                leaveType: matches,
+                authorizedDays: matches,
+                firstDayOfLeave: matches,
+                lastDayOfLeave: matches,
+                dateOfReturn: matches,
+                numberOfLeaveDaysRequested: matches,
+                balanceLeaveDays: matches,
+                actions: matches,
+            }
+        );
+    }, [matches]);
+
     return (
         <>
             <DashboardCard title="Time & Attendance Management">
@@ -263,11 +277,10 @@ const TimeAndAttendanceManagement = () => {
                                 Toolbar: GridToolbar,
                             }}
                             disableRowSelectionOnClick={true}
-                            initialState={{
-                                columns: {
-                                    columnVisibilityModel: getResponsiveColumns(["stage", "associatedShiftType", "periodWorkingDays", "workedDays", "absentDays", "actions"])
-                                },
-                            }}
+                            columnVisibilityModel={columnVisibilityModel}
+                            onColumnVisibilityModelChange={(newModel) =>
+                                setColumnVisibilityModel(newModel)
+                            }
                         />
                     </div>
                 </Box>

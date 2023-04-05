@@ -78,11 +78,15 @@ body {
     font-size: medium;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 900px) {
     .myCard {
         /* border: 2px solid blue; */
         /* width: calc(100vw - 30px); */
         width: auto;
         overflow: scroll;
+    }
+
+    .MuiCardContent-root{
+        padding: 0 !important;
     }
 }
