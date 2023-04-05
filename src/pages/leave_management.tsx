@@ -13,6 +13,7 @@ import screenSize from '@/backend/constants/screenSize';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequest';
 import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import { Button, Modal, message } from 'antd';
+import getResponsiveColumns from '@/backend/functions/columnVisibilityModel';
 
 const LeaveManagement = () => {
 
@@ -191,21 +192,10 @@ const LeaveManagement = () => {
                             components={{
                                 Toolbar: GridToolbar,
                             }}
-                            // checkboxSelection={screenSize}
                             disableRowSelectionOnClick={true}
-                            onStateChange={(params: any) => {
-                                // console.log("params: ", params);
-                                const selection: string[] = params.rowSelection;
-
-                                // setSelections(selection);
-                            }}
                             initialState={{
                                 columns: {
-                                    columnVisibilityModel: {
-                                        // Hide columns status and traderName, the other columns will remain visible
-                                        // false is hidden, true is shown
-                                        id: !screenSize,
-                                    }
+                                    columnVisibilityModel: getResponsiveColumns(["leaveType", "authorizedDays", "firstDayOfLeave", "lastDayOfLeave", "dateOfReturn", "numberOfLeaveDaysRequested", "balanceLeaveDays", "actions"])
                                 },
                             }}
                         />

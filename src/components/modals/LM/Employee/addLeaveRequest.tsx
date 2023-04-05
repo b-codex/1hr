@@ -8,6 +8,7 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
 import { addLeaveRequest } from '@/backend/api/LM/addLeaveRequest';
+import screenSize from '@/backend/constants/screenSize';
 
 export default function EmployeeAddLeaveRequestModal(
     {
@@ -24,7 +25,7 @@ export default function EmployeeAddLeaveRequestModal(
                 open={open}
                 setOpen={setOpen}
                 modalTitle='Add New Leave Request'
-                width='50%'
+                width={screenSize ? "50%" : "100%"}
             >
                 <AddLeaveRequest setOpen={setOpen} />
             </CustomModal>

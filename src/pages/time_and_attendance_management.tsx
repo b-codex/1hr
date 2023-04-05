@@ -16,6 +16,7 @@ import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttenda
 import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
 import { months } from '@/backend/constants/months';
 import EmployeeRequestModificationModal from '@/components/modals/TAM/Employee/requestModificationModal';
+import getResponsiveColumns from '@/backend/functions/columnVisibilityModel';
 
 const TimeAndAttendanceManagement = () => {
 
@@ -264,11 +265,7 @@ const TimeAndAttendanceManagement = () => {
                             disableRowSelectionOnClick={true}
                             initialState={{
                                 columns: {
-                                    columnVisibilityModel: {
-                                        // Hide columns status and traderName, the other columns will remain visible
-                                        // false is hidden, true is shown
-                                        id: !screenSize,
-                                    }
+                                    columnVisibilityModel: getResponsiveColumns(["stage", "associatedShiftType", "periodWorkingDays", "workedDays", "absentDays", "actions"])
                                 },
                             }}
                         />
