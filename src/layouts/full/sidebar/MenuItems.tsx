@@ -47,6 +47,13 @@ const Menuitems = [
         icon: DashboardOutlined,
         href: '/training_and_development',
     },
+
+    // {
+    //     id: generateID(),
+    //     title: 'HR Settings',
+    //     icon: DashboardOutlined,
+    //     href: '/hr_settings',
+    // },
     //   {
     //     navlabel: true,
     //     subheader: 'Utilities',
