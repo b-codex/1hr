@@ -160,26 +160,28 @@ function AddLeaveRequest(
                 </Form.Item>
 
                 <Form.Item
-                    label="Leave State"
-                    name="leaveState"
-                    rules={[{ required: true, message: "" }]}
-                >
-                    <Select
-                        style={{ width: "100%" }}
-                        dropdownStyle={{ zIndex: 2000, }}
-                        options={leaveStates.map(leaveState => ({ label: leaveState.name, value: leaveState.name }))}
-                    />
-                </Form.Item>
-
-                <Form.Item
                     label="Leave Stage"
                     name="leaveStage"
                     rules={[{ required: true, message: "" }]}
+                    initialValue={"Requested"}
                 >
                     <Select
                         style={{ width: "100%" }}
                         dropdownStyle={{ zIndex: 2000, }}
                         options={leaveStages.map(leaveStage => ({ label: leaveStage.name, value: leaveStage.name }))}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    label="Leave State"
+                    name="leaveState"
+                    rules={[{ required: true, message: "" }]}
+                    initialValue={"Open"}
+                >
+                    <Select
+                        style={{ width: "100%" }}
+                        dropdownStyle={{ zIndex: 2000, }}
+                        options={leaveStates.map(leaveState => ({ label: leaveState.name, value: leaveState.name }))}
                     />
                 </Form.Item>
 

@@ -151,7 +151,7 @@ function EditComponent(
                 employeeID: attendanceData.employeeID,
                 attendancePeriod: attendanceData.attendancePeriod,
                 year: attendanceData.year,
-                state: "Draft",
+                state: "Submitted",
                 comments: commentData,
                 attendance: {
                     [month1]: values[month1],
