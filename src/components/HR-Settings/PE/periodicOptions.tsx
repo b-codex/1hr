@@ -1,28 +1,25 @@
 import FullLayout from '@/layouts/full/FullLayout';
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
-import DashboardCard from '../components/shared/DashboardCard';
 
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
-import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequestModal';
-import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import { Button, Modal, message } from 'antd';
-import React from 'react';
+import DashboardCard from '../../shared/DashboardCard';
+import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
 
-const LeaveManagement = () => {
+const PeriodicOptions = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
-    const [editData, setEditData] = useState<any>({});
-    const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
+    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
 
-    useEffect(() => onSnapshot(collection(db, "leaveManagement"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -39,7 +36,10 @@ const LeaveManagement = () => {
             return date1.isBefore(date2) ? -1 : 1;
         });
 
-        setDataSource(data);
+        const groupedSettings: any = groupBy("type", data);
+        const leaveRequests: any[] = groupedSettings['Periodic Options'] ?? [];
+
+        setDataSource(leaveRequests);
         setLoading(false);
     }), []);
 
@@ -67,66 +67,34 @@ const LeaveManagement = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'leaveRequestID',
-            headerName: 'Leave Request ID',
-            flex: 1,
-            hideable: false,
-        },
-        {
-            field: 'leaveState',
-            headerName: 'Leave State',
+            field: 'timestamp',
+            headerName: 'Timestamp',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'leaveStage',
-            headerName: 'Leave Stage',
+            field: 'periodName',
+            headerName: 'Period Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'leaveType',
-            headerName: 'Leave Type',
+            field: 'year',
+            headerName: 'Year',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'authorizedDays',
-            headerName: 'Authorized Days',
+            field: 'evaluations',
+            headerName: 'Evaluations',
             flex: 1,
             // hideable: false,
-        },
-        {
-            field: 'firstDayOfLeave',
-            headerName: 'First Day of Leave',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'lastDayOfLeave',
-            headerName: 'Last Day of Leave',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'dateOfReturn',
-            headerName: 'Date of Return',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'numberOfLeaveDaysRequested',
-            headerName: 'Number of Leave Days Requested',
-            flex: 1.5,
-            // hideable: false,
-            type: 'number',
-        },
-        {
-            field: 'balanceLeaveDays',
-            headerName: 'Balance Leave Days',
-            flex: 1,
-            // hideable: false,
-            type: 'number',
+            renderCell: (params: any) => {
+                return (
+                    <>
+                    </>
+                );
+            },
         },
         {
             field: "actions",
@@ -137,21 +105,29 @@ const LeaveManagement = () => {
             getActions: (params: any) => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
-                        key={1}
-                        label='Edit'
+                        key={0}
                         icon={<EditOutlined />}
+                        label='Use'
                         onClick={() => {
-                            setEditData(params.row);
-                            setEditLeaveRequestModalVisible(true);
+
+                        }}
+                        showInMenu={false}
+                    />,
+                    <GridActionsCellItem
+                        key={1}
+                        icon={<EditOutlined />}
+                        label='Edit'
+                        onClick={() => {
+
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
-                        key={1}
+                        key={2}
+                        icon={<DeleteOutlined />}
                         label='Delete'
-                        icon={<DeleteOutlined color='red' />}
                         onClick={() => {
-                            leaveRequestDelete(params.row.id);
+
                         }}
                         showInMenu
                     />
@@ -167,13 +143,10 @@ const LeaveManagement = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                leaveType: matches,
-                authorizedDays: matches,
-                firstDayOfLeave: matches,
-                lastDayOfLeave: matches,
-                dateOfReturn: matches,
-                numberOfLeaveDaysRequested: matches,
-                balanceLeaveDays: matches,
+                periodStart: matches,
+                periodEnd: matches,
+                campaignStartDate: matches,
+                campaignEndDate: matches,
                 actions: matches,
             }
         );
@@ -184,11 +157,12 @@ const LeaveManagement = () => {
             <>
                 <Button
                     type='primary'
+                    icon={<PlusOutlined />}
                     onClick={() => {
-                        setAddLeaveRequestModalVisible(true);
+                        setHrAddSettingModalOpen(true);
                     }}
                 >
-                    Request Leave
+                    Add
                 </Button>
             </>
         );
@@ -196,7 +170,7 @@ const LeaveManagement = () => {
 
     return (
         <>
-            <DashboardCard title="Leave Management" action={<AddButton />}>
+            <DashboardCard title="Periodic Options" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -217,22 +191,16 @@ const LeaveManagement = () => {
                 </Box>
             </DashboardCard>
 
-            <EmployeeAddLeaveRequestModal
-                open={addLeaveRequestModalVisible}
-                setOpen={setAddLeaveRequestModalVisible}
-            />
-
-            <EmployeeEditLeaveRequestModal
-                open={editLeaveRequestModalVisible}
-                setOpen={setEditLeaveRequestModalVisible}
-                data={editData}
-                docID={editData.id}
+            <HRAddSetting
+                open={hrAddSettingModalOpen}
+                setOpen={setHrAddSettingModalOpen}
+                type={"Periodic Option"}
             />
         </>
     );
 };
 
-export default LeaveManagement;
-LeaveManagement.getLayout = function getLayout(page: ReactElement) {
+export default PeriodicOptions;
+PeriodicOptions.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

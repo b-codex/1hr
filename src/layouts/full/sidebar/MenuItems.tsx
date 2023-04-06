@@ -29,9 +29,9 @@ const Menuitems = [
 
     {
         id: generateID(),
-        title: 'Performance Management',
+        title: 'Performance Evaluation',
         icon: DashboardOutlined,
-        href: '/performance_management',
+        href: '/performanceEvaluation/performance_evaluation',
     },
 
     {
@@ -48,12 +48,13 @@ const Menuitems = [
         href: '/training_and_development',
     },
 
-    // {
-    //     id: generateID(),
-    //     title: 'HR Settings',
-    //     icon: DashboardOutlined,
-    //     href: '/hr_settings',
-    // },
+    {
+        id: generateID(),
+        title: 'HR Settings',
+        icon: DashboardOutlined,
+        href: '/hr_settings',
+    },
+
     //   {
     //     navlabel: true,
     //     subheader: 'Utilities',

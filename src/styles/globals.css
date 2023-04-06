@@ -24,6 +24,12 @@ body {
 .myCard {
     /* border: 2px solid red; */
     width: calc(100vw - 380px);
+    /* width: 100%; */
+}
+
+.myCard2 {
+    /* width: calc(100vw - 400px); */
+    width: auto;
 }
 
 .myCalendar {
@@ -71,22 +77,35 @@ body {
 }
 
 .ant-btn {
-    padding: .45em;
+    padding: .45em 2em;
     width: fit-content;
     height: auto;
     text-align: center;
     font-size: medium;
+    font-weight: 400;
+}
+
+.MuiDataGrid-virtualScroller{
+    overflow: visible !important;
+}
+
+.boxShadowMP2{
+    margin: 2em .3em;
+    padding: 2em;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 @media only screen and (max-width: 900px) {
-    .myCard {
+
+    .myCard,
+    .myCard2 {
         /* border: 2px solid blue; */
         /* width: calc(100vw - 30px); */
         width: auto;
         overflow: scroll;
     }
 
-    .MuiCardContent-root{
+    .MuiCardContent-root {
         padding: 0 !important;
     }
 }

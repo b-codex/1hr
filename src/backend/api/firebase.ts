@@ -174,3 +174,21 @@ export async function deleteEmployee(id: string) {
     return result;
 }
 
+
+// add hrSetting
+export const addHRSetting = async (data: any) => {
+
+    let result: boolean = false;
+
+    const newDoc = doc(hrSettingsCollection);
+
+    result = await setDoc(newDoc, { ...data, id: newDoc.id, })
+        .then(() => true)
+        .catch(err => {
+            console.log(err);
+            return false;
+        });
+
+    return result;
+
+}

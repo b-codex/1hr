@@ -5,16 +5,13 @@ import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, G
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
-import DashboardCard from '../components/shared/DashboardCard';
+import DashboardCard from '../../components/shared/DashboardCard';
 
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
-import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequestModal';
-import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
-import { Button, Modal, message } from 'antd';
-import React from 'react';
+import { Modal, message } from 'antd';
 
-const LeaveManagement = () => {
+const PerformanceEvaluationManagement = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -22,7 +19,7 @@ const LeaveManagement = () => {
     const [editData, setEditData] = useState<any>({});
     const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
 
-    useEffect(() => onSnapshot(collection(db, "leaveManagement"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "performanceEvaluation"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -67,66 +64,46 @@ const LeaveManagement = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'leaveRequestID',
-            headerName: 'Leave Request ID',
+            field: 'roundOfEvaluation',
+            headerName: 'Round of Evaluation',
             flex: 1,
             hideable: false,
         },
         {
-            field: 'leaveState',
-            headerName: 'Leave State',
+            field: 'stage',
+            headerName: 'Stage',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'leaveStage',
-            headerName: 'Leave Stage',
+            field: 'performanceYear',
+            headerName: 'Performance Year',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'leaveType',
-            headerName: 'Leave Type',
+            field: 'periodStart',
+            headerName: 'Period Start',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'authorizedDays',
-            headerName: 'Authorized Days',
+            field: 'periodEnd',
+            headerName: 'Period End',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'firstDayOfLeave',
-            headerName: 'First Day of Leave',
+            field: 'campaignStartDate',
+            headerName: 'Campaign Start Date',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'lastDayOfLeave',
-            headerName: 'Last Day of Leave',
+            field: 'campaignEndDate',
+            headerName: 'Campaign End Date',
             flex: 1,
             // hideable: false,
-        },
-        {
-            field: 'dateOfReturn',
-            headerName: 'Date of Return',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'numberOfLeaveDaysRequested',
-            headerName: 'Number of Leave Days Requested',
-            flex: 1.5,
-            // hideable: false,
-            type: 'number',
-        },
-        {
-            field: 'balanceLeaveDays',
-            headerName: 'Balance Leave Days',
-            flex: 1,
-            // hideable: false,
-            type: 'number',
         },
         {
             field: "actions",
@@ -138,20 +115,17 @@ const LeaveManagement = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='Edit'
-                        icon={<EditOutlined />}
+                        label='Competency Assessment'
                         onClick={() => {
-                            setEditData(params.row);
-                            setEditLeaveRequestModalVisible(true);
+
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
-                        label='Delete'
-                        icon={<DeleteOutlined color='red' />}
+                        label='Objectives'
                         onClick={() => {
-                            leaveRequestDelete(params.row.id);
+
                         }}
                         showInMenu
                     />
@@ -167,38 +141,20 @@ const LeaveManagement = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                leaveType: matches,
-                authorizedDays: matches,
-                firstDayOfLeave: matches,
-                lastDayOfLeave: matches,
-                dateOfReturn: matches,
-                numberOfLeaveDaysRequested: matches,
-                balanceLeaveDays: matches,
+                periodStart: matches,
+                periodEnd: matches,
+                campaignStartDate: matches,
+                campaignEndDate: matches,
                 actions: matches,
             }
         );
     }, [matches]);
 
-    const AddButton = () => {
-        return (
-            <>
-                <Button
-                    type='primary'
-                    onClick={() => {
-                        setAddLeaveRequestModalVisible(true);
-                    }}
-                >
-                    Request Leave
-                </Button>
-            </>
-        );
-    };
-
     return (
         <>
-            <DashboardCard title="Leave Management" action={<AddButton />}>
+            <DashboardCard title="Performance Evaluation Management">
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                    <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
+                    <div style={{ height: "calc(100vh - 200px)", width: '100%', }}>
                         <DataGrid
                             rows={dataSource}
                             loading={loading}
@@ -216,23 +172,11 @@ const LeaveManagement = () => {
                     </div>
                 </Box>
             </DashboardCard>
-
-            <EmployeeAddLeaveRequestModal
-                open={addLeaveRequestModalVisible}
-                setOpen={setAddLeaveRequestModalVisible}
-            />
-
-            <EmployeeEditLeaveRequestModal
-                open={editLeaveRequestModalVisible}
-                setOpen={setEditLeaveRequestModalVisible}
-                data={editData}
-                docID={editData.id}
-            />
         </>
     );
 };
 
-export default LeaveManagement;
-LeaveManagement.getLayout = function getLayout(page: ReactElement) {
+export default PerformanceEvaluationManagement;
+PerformanceEvaluationManagement.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

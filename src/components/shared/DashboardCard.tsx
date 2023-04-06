@@ -11,6 +11,7 @@ type Props = {
     headSubtitle?: string | JSX.Element;
     children?: JSX.Element;
     middleContent?: string | JSX.Element;
+    className?: string;
 };
 
 const DashboardCard = ({
@@ -23,9 +24,10 @@ const DashboardCard = ({
     headTitle,
     headSubtitle,
     middleContent,
+    className,
 }: Props) => {
     return (
-        <Card sx={{ padding: 0 }} elevation={9} variant={undefined} className="myCard">
+        <Card sx={{ padding: 0 }} elevation={9} variant={undefined} className={className === undefined ? "myCard" : className}>
             {cardHeading ? (
                 <CardContent>
                     <Typography variant="h5">{headTitle}</Typography>
