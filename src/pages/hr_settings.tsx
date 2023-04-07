@@ -7,7 +7,10 @@ import LeaveTypes from '@/components/HR-Settings/LM/leaveTypes';
 import LeaveStages from '@/components/HR-Settings/LM/leaveStages';
 import LeaveStates from '@/components/HR-Settings/LM/leaveStates';
 import PeriodicOptions from '@/components/HR-Settings/PE/periodicOptions';
+import EvaluationCampaigns from '@/components/HR-Settings/PE/evaluationCampaigns';
+import MonitoringPeriods from '@/components/HR-Settings/PE/monitoringPeriods';
 
+// TAM Settings
 const timeAndAttendanceManagementSettings: any[] = [];
 function TimeAndAttendanceManagementTabs() {
     const matches = useMediaQuery('(min-width:900px)');
@@ -27,33 +30,22 @@ function TimeAndAttendanceManagementTabs() {
     );
 };
 
+// LM Settings
 const leaveManagementSettings: any[] = [
     {
         key: "1",
         label: "Leave Types",
-        children: [
-            <>
-                <LeaveTypes />
-            </>,
-        ]
+        children: <LeaveTypes />,
     },
     {
         key: "2",
         label: "Leave Stages",
-        children: [
-            <>
-                <LeaveStages />
-            </>,
-        ]
+        children: <LeaveStages />
     },
     {
         key: "3",
         label: "Leave States",
-        children: [
-            <>
-                <LeaveStates />
-            </>,
-        ]
+        children: <LeaveStates />,
     },
 ];
 function LeaveManagementTabs() {
@@ -74,15 +66,22 @@ function LeaveManagementTabs() {
     );
 };
 
+// PE Settings
 const performanceEvaluationSettings: any[] = [
     {
         key: "1",
         label: "Periodic Options",
-        children: [
-            <>
-                <PeriodicOptions />
-            </>,
-        ]
+        children: <PeriodicOptions />,
+    },
+    {
+        key: "2",
+        label: "Evaluation Campaigns",
+        children: <EvaluationCampaigns />,
+    },
+    {
+        key: "3",
+        label: "Monitoring Periods",
+        children: <MonitoringPeriods />,
     },
 ];
 function PerformanceEvaluationTabs() {
@@ -108,29 +107,17 @@ const items: any[] = [
     {
         key: "TAM",
         label: "Time & Attendance Management Settings",
-        children: [
-            <>
-                <TimeAndAttendanceManagementTabs />
-            </>,
-        ]
+        children: <TimeAndAttendanceManagementTabs />,
     },
     {
         key: "LM",
         label: "Leave Management Settings",
-        children: [
-            <>
-                <LeaveManagementTabs />
-            </>,
-        ]
+        children: <LeaveManagementTabs />,
     },
     {
         key: "PE",
         label: "Performance Evaluation Settings",
-        children: [
-            <>
-                <PerformanceEvaluationTabs />
-            </>,
-        ]
+        children: <PerformanceEvaluationTabs />,
     },
 ];
 
@@ -140,7 +127,7 @@ const HRSettings = () => {
     return (
         <>
             <Tabs
-                defaultActiveKey="TAM"
+                defaultActiveKey="PE"
                 centered
                 items={items}
                 style={{

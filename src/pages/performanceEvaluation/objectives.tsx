@@ -11,7 +11,7 @@ import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { Modal, message } from 'antd';
 
-const PerformanceEvaluationManagement = () => {
+const Objectives = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -196,7 +196,7 @@ const PerformanceEvaluationManagement = () => {
     );
 };
 
-export default PerformanceEvaluationManagement;
-PerformanceEvaluationManagement.getLayout = function getLayout(page: ReactElement) {
+export default Objectives;
+Objectives.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

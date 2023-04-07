@@ -1,20 +1,15 @@
 import { addHRSetting, db } from '@/backend/api/firebase';
-import generateID from '@/backend/constants/generateID';
-import { groupBy } from '@/backend/constants/groupBy';
-import findDifferenceInDays from '@/backend/functions/differenceInDays';
-import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Row, Select, Space, message } from 'antd';
+import { months } from '@/backend/constants/months';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Typography } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
-import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
-import { addLeaveRequest } from '@/backend/api/LM/addLeaveRequest';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
-import { months } from '@/backend/constants/months';
-import { Typography } from '@mui/material';
+import { groupBy } from '@/backend/constants/groupBy';
+import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import moment from 'moment';
-
-const { RangePicker } = DatePicker;
 
 export default function HRAddSetting(
     {
@@ -35,7 +30,7 @@ export default function HRAddSetting(
                 open={open}
                 setOpen={setOpen}
                 modalTitle={`Add Setting - ${type}`}
-                width={matches ? "70%" : "100%"}
+                width={matches ? "50%" : "100%"}
             >
                 <AddSetting setOpen={setOpen} type={type} />
             </CustomModal>
@@ -56,10 +51,8 @@ function AddSetting(
 
     const [form] = Form.useForm();
 
-    // getting HR Settings from the database
-    const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
-    const [leaveStages, setLeaveStages] = useState<any[]>([]);
-    const [leaveStates, setLeaveStates] = useState<any[]>([]);
+    const [periodicOptionsData, setPeriodicOptionsData] = useState<any>([]);
+    const [periodNames, setPeriodNames] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -69,16 +62,27 @@ function AddSetting(
                 ...doc.data()
             });
         });
+
+        /* Sorting the data by date. */
+        data.sort((a, b) => {
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+
+            return date1.isBefore(date2) ? 1 : -1;
+        });
+
         const groupedSettings: any = groupBy("type", data);
+        const periodicOptions: any[] = groupedSettings['Periodic Option'] ?? [];
+        setPeriodicOptionsData(periodicOptions);
 
-        const leaveTypes: any[] = groupedSettings["Leave Type"] ?? [];
-        const leaveStages: any[] = groupedSettings["Leave Stage"] ?? [];
-        const leaveStates: any[] = groupedSettings["Leave State"] ?? [];
+        const options: any[] = [];
+        periodicOptions.forEach((option) => {
+            const name: string = option.periodName;
+            const id: string = option.id;
 
-        setLeaveTypes(leaveTypes.filter(leaveType => leaveType.active === "Yes"));
-        setLeaveStages(leaveStages.filter(leaveStage => leaveStage.active === "Yes"));
-        setLeaveStates(leaveStates.filter(leaveState => leaveState.active === "Yes"));
-
+            options.push({ label: name, value: name });
+        });
+        setPeriodNames(options);
     }), []);
 
     const success = () => {
@@ -102,21 +106,10 @@ function AddSetting(
                 if (values[key] === undefined) values[key] = null;
             });
 
-            const evaluations: any[] = values['evaluations'] ?? [];
-            evaluations.forEach((evaluation: any) => {
-                const evaluationPeriod: any[] = evaluation.evaluationPeriod;
-                const monitoringPeriod: any[] = evaluation.monitoringPeriod;
-
-                evaluationPeriod.forEach((e: any, i: number) => {
-                    const formatted: string = moment(e).format("MMMM DD, YYYY");
-                    evaluationPeriod[i] = formatted;
-                });
-
-                monitoringPeriod.forEach((m: any, i: number) => {
-                    const formatted: string = moment(m).format("MMMM DD, YYYY");
-                    monitoringPeriod[i] = formatted;
-                });
-            });
+            if (type === "Evaluation Campaign" || type === "Monitoring Period") {
+                values.startDate = dayjs(values.startDate).format("MMMM DD, YYYY");
+                values.endDate = dayjs(values.endDate).format("MMMM DD, YYYY");
+            }
 
             // console.log("values: ", values);
 
@@ -193,137 +186,63 @@ function AddSetting(
                     />
                 </Form.Item>
 
-                <Form.Item
-                    label="Period Name"
-                    name="periodName"
-                    rules={[{ required: true, message: "" }]}
-                >
-                    <Input />
-                </Form.Item>
+                {
+                    (() => {
+                        // periodic option
+                        if (type === "Periodic Option") {
+                            return (
+                                <>
+                                    <PeriodicOption />
+                                </>
+                            );
+                        }
 
-                <Form.Item
-                    label="Year"
-                    name="year"
-                    rules={[{ required: true, message: "" }]}
-                >
-                    <InputNumber
-                        style={{ width: "100%" }}
-                        min={dayjs().year()}
-                    />
-                </Form.Item>
+                        // evaluation campaign
+                        if (type === "Evaluation Campaign") {
+                            return (
+                                <>
+                                    <EvaluationCampaign periodNames={periodNames} periodicOptionsData={periodicOptionsData} />
+                                </>
+                            );
+                        }
 
-                <Divider>
-                    <Typography variant='h6'>
-                        Evaluations
-                    </Typography>
-                </Divider>
+                        // monitoring period
+                        if (type === "Monitoring Period") {
+                            return (
+                                <>
+                                    <MonitoringPeriod periodNames={periodNames} periodicOptionsData={periodicOptionsData} />
+                                </>
+                            );
+                        }
 
-                <Form.List name="evaluations">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map(({ key, name, ...restField }) => (
-                                <Row
-                                    key={key}
-                                    style={{
-                                        width: '100%',
-                                        display: 'flex',
-                                        justifyContent: 'space-around',
-                                        alignItems: 'baseline',
-                                    }}
-                                    className='boxShadowMP2'
-                                >
-                                    <Col xs={20} xl={7} xxl={7}>
-                                        <Form.Item
-                                            {...restField}
-                                            label="Round"
-                                            name={[name, 'round']}
-                                            rules={[{ required: true, message: '' }]}
-                                        >
-                                            <Input placeholder='Round Name' />
-                                        </Form.Item>
-                                    </Col>
+                        // leave type
+                        if (type === "Leave Type") {
+                            return (
+                                <>
+                                    <LeaveType />
+                                </>
+                            );
+                        }
 
-                                    <Col xs={20} xl={7} xxl={7}>
-                                        <Form.Item
-                                            {...restField}
-                                            label={"From"}
-                                            name={[name, 'from']}
-                                            rules={[{ required: true, message: '' }]}
-                                        >
-                                            <Select
-                                                style={{
-                                                    width: "100%",
-                                                }}
-                                                options={months.map((month) => ({ label: month, value: month }))}
-                                            />
-                                        </Form.Item>
-                                    </Col>
+                        // leave state
+                        if (type === "Leave State") {
+                            return (
+                                <>
+                                    <LeaveState />
+                                </>
+                            );
+                        }
 
-                                    <Col xs={20} xl={7} xxl={7}>
-                                        <Form.Item
-                                            {...restField}
-                                            label={"To"}
-                                            name={[name, 'to']}
-                                            rules={[{ required: true, message: '' }]}
-                                        >
-                                            <Select
-                                                style={{
-                                                    width: "100%",
-                                                }}
-                                                options={months.map((month) => ({ label: month, value: month }))}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col xs={20} xl={10} xxl={10}>
-                                        <Form.Item
-                                            {...restField}
-                                            label={"Evaluation Period"}
-                                            name={[name, 'evaluationPeriod']}
-                                            rules={[{ required: true, message: '' }]}
-                                        >
-                                            <RangePicker
-                                                style={{
-                                                    width: "100%",
-                                                }}
-                                                format={"MMMM DD, YYYY"}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <Col xs={20} xl={10} xxl={10}>
-                                        <Form.Item
-                                            {...restField}
-                                            label={"Monitoring Period"}
-                                            name={[name, 'monitoringPeriod']}
-                                            rules={[{ required: true, message: '' }]}
-                                        >
-                                            <RangePicker
-                                                style={{
-                                                    width: "100%",
-                                                }}
-                                                format={"MMMM DD, YYYY"}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-
-                                    <MinusCircleOutlined onClick={() => remove(name)} />
-                                </Row>
-                            ))}
-                            <Row align={"middle"} justify={"center"}>
-                                <Form.Item>
-                                    <Button
-                                        type="dashed"
-                                        onClick={() => add()}
-                                        icon={<PlusOutlined />}
-                                    >
-                                        Add
-                                    </Button>
-                                </Form.Item>
-                            </Row>
-                        </>
-                    )}
-                </Form.List>
+                        // leave stage
+                        if (type === "Leave Stage") {
+                            return (
+                                <>
+                                    <LeaveStage />
+                                </>
+                            );
+                        }
+                    })()
+                }
 
                 <Row align={"middle"} justify={"center"}>
                     <Form.Item>
@@ -337,6 +256,275 @@ function AddSetting(
                     </Form.Item>
                 </Row>
             </Form>
+        </>
+    );
+}
+
+// periodic option settings
+function PeriodicOption() {
+    return (
+        <>
+            <Form.Item
+                label="Period Name"
+                name="periodName"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Year"
+                name="year"
+                rules={[{ required: true, message: "" }]}
+            >
+                <InputNumber
+                    style={{ width: "100%" }}
+                    min={dayjs().year()}
+                />
+            </Form.Item>
+
+            <Divider>
+                <Typography variant='h6'>
+                    Evaluations
+                </Typography>
+            </Divider>
+
+            <Form.List name="evaluations">
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, ...restField }) => (
+                            <Row
+                                key={key}
+                                style={{
+                                    width: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'space-around',
+                                    alignItems: 'baseline',
+                                }}
+                                className='boxShadowMP2'
+                            >
+                                <Col xs={20} xl={7} xxl={7}>
+                                    <Form.Item
+                                        {...restField}
+                                        label="Round"
+                                        name={[name, 'round']}
+                                        rules={[{ required: true, message: '' }]}
+                                    >
+                                        <Input placeholder='Round Name' />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={20} xl={7} xxl={7}>
+                                    <Form.Item
+                                        {...restField}
+                                        label={"From"}
+                                        name={[name, 'from']}
+                                        rules={[{ required: true, message: '' }]}
+                                    >
+                                        <Select
+                                            style={{
+                                                width: "100%",
+                                            }}
+                                            options={months.map((month) => ({ label: month, value: month }))}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <Col xs={20} xl={7} xxl={7}>
+                                    <Form.Item
+                                        {...restField}
+                                        label={"To"}
+                                        name={[name, 'to']}
+                                        rules={[{ required: true, message: '' }]}
+                                    >
+                                        <Select
+                                            style={{
+                                                width: "100%",
+                                            }}
+                                            options={months.map((month) => ({ label: month, value: month }))}
+                                        />
+                                    </Form.Item>
+                                </Col>
+
+                                <MinusCircleOutlined onClick={() => remove(name)} />
+                            </Row>
+                        ))}
+                        <Row align={"middle"} justify={"center"}>
+                            <Form.Item>
+                                <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    icon={<PlusOutlined />}
+                                >
+                                    Add
+                                </Button>
+                            </Form.Item>
+                        </Row>
+                    </>
+                )}
+            </Form.List>
+        </>
+    )
+}
+
+// evaluation campaign settings
+function EvaluationCampaign(props: any) {
+    const [roundOptions, setRoundOptions] = useState<any[]>([]);
+
+    return (
+        <>
+            <Form.Item
+                label="Period"
+                name="period"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={props.periodNames ?? []}
+                    onChange={(value) => {
+                        const periodicOptionsData: any[] = props.periodicOptionsData;
+                        const filteredOptionsData: any = periodicOptionsData.find(period => period.periodName === value);
+                        const evaluations: any[] = filteredOptionsData.evaluations;
+
+                        const options: any[] = evaluations.map(evaluation => ({ label: evaluation.round, value: evaluation.round }));
+                        setRoundOptions(options);
+                    }}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Round"
+                name="round"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={roundOptions}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Campaign Name"
+                name="campaignName"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Start Date"
+                name="startDate"
+                rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="End Date"
+                name="endDate"
+                rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// monitoring period settings
+function MonitoringPeriod(props: any) {
+    const [roundOptions, setRoundOptions] = useState<any[]>([]);
+
+    return (
+        <>
+            <Form.Item
+                label="Period"
+                name="period"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={props.periodNames ?? []}
+                    onChange={(value) => {
+                        const periodicOptionsData: any[] = props.periodicOptionsData;
+                        const filteredOptionsData: any = periodicOptionsData.find(period => period.periodName === value);
+                        const evaluations: any[] = filteredOptionsData.evaluations;
+
+                        const options: any[] = evaluations.map(evaluation => ({ label: evaluation.round, value: evaluation.round }));
+                        setRoundOptions(options);
+                    }}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Round"
+                name="round"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={roundOptions}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Monitoring Period Name"
+                name="monitoringPeriodName"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Start Date"
+                name="startDate"
+                rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="End Date"
+                name="endDate"
+                rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// leave type settings
+function LeaveType() {
+    return (
+        <>
+        </>
+    );
+}
+
+// leave state settings
+function LeaveState() {
+    return (
+        <>
+        </>
+    );
+}
+
+// leave stage settings
+function LeaveStage() {
+    return (
+        <>
         </>
     );
 }

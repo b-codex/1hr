@@ -10,11 +10,13 @@ import DashboardCard from '../../components/shared/DashboardCard';
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { Modal, message } from 'antd';
+import { useRouter } from 'next/router';
 
 const PerformanceEvaluationManagement = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-
+    const router = useRouter();
+    
     const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
     const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
@@ -63,6 +65,12 @@ const PerformanceEvaluationManagement = () => {
 
     /* creating columns. */
     const columns: GridColDef[] = [
+        {
+            field: 'employeeID',
+            headerName: 'Employee ID',
+            flex: 1,
+            hideable: false,
+        },
         {
             field: 'roundOfEvaluation',
             headerName: 'Round of Evaluation',
@@ -117,7 +125,7 @@ const PerformanceEvaluationManagement = () => {
                         key={1}
                         label='Competency Assessment'
                         onClick={() => {
-
+                            router.push('/performanceEvaluation/competencyAssessment');
                         }}
                         showInMenu
                     />,
@@ -125,7 +133,7 @@ const PerformanceEvaluationManagement = () => {
                         key={1}
                         label='Objectives'
                         onClick={() => {
-
+                            router.push('/performanceEvaluation/objectives');
                         }}
                         showInMenu
                     />

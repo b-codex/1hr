@@ -1,22 +1,25 @@
 import FullLayout from '@/layouts/full/FullLayout';
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined,PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
+import DashboardCard from '../../components/shared/DashboardCard';
 
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
-import { Button, Modal, message } from 'antd';
-import DashboardCard from '../../shared/DashboardCard';
-import { groupBy } from '@/backend/constants/groupBy';
+import { Modal, message } from 'antd';
 
-const LeaveStages = () => {
+const CompetencyAssessment = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
+    const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
+    const [editData, setEditData] = useState<any>({});
+    const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
+
+    useEffect(() => onSnapshot(collection(db, "competency"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -26,17 +29,14 @@ const LeaveStages = () => {
         });
 
         /* Sorting the data by date. */
-        // data.sort((a, b) => {
-        //     let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
-        //     let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+        data.sort((a, b) => {
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-        //     return date1.isBefore(date2) ? -1 : 1;
-        // });
+            return date1.isBefore(date2) ? -1 : 1;
+        });
 
-        const groupedSettings: any = groupBy("type", data);
-        const leaveStages: any[] = groupedSettings['Leave Stage'] ?? [];
-
-        setDataSource(leaveStages);
+        setDataSource(data);
         setLoading(false);
     }), []);
 
@@ -64,20 +64,14 @@ const LeaveStages = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'timestamp',
-            headerName: 'Timestamp',
+            field: 'competencyID',
+            headerName: 'Competency ID',
             flex: 1,
-            // hideable: false,
+            hideable: false,
         },
         {
             field: 'name',
             headerName: 'Name',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'active',
-            headerName: 'Active',
             flex: 1,
             // hideable: false,
         },
@@ -91,17 +85,17 @@ const LeaveStages = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        icon={<EditOutlined />}
                         label='Edit'
+                        icon={<EditOutlined />}
                         onClick={() => {
 
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
-                        key={2}
-                        icon={<DeleteOutlined />}
+                        key={1}
                         label='Delete'
+                        icon={<DeleteOutlined />}
                         onClick={() => {
 
                         }}
@@ -128,25 +122,9 @@ const LeaveStages = () => {
         );
     }, [matches]);
 
-    const AddButton = () => {
-        return (
-            <>
-                <Button
-                    type='primary'
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                        // setAddLeaveRequestModalVisible(true);
-                    }}
-                >
-                    Add
-                </Button>
-            </>
-        );
-    };
-
     return (
         <>
-            <DashboardCard title="Leave Stages" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Competency">
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -170,7 +148,7 @@ const LeaveStages = () => {
     );
 };
 
-export default LeaveStages;
-LeaveStages.getLayout = function getLayout(page: ReactElement) {
+export default CompetencyAssessment;
+CompetencyAssessment.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

@@ -1,12 +1,11 @@
 import moment from 'moment';
-import { months } from '../constants/months';
-import { fetchAttendanceList } from '../api/getFunctions';
 import { batchUpdate } from '../api/batch';
+import { fetchAttendanceList } from '../api/getFunctions';
+import { months } from '../constants/months';
 
 const date: number = moment().date();
 const month: string = months[moment().month()];
 
-/* Using the useEffect hook to listen to the collection "" in the database. */
 export function checkAttendanceStage() {
     {
         (async () => {
@@ -42,5 +41,4 @@ export function checkAttendanceStage() {
             // console.log("update");
         })();
     }
-
 };

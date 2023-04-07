@@ -26,12 +26,12 @@ const LeaveTypes = () => {
         });
 
         /* Sorting the data by date. */
-        data.sort((a, b) => {
-            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
-            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+        // data.sort((a, b) => {
+        //     let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+        //     let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? -1 : 1;
-        });
+        //     return date1.isBefore(date2) ? -1 : 1;
+        // });
 
         const groupedSettings: any = groupBy("type", data);
         const leaveRequests: any[] = groupedSettings['Leave Type'] ?? [];

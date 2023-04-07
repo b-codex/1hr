@@ -1,20 +1,25 @@
 import FullLayout from '@/layouts/full/FullLayout';
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined,PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 
-import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
-import { db } from '@/backend/api/firebase';
+import { db, deleteHRSetting } from '@/backend/api/firebase';
+import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
 import { Button, Modal, message } from 'antd';
 import DashboardCard from '../../shared/DashboardCard';
-import { groupBy } from '@/backend/constants/groupBy';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSetting';
 
-const LeaveStages = () => {
+const EvaluationCampaigns = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
+    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
+    const [editData, setEditData] = useState<any>({});
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -26,21 +31,21 @@ const LeaveStages = () => {
         });
 
         /* Sorting the data by date. */
-        // data.sort((a, b) => {
-        //     let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
-        //     let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+        data.sort((a, b) => {
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-        //     return date1.isBefore(date2) ? -1 : 1;
-        // });
+            return date1.isBefore(date2) ? 1 : -1;
+        });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveStages: any[] = groupedSettings['Leave Stage'] ?? [];
+        const evaluationCampaigns: any[] = groupedSettings['Evaluation Campaign'] ?? [];
 
-        setDataSource(leaveStages);
+        setDataSource(evaluationCampaigns);
         setLoading(false);
     }), []);
 
-    const leaveRequestDelete = (id: string) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -48,7 +53,7 @@ const LeaveStages = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteLeaveRequest(id)
+                await deleteHRSetting(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -70,14 +75,32 @@ const LeaveStages = () => {
             // hideable: false,
         },
         {
-            field: 'name',
-            headerName: 'Name',
+            field: 'period',
+            headerName: 'Period',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'active',
-            headerName: 'Active',
+            field: 'round',
+            headerName: 'Round',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'campaignName',
+            headerName: 'Campaign Name',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'startDate',
+            headerName: 'Start Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'endDate',
+            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -94,7 +117,8 @@ const LeaveStages = () => {
                         icon={<EditOutlined />}
                         label='Edit'
                         onClick={() => {
-
+                            setEditData(params.row);
+                            setHrEditSettingModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -103,7 +127,7 @@ const LeaveStages = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -135,7 +159,7 @@ const LeaveStages = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        // setAddLeaveRequestModalVisible(true);
+                        setHrAddSettingModalOpen(true);
                     }}
                 >
                     Add
@@ -146,7 +170,7 @@ const LeaveStages = () => {
 
     return (
         <>
-            <DashboardCard title="Leave Stages" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Evaluation Campaigns" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -166,11 +190,24 @@ const LeaveStages = () => {
                     </div>
                 </Box>
             </DashboardCard>
+
+            <HRAddSetting
+                open={hrAddSettingModalOpen}
+                setOpen={setHrAddSettingModalOpen}
+                type={"Evaluation Campaign"}
+            />
+
+            <HREditSetting
+                open={hrEditSettingModalOpen}
+                setOpen={setHrEditSettingModalOpen}
+                type={"Evaluation Campaign"}
+                data={editData}
+            />
         </>
     );
 };
 
-export default LeaveStages;
-LeaveStages.getLayout = function getLayout(page: ReactElement) {
+export default EvaluationCampaigns;
+EvaluationCampaigns.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

@@ -1,25 +1,27 @@
 import FullLayout from '@/layouts/full/FullLayout';
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
-import DashboardCard from '../../components/shared/DashboardCard';
 
-import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
-import { db } from '@/backend/api/firebase';
-import { Modal, message } from 'antd';
+import { db, deleteHRSetting } from '@/backend/api/firebase';
+import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
+import { Button, Modal, message } from 'antd';
+import DashboardCard from '../../shared/DashboardCard';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSetting';
 
-const PerformanceEvaluationManagement = () => {
+const MonitoringPeriods = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
+    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
+    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
-    const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
 
-    useEffect(() => onSnapshot(collection(db, "performanceEvaluation"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -33,14 +35,17 @@ const PerformanceEvaluationManagement = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? -1 : 1;
+            return date1.isBefore(date2) ? 1 : -1;
         });
 
-        setDataSource(data);
+        const groupedSettings: any = groupBy("type", data);
+        const monitoringPeriod: any[] = groupedSettings['Monitoring Period'] ?? [];
+
+        setDataSource(monitoringPeriod);
         setLoading(false);
     }), []);
 
-    const leaveRequestDelete = (id: string) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -48,7 +53,7 @@ const PerformanceEvaluationManagement = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteLeaveRequest(id)
+                await deleteHRSetting(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -64,14 +69,38 @@ const PerformanceEvaluationManagement = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'competencyID',
-            headerName: 'Competency ID',
+            field: 'timestamp',
+            headerName: 'Timestamp',
             flex: 1,
-            hideable: false,
+            // hideable: false,
         },
         {
-            field: 'name',
-            headerName: 'Name',
+            field: 'period',
+            headerName: 'Period',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'round',
+            headerName: 'Round',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'monitoringPeriodName',
+            headerName: 'Monitoring Period Name',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'startDate',
+            headerName: 'Start Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'endDate',
+            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -85,19 +114,20 @@ const PerformanceEvaluationManagement = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='Edit'
                         icon={<EditOutlined />}
+                        label='Edit'
                         onClick={() => {
-
+                            setEditData(params.row);
+                            setHrEditSettingModalOpen(true);
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
-                        key={1}
-                        label='Delete'
+                        key={2}
                         icon={<DeleteOutlined />}
+                        label='Delete'
                         onClick={() => {
-
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -122,9 +152,25 @@ const PerformanceEvaluationManagement = () => {
         );
     }, [matches]);
 
+    const AddButton = () => {
+        return (
+            <>
+                <Button
+                    type='primary'
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                        setHrAddSettingModalOpen(true);
+                    }}
+                >
+                    Add
+                </Button>
+            </>
+        );
+    };
+
     return (
         <>
-            <DashboardCard title="Competency">
+            <DashboardCard title="Monitoring Periods" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -144,11 +190,24 @@ const PerformanceEvaluationManagement = () => {
                     </div>
                 </Box>
             </DashboardCard>
+
+            <HRAddSetting
+                open={hrAddSettingModalOpen}
+                setOpen={setHrAddSettingModalOpen}
+                type={"Monitoring Period"}
+            />
+
+            <HREditSetting
+                open={hrEditSettingModalOpen}
+                setOpen={setHrEditSettingModalOpen}
+                type={"Monitoring Period"}
+                data={editData}
+            />
         </>
     );
 };
 
-export default PerformanceEvaluationManagement;
-PerformanceEvaluationManagement.getLayout = function getLayout(page: ReactElement) {
+export default MonitoringPeriods;
+MonitoringPeriods.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

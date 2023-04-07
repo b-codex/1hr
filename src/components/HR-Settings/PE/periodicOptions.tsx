@@ -1,23 +1,28 @@
 import FullLayout from '@/layouts/full/FullLayout';
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 
-import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
-import { db } from '@/backend/api/firebase';
-import { Button, Modal, message } from 'antd';
-import DashboardCard from '../../shared/DashboardCard';
+import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
+import { Button, Modal, Row, message } from 'antd';
+import DashboardCard from '../../shared/DashboardCard';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSetting';
+import ViewEvaluationRoundsModal from '@/components/modals/View/viewEvaluationRounds';
 
 const PeriodicOptions = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
+    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
+    const [editData, setEditData] = useState<any>({});
+    const [evaluationRoundsModalOpen, setEvaluationRoundsModalOpen] = useState<boolean>(false);
+    const [rounds, setRounds] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -33,17 +38,17 @@ const PeriodicOptions = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? -1 : 1;
+            return date1.isBefore(date2) ? 1 : -1;
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveRequests: any[] = groupedSettings['Periodic Options'] ?? [];
+        const periodicOptions: any[] = groupedSettings['Periodic Option'] ?? [];
 
-        setDataSource(leaveRequests);
+        setDataSource(periodicOptions);
         setLoading(false);
     }), []);
 
-    const leaveRequestDelete = (id: string) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -51,7 +56,7 @@ const PeriodicOptions = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteLeaveRequest(id)
+                await deleteHRSetting(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -91,8 +96,18 @@ const PeriodicOptions = () => {
             // hideable: false,
             renderCell: (params: any) => {
                 return (
-                    <>
-                    </>
+                    <Row justify={'center'} align={'middle'}>
+                        <Button
+                            type='primary'
+                            icon={<EllipsisOutlined />}
+                            onClick={() => {
+                                setRounds(params.row.evaluations);
+                                setEvaluationRoundsModalOpen(true);
+                            }}
+                        >
+                            View
+                        </Button>
+                    </Row>
                 );
             },
         },
@@ -105,20 +120,12 @@ const PeriodicOptions = () => {
             getActions: (params: any) => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
-                        key={0}
-                        icon={<EditOutlined />}
-                        label='Use'
-                        onClick={() => {
-
-                        }}
-                        showInMenu={false}
-                    />,
-                    <GridActionsCellItem
                         key={1}
                         icon={<EditOutlined />}
                         label='Edit'
                         onClick={() => {
-
+                            setEditData(params.row);
+                            setHrEditSettingModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -127,7 +134,7 @@ const PeriodicOptions = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -195,6 +202,19 @@ const PeriodicOptions = () => {
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
                 type={"Periodic Option"}
+            />
+
+            <HREditSetting
+                open={hrEditSettingModalOpen}
+                setOpen={setHrEditSettingModalOpen}
+                type={"Periodic Option"}
+                data={editData}
+            />
+
+            <ViewEvaluationRoundsModal
+                open={evaluationRoundsModalOpen}
+                setOpen={setEvaluationRoundsModalOpen}
+                data={rounds}
             />
         </>
     );

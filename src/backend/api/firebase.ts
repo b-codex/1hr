@@ -19,7 +19,7 @@ import { daysInMonth } from '../functions/periodWorkingDays';
 import { AttendanceData } from "../models/attendanceData";
 import { EmployeeData } from "../models/employeeData";
 import { batchAdd } from './batch';
-import { fetchHRSettings } from './getFunctions';
+import { fetchEmployees, fetchHRSettings, fetchPeriodicOption } from './getFunctions';
 
 /* A shorthand for console.log. */
 const log = console.log;
@@ -36,6 +36,7 @@ export const employeeCollection = collection(db, "employee");
 export const attendanceCollection = collection(db, "attendance");
 export const hrSettingsCollection = collection(db, "hrSettings");
 export const leaveManagementCollection = collection(db, "leaveManagement");
+export const performanceEvaluationCollection = collection(db, "performanceEvaluation");
 
 // add employee
 export const addEmployee = async (data: EmployeeData) => {
@@ -165,10 +166,10 @@ export async function updateEmployee(data: EmployeeData, docID: string) {
 export async function deleteEmployee(id: string) {
     let result: boolean = await deleteDoc(doc(db, "employee", id))
         .then(() => {
-            return result = true;
+            return true;
         })
         .catch(() => {
-            return result = false;
+            return false;
         });
 
     return result;
@@ -180,15 +181,86 @@ export const addHRSetting = async (data: any) => {
 
     let result: boolean = false;
 
-    const newDoc = doc(hrSettingsCollection);
+    if (data.type === "Evaluation Campaign") {
+        const period: string = data.period;
+        const round: string = data.round;
+        const campaignStartDate: string = data.startDate;
+        const campaignEndDate: string = data.endDate;
 
-    result = await setDoc(newDoc, { ...data, id: newDoc.id, })
+        const periodicOptionData: any = (await fetchPeriodicOption(period)).at(0);
+        const chosenRound: any = periodicOptionData.evaluations.find((val: any) => val.round === round);
+        const from: string = chosenRound.from;
+        const to: string = chosenRound.to;
+
+        const newDataArray: any[] = [];
+
+        const employees: any[] = await fetchEmployees();
+        employees.forEach(employee => {
+            const newData: any = {
+                employeeID: employee.id,
+                roundOfEvaluation: round,
+                stage: "",
+                performanceYear: periodicOptionData.year,
+                periodStart: from,
+                periodEnd: to,
+                campaignStartDate: campaignStartDate,
+                campaignEndDate: campaignEndDate,
+            };
+
+            newDataArray.push(newData);
+        });
+
+        // console.log("newDataArray: ", newDataArray);
+
+        const newDoc = doc(hrSettingsCollection);
+        result = await setDoc(newDoc, { ...data, id: newDoc.id, })
+            .then(async () => {
+                return await batchAdd(newDataArray, 'performanceEvaluation');
+            })
+            .catch(err => {
+                console.log(err);
+                return false;
+            });
+    }
+
+    else {
+        const newDoc = doc(hrSettingsCollection);
+
+        result = await setDoc(newDoc, { ...data, id: newDoc.id, })
+            .then(() => true)
+            .catch(err => {
+                console.log(err);
+                return false;
+            });
+    }
+
+    return result;
+}
+
+export async function updateHRSetting(data: any, docID: string) {
+    let result: boolean = false;
+
+    const docRef = doc(db, "hrSettings", docID);
+
+    result = await updateDoc(docRef, data as any)
         .then(() => true)
         .catch(err => {
-            console.log(err);
+            log(err);
             return false;
         });
 
     return result;
+}
 
+
+export async function deleteHRSetting(id: string) {
+    let result: boolean = await deleteDoc(doc(db, "hrSettings", id))
+        .then(() => {
+            return true;
+        })
+        .catch(() => {
+            return false;
+        });
+
+    return result;
 }
