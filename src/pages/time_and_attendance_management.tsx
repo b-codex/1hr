@@ -159,16 +159,16 @@ const TimeAndAttendanceManagement = () => {
 
                 // if its open, then add the edit button to the array
                 // if (params.row.stage === 'Open') {
-                    actionArray.push(<GridActionsCellItem
-                        key={2}
-                        label='Edit'
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                            setActiveAttendanceDate(params.row);
-                            setAttendanceListEditModalOpen(true);
-                        }}
-                        showInMenu
-                    />);
+                actionArray.push(<GridActionsCellItem
+                    key={2}
+                    label='Edit'
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                        setActiveAttendanceDate(params.row);
+                        setAttendanceListEditModalOpen(true);
+                    }}
+                    showInMenu
+                />);
                 // }
 
                 // if its closed, then add the request modification button to the array

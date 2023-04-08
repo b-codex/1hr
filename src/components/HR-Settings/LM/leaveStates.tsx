@@ -7,14 +7,20 @@ import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
-import { db } from '@/backend/api/firebase';
+import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { Button, Modal, message } from 'antd';
 import DashboardCard from '../../shared/DashboardCard';
 import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 
 const LeaveStates = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
+    const [editData, setEditData] = useState<any>({});
+    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -26,12 +32,12 @@ const LeaveStates = () => {
         });
 
         /* Sorting the data by date. */
-        // data.sort((a, b) => {
-        //     let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
-        //     let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+        data.sort((a, b) => {
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-        //     return date1.isBefore(date2) ? -1 : 1;
-        // });
+            return date1.isBefore(date2) ? -1 : 1;
+        });
 
         const groupedSettings: any = groupBy("type", data);
         const leaveStates: any[] = groupedSettings['Leave State'] ?? [];
@@ -40,7 +46,7 @@ const LeaveStates = () => {
         setLoading(false);
     }), []);
 
-    const leaveRequestDelete = (id: string) => {
+    const leaveStateDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -48,7 +54,7 @@ const LeaveStates = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteLeaveRequest(id)
+                await deleteHRSetting(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -94,7 +100,8 @@ const LeaveStates = () => {
                         icon={<EditOutlined />}
                         label='Edit'
                         onClick={() => {
-
+                            setEditData(params.row);
+                            setEditModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -103,7 +110,7 @@ const LeaveStates = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-
+                            leaveStateDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -119,10 +126,8 @@ const LeaveStates = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                periodStart: matches,
-                periodEnd: matches,
-                campaignStartDate: matches,
-                campaignEndDate: matches,
+                timestamp: matches,
+                active: matches,
                 actions: matches,
             }
         );
@@ -135,7 +140,7 @@ const LeaveStates = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        // setAddLeaveRequestModalVisible(true);
+                        setAddModalOpen(true);
                     }}
                 >
                     Add
@@ -166,6 +171,19 @@ const LeaveStates = () => {
                     </div>
                 </Box>
             </DashboardCard>
+
+            <HRAddSetting
+                open={addModalOpen}
+                setOpen={setAddModalOpen}
+                type={"Leave State"}
+            />
+
+            <HREditSetting
+                open={editModalOpen}
+                setOpen={setEditModalOpen}
+                type={"Leave State"}
+                data={editData}
+            />
         </>
     );
 };

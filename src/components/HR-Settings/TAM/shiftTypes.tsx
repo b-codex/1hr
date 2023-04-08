@@ -10,10 +10,10 @@ import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
 import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, Space, Tag, message } from 'antd';
 import DashboardCard from '../../shared/DashboardCard';
 
-const LeaveTypes = () => {
+const ShiftTypes = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -39,7 +39,7 @@ const LeaveTypes = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveRequests: any[] = groupedSettings['Leave Type'] ?? [];
+        const leaveRequests: any[] = groupedSettings['Shift Type'] ?? [];
 
         setDataSource(leaveRequests);
         setLoading(false);
@@ -81,10 +81,21 @@ const LeaveTypes = () => {
             // hideable: false,
         },
         {
-            field: 'authorizedDays',
-            headerName: 'Authorized Days',
-            flex: 1,
+            field: 'workingDays',
+            headerName: 'Working Days',
+            flex: 3,
             // hideable: false,
+            renderCell: (params: any) => {
+                const workingDays: string[] = params.row.workingDays;
+
+                return (
+                    <>
+                        <Space direction='horizontal'>
+                            {workingDays.map(day => <Tag key={day}>{day}</Tag>)}
+                        </Space>
+                    </>
+                );
+            },
         },
         {
             field: 'active',
@@ -156,7 +167,7 @@ const LeaveTypes = () => {
 
     return (
         <>
-            <DashboardCard title="Leave Types" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Shift Types" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -180,20 +191,20 @@ const LeaveTypes = () => {
             <HRAddSetting
                 open={addModalOpen}
                 setOpen={setAddModalOpen}
-                type={"Leave Type"}
+                type={"Shift Type"}
             />
 
             <HREditSetting
                 open={editModalOpen}
                 setOpen={setEditModalOpen}
-                type={"Leave Type"}
+                type={"Shift Type"}
                 data={editData}
             />
         </>
     );
 };
 
-export default LeaveTypes;
-LeaveTypes.getLayout = function getLayout(page: ReactElement) {
+export default ShiftTypes;
+ShiftTypes.getLayout = function getLayout(page: ReactElement) {
     return <FullLayout>{page}</FullLayout>;
 };

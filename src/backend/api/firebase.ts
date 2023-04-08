@@ -18,8 +18,9 @@ import moment from "moment";
 import { daysInMonth } from '../functions/periodWorkingDays';
 import { AttendanceData } from "../models/attendanceData";
 import { EmployeeData } from "../models/employeeData";
-import { batchAdd } from './batch';
+import { batchAdd, batchDelete } from './batch';
 import { fetchEmployees, fetchHRSettings, fetchPeriodicOption } from './getFunctions';
+import { fetchPerformanceEvaluations } from './getFunctions';
 
 /* A shorthand for console.log. */
 const log = console.log;
@@ -184,6 +185,7 @@ export const addHRSetting = async (data: any) => {
     if (data.type === "Evaluation Campaign") {
         const period: string = data.period;
         const round: string = data.round;
+        const campaignName: string = data.campaignName;
         const campaignStartDate: string = data.startDate;
         const campaignEndDate: string = data.endDate;
 
@@ -205,6 +207,7 @@ export const addHRSetting = async (data: any) => {
                 periodEnd: to,
                 campaignStartDate: campaignStartDate,
                 campaignEndDate: campaignEndDate,
+                campaignName: campaignName,
             };
 
             newDataArray.push(newData);
@@ -253,14 +256,70 @@ export async function updateHRSetting(data: any, docID: string) {
 }
 
 
-export async function deleteHRSetting(id: string) {
-    let result: boolean = await deleteDoc(doc(db, "hrSettings", id))
+export async function deleteHRSetting(id: string, data?: any) {
+    let result: boolean = false;
+
+    if (data !== undefined) {
+        if (data.type === "Periodic Option") {
+            const idArrayHRSettings: string[] = [id];
+            const idArrayPE: string[] = [];
+
+            const periodName: string = data.periodName;
+
+            // fetch all HR settings
+            const allHRSettings: any[] = await fetchHRSettings();
+            const groupedHRSettings: any = groupBy("type", allHRSettings);
+
+            // from evaluation campaign, find the docs with the same period name
+            const evaluationCampaigns: any[] = groupedHRSettings['Evaluation Campaign'] ?? []
+            const evaluationCampaignsByPeriodName: any[] = evaluationCampaigns.filter(c => c.period === periodName);
+            evaluationCampaignsByPeriodName.forEach(c => idArrayHRSettings.push(c.id));
+
+            // from monitoring period, find the docs with the same period name
+            const monitoringPeriods: any[] = groupedHRSettings['Monitoring Period'] ?? []
+            const monitoringPeriodsByPeriodName: any[] = monitoringPeriods.filter(c => c.period === periodName);
+            monitoringPeriodsByPeriodName.forEach(m => idArrayHRSettings.push(m.id));
+
+            // from performance evaluation, find the docs with the same period name
+            const performanceEvaluations: any[] = await fetchPerformanceEvaluations();
+            evaluationCampaignsByPeriodName.forEach(c => {
+                const campaignName: string = c.campaignName;
+                const performanceEvaluationByCampaignName: any[] = performanceEvaluations.filter(e => e.campaignName === campaignName);
+
+                performanceEvaluationByCampaignName.forEach(p => idArrayPE.push(p.id));
+            });
+
+            // delete from hrSettings collection
+            for (const id of idArrayHRSettings) {
+                await deleteDoc(doc(db, "hrSettings", id))
+                    .then(() => {
+                        result = true;
+                    })
+                    .catch(() => {
+                        result = false;
+                    });
+            }
+
+            // delete from performanceEvaluation collection
+            for (const id of idArrayPE) {
+                await deleteDoc(doc(db, "performanceEvaluation", id))
+                    .then(() => {
+                        result = true;
+                    })
+                    .catch(() => {
+                        result = false;
+                    });
+            }
+        }
+    }
+
+    await deleteDoc(doc(db, "hrSettings", id))
         .then(() => {
-            return true;
+            result = true;
         })
         .catch(() => {
-            return false;
+            result = false;
         });
 
-    return result;
+    return true;
 }

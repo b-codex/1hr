@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { days } from '../constants/days';
 import { AttendanceData } from './../models/attendanceData';
+import dayjs from 'dayjs';
+import compareMonths from './compareMonths';
 
 function isWeekday(year: number, month: number, day: number) {
     var day = new Date(year, month, day).getDay();
@@ -38,40 +40,34 @@ function getWeekdaysInMonth(month: number, year: number) {
 /// 10 - November
 /// 11 - December
 
-
-// fetch employee data
-// get shift type
-// fetch shifts
-// get the intended shift type
-// get the working days of shift
-// calculate the working days based on the shift type
-
-
 export function calculatePeriodWorkingDays(attendanceData: AttendanceData, workingDays: string[]) {
     let pwd: number = 0;
 
     const attendance: any = attendanceData.attendance;
     const months: string[] = Object.keys(attendance);
 
+
     months.forEach((month, monthIndex) => {
 
         const numberedDays: string[] = Object.keys(attendance[month]);
 
         numberedDays.forEach(day => {
-            const date: moment.Moment = moment(`${attendanceData.attendancePeriod} ${day}, ${attendanceData.year}`, "MMMM DD, YYYY");
+            const year: number = attendanceData.attendancePeriod === "January" && month === "December" ? attendanceData.year - 1 : attendanceData.year;
+            const stringDate: string = `${month} ${day}, ${year}`;
+            const date: dayjs.Dayjs = dayjs(stringDate);
+            
             const dayInString: string = days[date.day()];
+            // if (attendanceData.attendancePeriod === "January") {
+            //     // console.log(`stringDate: ${stringDate}`)
+            //     console.log("day: ", day, " date: ", date.format("MMMM DD, YYYY"), days[date.day()]);
+            //     // console.log(`date: `, stringDate, ` workingDays.includes(${dayInString}): `, workingDays.includes(dayInString));
+            // }
 
             if (workingDays.includes(dayInString) === true) pwd++;
         });
     });
 
-    // console.log("pwd: ", pwd);
+    // console.log(`pwd: ", pwd);
 
     return pwd;
 }
-
-//? Use case
-/* 
-*   the input is attendance data for an employee
-*   from the attendanceData, the function extracts the attendance values and calculates the number of days the user was present 
-*/

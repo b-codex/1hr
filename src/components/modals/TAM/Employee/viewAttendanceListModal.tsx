@@ -49,7 +49,6 @@ const EmployeeAttendanceListView = ({
     useEffect(() => {
         if (attendanceData) {
             const otData: any[] = attendanceData.overtime;
-            console.log("otData: ", otData);
             otData.forEach((o) => o.id = generateID());
             setOvertime(otData);
 

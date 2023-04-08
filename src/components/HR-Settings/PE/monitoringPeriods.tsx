@@ -8,10 +8,10 @@ import { ReactElement, useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
 import { Button, Modal, message } from 'antd';
 import DashboardCard from '../../shared/DashboardCard';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSetting';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 
 const MonitoringPeriods = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);

@@ -8,10 +8,10 @@ import { ReactElement, useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSetting';
+import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
 import { Button, Modal, Row, message } from 'antd';
 import DashboardCard from '../../shared/DashboardCard';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSetting';
+import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 import ViewEvaluationRoundsModal from '@/components/modals/View/viewEvaluationRounds';
 
 const PeriodicOptions = () => {
@@ -48,7 +48,7 @@ const PeriodicOptions = () => {
         setLoading(false);
     }), []);
 
-    const hrSettingDelete = (id: string) => {
+    const hrSettingDelete = (id: string, data?: any) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -56,7 +56,7 @@ const PeriodicOptions = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteHRSetting(id)
+                await deleteHRSetting(id, data)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -134,7 +134,7 @@ const PeriodicOptions = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            hrSettingDelete(params.row.id);
+                            hrSettingDelete(params.row.id, params.row);
                         }}
                         showInMenu
                     />

@@ -10,6 +10,7 @@ import CustomModal from '../../customModal';
 import { groupBy } from '@/backend/constants/groupBy';
 import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import moment from 'moment';
+import { days } from '@/backend/constants/days';
 
 export default function HRAddSetting(
     {
@@ -238,6 +239,15 @@ function AddSetting(
                             return (
                                 <>
                                     <LeaveStage />
+                                </>
+                            );
+                        }
+
+                        // shift type
+                        if (type === "Shift Type") {
+                            return (
+                                <>
+                                    <ShiftType />
                                 </>
                             );
                         }
@@ -509,6 +519,32 @@ function MonitoringPeriod(props: any) {
 function LeaveType() {
     return (
         <>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Authorized Days"
+                name="authorizedDays"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
         </>
     );
 }
@@ -517,6 +553,24 @@ function LeaveType() {
 function LeaveState() {
     return (
         <>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
         </>
     );
 }
@@ -525,6 +579,62 @@ function LeaveState() {
 function LeaveStage() {
     return (
         <>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// shift type settings
+function ShiftType() {
+    return (
+        <>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Working Days"
+                name="workingDays"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={days.map((value) => ({ label: value, value: value }))}
+                    mode='multiple'
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
         </>
     );
 }

@@ -1,7 +1,7 @@
 
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Alert, Box, Card, CardContent, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery } from '@mui/material';
-import { Col, DatePicker, Form, Input, Row, Select, Space, Spin, TimePicker, message, Divider, Button } from 'antd';
+import { Box, Card, CardContent, CardHeader, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery } from '@mui/material';
+import { Button, Col, DatePicker, Divider, Form, Input, Row, Select, Space, TimePicker, message } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { db } from '@/backend/api/firebase';
@@ -46,8 +46,8 @@ const EmployeeAttendanceEdit = ({
 
 export default EmployeeAttendanceEdit
 
-import CustomModal from '../../customModal';
 import InfoCard from '@/components/shared/InfoCard';
+import CustomModal from '../../customModal';
 
 function EditComponent(
     {
@@ -75,8 +75,9 @@ function EditComponent(
         });
         const groupedSettings: any = groupBy("type", data);
 
-        const shiftTypes: any[] = groupedSettings["Shift Type"];
-        setShiftTypes(shiftTypes);
+        const shiftTypes: any[] = groupedSettings["Shift Type"] ?? [];
+        const options: any[] = shiftTypes.filter(shift => shift.active === "Yes");
+        setShiftTypes(options);
 
     }), []);
 
@@ -116,7 +117,9 @@ function EditComponent(
             });
 
             const overtimeData: any[] = attendanceData.overtime === undefined || attendanceData.overtime === null ? [] : attendanceData.overtime;
-            overtimeData.push(...overtime);
+            if (overtimeData.length > 0 && attendanceData.overtime) {
+                overtimeData.push(...overtime);
+            }
 
             const commentData: any[] = attendanceData.comments;
             if (values.comments !== null) commentData.push(...values.comments);

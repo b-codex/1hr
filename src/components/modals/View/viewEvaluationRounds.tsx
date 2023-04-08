@@ -21,15 +21,16 @@ export default function ViewEvaluationRoundsModal(
 
     useEffect(() => {
         const ds: any[] = [];
-
-        data.forEach((d: any) => {
-            ds.push({
-                id: generateID(),
-                ...d,
+        if (data !== null && data.length > 0) {
+            data.forEach((d: any) => {
+                ds.push({
+                    id: generateID(),
+                    ...d,
+                });
             });
-        });
 
-        setDataSource(ds);
+            setDataSource(ds);
+        }
     }, [data])
 
 
@@ -67,7 +68,7 @@ export default function ViewEvaluationRoundsModal(
             >
                 <DashboardCard title="" className='myCard2'>
                     <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                        <div style={{ height: matches ? "calc(100vh - 600px)" : "100vh", width: '100%' }}>
+                        <div style={{ height: matches ? "calc(100vh - 400px)" : "100vh", width: '100%' }}>
                             <DataGrid
                                 rows={dataSource}
                                 loading={false}

@@ -9,9 +9,16 @@ import LeaveStates from '@/components/HR-Settings/LM/leaveStates';
 import PeriodicOptions from '@/components/HR-Settings/PE/periodicOptions';
 import EvaluationCampaigns from '@/components/HR-Settings/PE/evaluationCampaigns';
 import MonitoringPeriods from '@/components/HR-Settings/PE/monitoringPeriods';
+import ShiftTypes from '@/components/HR-Settings/TAM/shiftTypes';
 
 // TAM Settings
-const timeAndAttendanceManagementSettings: any[] = [];
+const timeAndAttendanceManagementSettings: any[] = [
+    {
+        key: "1",
+        label: "Shift Types",
+        children: <ShiftTypes />,
+    },
+];
 function TimeAndAttendanceManagementTabs() {
     const matches = useMediaQuery('(min-width:900px)');
 
@@ -127,7 +134,7 @@ const HRSettings = () => {
     return (
         <>
             <Tabs
-                defaultActiveKey="PE"
+                defaultActiveKey="TAM"
                 centered
                 items={items}
                 style={{
