@@ -85,14 +85,26 @@ body {
     font-weight: 400;
 }
 
-.MuiDataGrid-virtualScroller{
+.MuiDataGrid-virtualScroller {
     overflow: visible !important;
 }
 
-.boxShadowMP2{
+.boxShadowMP2 {
     margin: 2em .3em;
     padding: 2em;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.m-1 {
+    margin: 1em !important;
+}
+
+.loadingContainer {
+    width: calc(100vw - 380px);
+    height: calc(100vh - 150px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @media only screen and (max-width: 900px) {
@@ -106,6 +118,11 @@ body {
     }
 
     .MuiCardContent-root {
-        padding: 0 !important;
+        padding: 10px !important;
+    }
+
+    .loadingContainer {
+        width: 100%;
+        height: calc(100vh - 100px);
     }
 }

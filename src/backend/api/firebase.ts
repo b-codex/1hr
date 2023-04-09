@@ -21,6 +21,7 @@ import { EmployeeData } from "../models/employeeData";
 import { batchAdd, batchDelete } from './batch';
 import { fetchEmployees, fetchHRSettings, fetchPeriodicOption } from './getFunctions';
 import { fetchPerformanceEvaluations } from './getFunctions';
+import dayjs from 'dayjs';
 
 /* A shorthand for console.log. */
 const log = console.log;
@@ -32,15 +33,24 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
 // collection ref
-export const usersCollection = collection(db, "users");
 export const employeeCollection = collection(db, "employee");
 export const attendanceCollection = collection(db, "attendance");
 export const hrSettingsCollection = collection(db, "hrSettings");
 export const leaveManagementCollection = collection(db, "leaveManagement");
 export const performanceEvaluationCollection = collection(db, "performanceEvaluation");
+export const employeeInfoChangeRequestCollection = collection(db, "employeeInfoChangeRequest");
 
 // add employee
 export const addEmployee = async (data: EmployeeData) => {
+    const firstName: string = data.firstName;
+    const lastName: string = data.lastName;
+    const birthDate: dayjs.Dayjs = dayjs(data.birthDate);
+    const day: number = birthDate.date();
+    const month: number = birthDate.get('month');
+    const year: number = birthDate.get('year');
+
+    const eid: string = `${firstName.toLowerCase().at(0)}${lastName.toLowerCase().slice(0, 2)}-${day.toString().at(0)}${month.toString().at(0)}${year.toString().at(0)}`;
+    data.employeeID = eid;
 
     const hrSettings: any[] = await fetchHRSettings();
 
@@ -148,7 +158,7 @@ export const addEmployee = async (data: EmployeeData) => {
 }
 
 // update employee
-export async function updateEmployee(data: EmployeeData, docID: string) {
+export async function updateEmployee(data: EmployeeData | any, docID: string) {
     let result: boolean = false;
 
     const docRef = doc(db, "employee", docID);
@@ -175,7 +185,6 @@ export async function deleteEmployee(id: string) {
 
     return result;
 }
-
 
 // add hrSetting
 export const addHRSetting = async (data: any) => {
@@ -254,7 +263,6 @@ export async function updateHRSetting(data: any, docID: string) {
 
     return result;
 }
-
 
 export async function deleteHRSetting(id: string, data?: any) {
     let result: boolean = false;

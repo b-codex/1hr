@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-    Avatar,
     Box,
     Menu,
     Button,
@@ -9,9 +8,15 @@ import {
     MenuItem,
     ListItemIcon,
     ListItemText,
+
 } from "@mui/material";
 
-import { LikeFilled, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { LikeFilled, MailOutlined, UserOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Space, Typography, Avatar } from "antd";
+import { db } from "@/backend/api/firebase";
+import { EmployeeData } from "@/backend/models/employeeData";
+import { onSnapshot, collection, QuerySnapshot, DocumentData } from "firebase/firestore";
+import router from "next/router";
 
 const Profile = () => {
     const [anchorEl2, setAnchorEl2] = useState(null);
@@ -21,6 +26,45 @@ const Profile = () => {
     const handleClose2 = () => {
         setAnchorEl2(null);
     };
+
+    const [employeeID, setEmployeeID] = useState<any>({});
+    const [employeeData, setEmployeeData] = useState<EmployeeData>();
+
+    const [pageLoading, setPageLoading] = useState<boolean>(true);
+    // check login state
+    useEffect(() => {
+        const loggedIn: string = localStorage.getItem('loggedIn') as string;
+        // console.log("Logged In: ", loggedIn);
+
+        if (loggedIn === null || loggedIn === undefined) {
+            // router.push('/');
+        }
+        else {
+            const user: EmployeeData = JSON.parse(localStorage.getItem('user') as string);
+
+            setEmployeeID(user.employeeID)
+            // setPageLoading(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => onSnapshot(collection(db, "employee"), (snapshot: QuerySnapshot<DocumentData>) => {
+        const data: any[] = [];
+        snapshot.docs.map((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        const employee: EmployeeData | undefined = data.find((doc) => doc.employeeID === employeeID);
+
+        if (employee) {
+            setEmployeeData(employee);
+            setPageLoading(false);
+        }
+
+    }), [employeeID]);
 
     return (
         <Box>
@@ -37,14 +81,22 @@ const Profile = () => {
                 }}
                 onClick={handleClick2}
             >
-                <Avatar
-                    src="/images/profile/user-1.jpg"
-                    alt="image"
-                    sx={{
-                        width: 35,
-                        height: 35,
-                    }}
-                />
+                <Space>
+                    <Typography>
+                        Hi, {employeeData?.firstName}
+                    </Typography>
+
+                    <Avatar
+                        // src="/images/profile/profile_placeholder.jpg"
+                        icon={<UserOutlined />}
+                        alt="image"
+                        // sx={{
+                        //     width: 35,
+                        //     height: 35,
+                        // }}
+                        size={"large"}
+                    />
+                </Space>
             </IconButton>
             {/* ------------------------------------------- */}
             {/* Message Dropdown */}
@@ -59,17 +111,42 @@ const Profile = () => {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 sx={{
                     "& .MuiMenu-paper": {
-                        width: "200px",
+                        width: "250px",
                     },
                 }}
             >
-                <MenuItem>
+
+                <Box mt={1} px={2}>
+                    <Typography.Title level={4}>
+                        {employeeData?.firstName} {employeeData?.lastName} ({employeeData?.employeeID})
+                    </Typography.Title>
+                </Box>
+
+                <Box mt={1} px={2}>
+                    <Space size={15}>
+                        <PhoneOutlined rotate={90} />
+
+                        <Typography>{employeeData?.personalPhoneNumber}</Typography>
+                    </Space>
+                </Box>
+
+                <Box mt={1} px={2}>
+                    <Space size={15}>
+                        <MailOutlined />
+
+                        <Typography>{employeeData?.personalEmail}</Typography>
+                    </Space>
+                </Box>
+
+                {/* <MenuItem onClick={(event)=>{
+                    console.log(event)
+                }}>
                     <ListItemIcon>
                         <UserOutlined width={20} />
                     </ListItemIcon>
-                    <ListItemText>My Profile</ListItemText>
-                </MenuItem>
-                <MenuItem>
+                    <ListItemText>User Information</ListItemText>
+                </MenuItem> */}
+                {/* <MenuItem>
                     <ListItemIcon>
                         <MailOutlined width={20} />
                     </ListItemIcon>
@@ -80,14 +157,16 @@ const Profile = () => {
                         <LikeFilled width={20} />
                     </ListItemIcon>
                     <ListItemText>My Tasks</ListItemText>
-                </MenuItem>
+                </MenuItem> */}
                 <Box mt={1} py={1} px={2}>
                     <Button
-                        href="/authentication/login"
                         variant="outlined"
                         color="primary"
-                        component={Link}
                         fullWidth
+                        onClick={() => {
+                            localStorage.clear();
+                            router.push('/');
+                        }}
                     >
                         Logout
                     </Button>

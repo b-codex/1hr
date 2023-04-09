@@ -1,12 +1,11 @@
-import { log } from "console";
 import { getDocs, query, where } from "firebase/firestore";
-import { usersCollection } from "../firebase";
+import { employeeCollection } from "../firebase";
 
 // login function
-export const login = async (email: string, password: string) => {
+export const login = async (employeeID: string, password: string) => {
     let user: any;
 
-    const q = query(usersCollection, where("email", "==", email), where("password", "==", password));
+    const q = query(employeeCollection, where("employeeID", "==", employeeID), where("password", "==", password));
 
     await getDocs(q)
         .then((data: any) => {
@@ -19,10 +18,10 @@ export const login = async (email: string, password: string) => {
             }
         })
         .catch((e: any) => {
-            log("Catching Error On Login Function: ", e);
+            console.log("Catching Error On Login Function: ", e);
             return e
         });
 
-    log("user: ", user?.id, "\nif user is 'undefined', then no account found");
+    // console.log("user: ", user?.id, "\nif user is 'undefined', then no account found");
     return user;
 }

@@ -1,5 +1,5 @@
 import generateID from '@/backend/constants/generateID';
-import { DashboardOutlined } from '@ant-design/icons';
+import { DashboardOutlined, UserOutlined } from '@ant-design/icons';
 
 const Menuitems = [
     {
@@ -11,7 +11,7 @@ const Menuitems = [
         id: generateID(),
         title: 'Dashboard',
         icon: DashboardOutlined,
-        href: '/',
+        href: '/dashboard',
     },
     {
         id: generateID(),
@@ -55,16 +55,17 @@ const Menuitems = [
         href: '/hr_settings',
     },
 
-    //   {
-    //     navlabel: true,
-    //     subheader: 'Utilities',
-    //   },
-    //   {
-    //     id: generateID(),
-    //     title: 'Time & Attendance Management',
-    //     icon: IconTypography,
-    //     href: '/tam',
-    //   },
+    {
+        navlabel: true,
+        subheader: 'Utilities',
+    },
+
+    {
+        id: generateID(),
+        title: 'Profile',
+        icon: UserOutlined,
+        href: '/profile',
+    },
     //   {
     //     id: generateID(),
     //     title: 'Typography',

@@ -111,7 +111,7 @@ function EditSetting(
                 });
             }
         }
-    }, [data]);
+    }, [data, form, type]);
 
     const success = () => {
         message.success('Success.');

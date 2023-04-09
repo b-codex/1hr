@@ -1,4 +1,6 @@
 export interface EmployeeData {
+    id?: string;
+    
     /// employee information
     firstName: string,
     lastName: string,
@@ -10,6 +12,8 @@ export interface EmployeeData {
     personalEmail: string,
     bankAccount: string,
     tinNumber: string,
+    employeeID?: string,
+    password?: string,
 
     /// contract information
     contractType: string,

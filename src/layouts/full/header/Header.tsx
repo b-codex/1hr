@@ -17,13 +17,14 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 
 
     const AppBarStyled = styled(AppBar)(({ theme }) => ({
-        boxShadow: 'none',
+        boxShadow: '0 4px 2px -2px #edede9',
         background: theme.palette.background.paper,
         justifyContent: 'center',
         backdropFilter: 'blur(4px)',
         [theme.breakpoints.up('lg')]: {
             minHeight: '70px',
         },
+        // borderBottom: "1px solid #edede9",
     }));
     const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
         width: '100%',
