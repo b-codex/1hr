@@ -10,18 +10,16 @@ import DashboardCard from '../../components/shared/DashboardCard';
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { Modal, message } from 'antd';
-import { useRouter } from 'next/router';
 
-const EmployeePerformanceEvaluationManagement = () => {
+const EmployeeObjectives = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const router = useRouter();
-    
+
     const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
     const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
 
-    useEffect(() => onSnapshot(collection(db, "performanceEvaluation"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "objectives"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -66,50 +64,62 @@ const EmployeePerformanceEvaluationManagement = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'employeeID',
-            headerName: 'Employee ID',
+            field: 'objectiveID',
+            headerName: 'Objective ID',
             flex: 1,
             hideable: false,
         },
         {
-            field: 'roundOfEvaluation',
-            headerName: 'Round of Evaluation',
-            flex: 1,
-            hideable: false,
-        },
-        {
-            field: 'stage',
-            headerName: 'Stage',
+            field: 'state',
+            headerName: 'State',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'performanceYear',
-            headerName: 'Performance Year',
+            field: 'title',
+            headerName: 'Title',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'periodStart',
-            headerName: 'Period Start',
+            field: 'specificity',
+            headerName: 'Specificity',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'periodEnd',
-            headerName: 'Period End',
+            field: 'measurability',
+            headerName: 'Measurability',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'campaignStartDate',
-            headerName: 'Campaign Start Date',
+            field: 'attainability',
+            headerName: 'Attainability',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'campaignEndDate',
-            headerName: 'Campaign End Date',
+            field: 'relevancy',
+            headerName: 'Relevancy',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'timePeriod',
+            headerName: 'Time Period',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'targetDate',
+            headerName: 'Target Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'completionRate',
+            headerName: 'Completion Rate',
             flex: 1,
             // hideable: false,
         },
@@ -123,17 +133,19 @@ const EmployeePerformanceEvaluationManagement = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='Competency Assessment'
+                        label='Edit'
+                        icon={<EditOutlined />}
                         onClick={() => {
-                            router.push('/performanceEvaluation/competencyAssessment');
+
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
-                        label='Objectives'
+                        label='Delete'
+                        icon={<DeleteOutlined />}
                         onClick={() => {
-                            router.push('/performanceEvaluation/objectives');
+
                         }}
                         showInMenu
                     />
@@ -160,9 +172,9 @@ const EmployeePerformanceEvaluationManagement = () => {
 
     return (
         <>
-            <DashboardCard title="Performance Evaluation Management">
+            <DashboardCard title="EmployeeObjectives">
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                    <div style={{ height: "calc(100vh - 200px)", width: '100%', }}>
+                    <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
                             rows={dataSource}
                             loading={loading}
@@ -184,7 +196,7 @@ const EmployeePerformanceEvaluationManagement = () => {
     );
 };
 
-export default EmployeePerformanceEvaluationManagement;
-// EmployeePerformanceEvaluationManagement.getLayout = function getLayout(page: ReactElement) {
+export default EmployeeObjectives;
+// EmployeeObjectives.getLayout = function getLayout(page: ReactElement) {
 //     return <FullLayout>{page}</FullLayout>;
 // };

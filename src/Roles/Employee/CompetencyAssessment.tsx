@@ -10,18 +10,16 @@ import DashboardCard from '../../components/shared/DashboardCard';
 import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { Modal, message } from 'antd';
-import { useRouter } from 'next/router';
 
-const EmployeePerformanceEvaluationManagement = () => {
+const EmployeeCompetencyAssessment = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const router = useRouter();
-    
+
     const [addLeaveRequestModalVisible, setAddLeaveRequestModalVisible] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
     const [editLeaveRequestModalVisible, setEditLeaveRequestModalVisible] = useState<boolean>(false);
 
-    useEffect(() => onSnapshot(collection(db, "performanceEvaluation"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "competency"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -66,50 +64,14 @@ const EmployeePerformanceEvaluationManagement = () => {
     /* creating columns. */
     const columns: GridColDef[] = [
         {
-            field: 'employeeID',
-            headerName: 'Employee ID',
+            field: 'competencyID',
+            headerName: 'Competency ID',
             flex: 1,
             hideable: false,
         },
         {
-            field: 'roundOfEvaluation',
-            headerName: 'Round of Evaluation',
-            flex: 1,
-            hideable: false,
-        },
-        {
-            field: 'stage',
-            headerName: 'Stage',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'performanceYear',
-            headerName: 'Performance Year',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'periodStart',
-            headerName: 'Period Start',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'periodEnd',
-            headerName: 'Period End',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'campaignStartDate',
-            headerName: 'Campaign Start Date',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'campaignEndDate',
-            headerName: 'Campaign End Date',
+            field: 'name',
+            headerName: 'Name',
             flex: 1,
             // hideable: false,
         },
@@ -123,17 +85,19 @@ const EmployeePerformanceEvaluationManagement = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='Competency Assessment'
+                        label='Edit'
+                        icon={<EditOutlined />}
                         onClick={() => {
-                            router.push('/performanceEvaluation/competencyAssessment');
+
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={1}
-                        label='Objectives'
+                        label='Delete'
+                        icon={<DeleteOutlined />}
                         onClick={() => {
-                            router.push('/performanceEvaluation/objectives');
+
                         }}
                         showInMenu
                     />
@@ -160,9 +124,9 @@ const EmployeePerformanceEvaluationManagement = () => {
 
     return (
         <>
-            <DashboardCard title="Performance Evaluation Management">
+            <DashboardCard title="Competency">
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                    <div style={{ height: "calc(100vh - 200px)", width: '100%', }}>
+                    <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
                             rows={dataSource}
                             loading={loading}
@@ -184,7 +148,7 @@ const EmployeePerformanceEvaluationManagement = () => {
     );
 };
 
-export default EmployeePerformanceEvaluationManagement;
-// EmployeePerformanceEvaluationManagement.getLayout = function getLayout(page: ReactElement) {
+export default EmployeeCompetencyAssessment;
+// EmployeeCompetencyAssessment.getLayout = function getLayout(page: ReactElement) {
 //     return <FullLayout>{page}</FullLayout>;
 // };

@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { login } from '@/backend/api/auth/login'
+import { EmployeeData } from '@/backend/models/employeeData'
 import { Button, Col, Form, Input, Row, Spin, message } from 'antd'
 import type { NextPage } from 'next'
 import { useRouter } from "next/router"
@@ -54,7 +55,7 @@ const Login: NextPage = () => {
                         console.log("Login Success.");
                         console.log('user: ', response);
 
-                        const user = response;
+                        const user: EmployeeData = response;
                         delete user.password;
 
                         localStorage.setItem("user", JSON.stringify(user));
@@ -62,7 +63,6 @@ const Login: NextPage = () => {
 
                         success();
                         
-                        //! check role and push route accordingly
                         router.push('/profile');
                         // setLoading(false);
                     }
