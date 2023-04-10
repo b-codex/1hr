@@ -186,7 +186,10 @@ function EditEmployeeInformation(
                     name="maritalStatus"
                     rules={[{ required: true, message: "" }]}
                 >
-                    <Input />
+                    <Select
+                        style={{ width: "100%", }}
+                        options={["Single", "Married", "Divorced", "Widowed", "Separated"].map((value) => ({ label: value, value: value }))}
+                    />
                 </Form.Item>
 
                 <Form.Item
