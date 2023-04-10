@@ -20,7 +20,7 @@ const Login: NextPage = () => {
             setPageLoading(false);
         }
         else {
-            router.push('/home');
+            router.push('/profile');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
