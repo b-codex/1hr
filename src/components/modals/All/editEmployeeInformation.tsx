@@ -1,9 +1,10 @@
 import { updateEmployee } from '@/backend/api/firebase';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Button, Divider, Form, Input, Row, message } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, Row, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CustomModal from '../customModal';
 import { employeeInfoChangeRequestAdd } from '@/backend/api/Profile/employeeInfoChangeRequestAdd';
+import dayjs from 'dayjs';
 
 export default function EditEmployeeInformationModal(
     {
@@ -81,6 +82,7 @@ function EditEmployeeInformation(
             setLoading(true);
 
             // console.log("values: ", values);
+            values.birthDate = dayjs(values.birthDate).format("MMMM DD, YYYY");
 
             await employeeInfoChangeRequestAdd(values)
                 .then((res: boolean) => {
@@ -154,7 +156,10 @@ function EditEmployeeInformation(
                     name="birthDate"
                     rules={[{ required: true, message: "" }]}
                 >
-                    <Input />
+                    <DatePicker
+                        style={{ width: "100%", }}
+                        format={"MMMM DD, YYYY"}
+                    />
                 </Form.Item>
 
                 <Form.Item
