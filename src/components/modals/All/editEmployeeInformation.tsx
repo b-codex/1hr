@@ -1,6 +1,6 @@
 import { updateEmployee } from '@/backend/api/firebase';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Button, DatePicker, Divider, Form, Input, Row, message } from 'antd';
+import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CustomModal from '../customModal';
 import { employeeInfoChangeRequestAdd } from '@/backend/api/Profile/employeeInfoChangeRequestAdd';
@@ -175,7 +175,10 @@ function EditEmployeeInformation(
                     name="gender"
                     rules={[{ required: true, message: "" }]}
                 >
-                    <Input />
+                    <Select
+                        style={{ width: "100%", }}
+                        options={["Male", "Female"].map((value) => ({ label: value, value: value }))}
+                    />
                 </Form.Item>
 
                 <Form.Item
