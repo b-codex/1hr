@@ -84,7 +84,7 @@ const AttendanceValidation = () => {
         if (hrSettings.length > 0) {
             const ds: any[] = [];
 
-            reportees.forEach(rID => {
+            reportees?.forEach(rID => {
                 data.forEach((doc) => {
                     const user: EmployeeData = employees.find((e) => e.employeeID === rID);
 

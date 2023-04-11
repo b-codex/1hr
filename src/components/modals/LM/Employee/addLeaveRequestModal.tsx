@@ -5,10 +5,12 @@ import findDifferenceInDays from '@/backend/functions/differenceInDays';
 import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
 import { addLeaveRequest } from '@/backend/api/LM/addLeaveRequest';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { EmployeeData } from '@/backend/models/employeeData';
+import AppContext from '@/components/context/AppContext';
 
 export default function EmployeeAddLeaveRequestModal(
     {
@@ -45,6 +47,10 @@ function AddLeaveRequest(
     const [loading, setLoading] = useState<boolean>(false);
 
     const [form] = Form.useForm();
+
+    const context = useContext(AppContext);
+    const employeeData: EmployeeData = context.user;
+    const employeeID: string = context.employeeID;
 
     // getting HR Settings from the database
     const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
@@ -96,6 +102,7 @@ function AddLeaveRequest(
             });
 
             // console.log("values: ", values);
+            values.employeeID = employeeID;
 
             await addLeaveRequest(values)
                 .then((res: boolean) => {

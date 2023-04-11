@@ -83,7 +83,7 @@ export const addEmployee = async (data: EmployeeData) => {
             for (let index = 0; index < months.length; index++) {
                 const month: string = months[index];
                 const attendanceData: AttendanceData = {
-                    employeeID: newEmployee.id,
+                    employeeID: eid,
                     attendancePeriod: month,
                     year: year,
                     state: "Draft",
@@ -208,7 +208,7 @@ export const addHRSetting = async (data: any) => {
         const employees: any[] = await fetchEmployees();
         employees.forEach(employee => {
             const newData: any = {
-                employeeID: employee.id,
+                employeeID: employee.employeeID,
                 roundOfEvaluation: round,
                 stage: "",
                 performanceYear: periodicOptionData.year,
