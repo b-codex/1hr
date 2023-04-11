@@ -25,7 +25,8 @@ const Login: NextPage = () => {
         else {
             setPageLoading(false);
         }
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context.user]);
 
     const success = () => {
         message.success('Logged in.');

@@ -127,7 +127,8 @@ export default function Home() {
         else {
             router.push('/');
         }
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [context.user]);
 
     if (pageLoading) {
         return (

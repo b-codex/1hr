@@ -138,7 +138,7 @@ function EditEmployee(
                 else form.setFieldValue(key, data[key]);
             });
         }
-    }, [data, docID]);
+    }, [data, docID, form]);
 
     const success = () => {
         message.success('Success.');

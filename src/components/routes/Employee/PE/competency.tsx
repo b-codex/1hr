@@ -40,7 +40,7 @@ const PECompetency = () => {
 
         setDataSource(ds);
         setLoading(false);
-    }), []);
+    }), [employeeID]);
 
     /* creating columns. */
     const columns: GridColDef[] = [

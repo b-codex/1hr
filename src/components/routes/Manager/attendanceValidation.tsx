@@ -61,7 +61,7 @@ const AttendanceValidation = () => {
         const manager: EmployeeData = data.find((user) => user.employeeID === employeeID);
         if (manager) setReportees(manager.reportees);
 
-    }), []);
+    }), [employeeID]);
 
     useEffect(() => onSnapshot(collection(db, "attendance"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -124,7 +124,7 @@ const AttendanceValidation = () => {
             setLoading(false);
 
         }
-    }), [hrSettings, reportees]);
+    }), [hrSettings, reportees, employees]);
 
     const validateAttendance = (id: string) => {
         Modal.confirm({

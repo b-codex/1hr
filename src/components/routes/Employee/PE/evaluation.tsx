@@ -45,7 +45,7 @@ const PerformanceEvaluation = () => {
 
         setDataSource(ds);
         setLoading(false);
-    }), []);
+    }), [employeeID]);
 
     /* creating columns. */
     const columns: GridColDef[] = [

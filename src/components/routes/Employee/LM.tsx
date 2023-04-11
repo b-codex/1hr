@@ -47,7 +47,7 @@ const LeaveManagement = () => {
 
         setDataSource(ds);
         setLoading(false);
-    }), []);
+    }), [employeeID]);
 
     const leaveRequestDelete = (id: string) => {
         Modal.confirm({
