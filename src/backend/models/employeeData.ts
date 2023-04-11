@@ -1,6 +1,6 @@
 export interface EmployeeData {
     id?: string;
-    
+
     /// employee information
     firstName: string,
     lastName: string,
@@ -45,4 +45,5 @@ export interface EmployeeData {
     transportAllowance: string,
     mobileAllowance: string,
     otherAllowance: string,
+    role: string[],
 };

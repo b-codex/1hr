@@ -1,9 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
-import BlankLayout from '@/layouts/blank/BlankLayout';
 import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
-import type { ReactElement } from 'react';
 
 const Error = () => (
     <Box
@@ -41,7 +39,3 @@ const Error = () => (
 );
 
 export default Error;
-
-Error.getLayout = function getLayout(page: ReactElement) {
-    return <BlankLayout>{page}</BlankLayout>;
-};

@@ -5,12 +5,12 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { batchUpdate } from "../batch";
 
-// refuse attendance list
-export async function refuseAttendanceList(docID: string, by: "HR" | "LM") {
+// validate attendance list
+export async function validateAttendanceList(docID: string) {
     let result: boolean = false;
 
     const update: any = {
-        "state": by === "HR" ? "Refused (HR)" : "Refused (LM)",
+        "state": "Validated",
     };
 
     const docRef = doc(db, "attendance", docID);
@@ -25,15 +25,15 @@ export async function refuseAttendanceList(docID: string, by: "HR" | "LM") {
     return result;
 }
 
-// refuse batch attendance list
-export async function refuseBatchAttendanceList(ids: string[], by: "HR" | "LM") {
+// validate batch attendance list
+export async function validateBatchAttendanceList(ids: string[]) {
     let result: boolean = false;
 
     const dataArray: any[] = [];
     ids.forEach(id => {
         const update: any = {
             "id": id,
-            "state": by === "HR" ? "Refused (HR)" : "Refused (LM)",
+            "state": "Validated",
         };
 
         dataArray.push(update);

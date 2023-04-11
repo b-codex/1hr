@@ -12,7 +12,7 @@ export interface LeaveRequestData {
     comments: CommentData[];
 };
 
-export interface CommentData {
+interface CommentData {
     comment: string;
     date: string;
     by: string;

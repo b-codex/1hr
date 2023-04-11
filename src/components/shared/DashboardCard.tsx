@@ -27,7 +27,7 @@ const DashboardCard = ({
     className,
 }: Props) => {
     return (
-        <Card sx={{ padding: 0 }} elevation={9} variant={undefined} className={className === undefined ? "myCard" : className}>
+        <Card elevation={9} variant={undefined}>
             {cardHeading ? (
                 <CardContent>
                     <Typography variant="h5">{headTitle}</Typography>
@@ -36,7 +36,7 @@ const DashboardCard = ({
                     </Typography>
                 </CardContent>
             ) : (
-                <CardContent sx={{ p: "30px" }}>
+                <CardContent sx={{ p: "1.5em" }}>
                     {title ? (
                         <Stack
                             direction="row"

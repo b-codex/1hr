@@ -1,12 +1,15 @@
+import { refuseAttendanceList } from '@/backend/api/TAM/refuseAttendanceList';
+import { validateAttendanceList } from '@/backend/api/TAM/validateAttendanceList';
 import generateID from '@/backend/constants/generateID';
 import { months } from '@/backend/constants/months';
-import { Box, Divider, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { Col, Row } from 'antd';
+import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { Button, Modal, Row, Space, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
+import WriteCommentModal from './writeCommentModal';
 
-const EmployeeAttendanceListView = ({
+const ManagerAttendanceListView = ({
     attendanceData,
     open,
     setOpen,
@@ -44,23 +47,52 @@ const EmployeeAttendanceListView = ({
         month2Data = Object.keys(attendance[month2])
     }
 
-    const [overtime, setOvertime] = useState<any[]>([]);
-    const [comments, setComments] = useState<any[]>([]);
-    useEffect(() => {
-        if (attendanceData) {
-            const otData: any[] = attendanceData.overtime;
-            otData.forEach((o) => o.id = generateID());
-            setOvertime(otData);
+    const [writeCommentModalOpen, setWriteCommentModalOpen] = useState<boolean>(false);
 
-            const commentData: any[] = attendanceData.comments;
-            commentData.forEach((c) => c.id = generateID());
-            setComments(commentData);
-        }
-    }, [attendanceData]);
+    const validateAttendance = (id: string) => {
+        Modal.confirm({
+            title: 'Confirm',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Are you sure?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: async () => {
+                await validateAttendanceList(id)
+                    .then((res: boolean) => {
+                        if (res) {
+                            message.success('Success.');
+                        }
+                        else {
+                            message.error('An Error Occurred.');
+                        }
+                    });
+            }
+        });
+    };
+
+    const refuseAttendance = (id: string) => {
+        Modal.confirm({
+            title: 'Confirm',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Are you sure?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk: async () => {
+                await refuseAttendanceList(id, "LM")
+                    .then((res: boolean) => {
+                        if (res) {
+                            message.success('Success.');
+                        }
+                        else {
+                            message.error('An Error Occurred.');
+                        }
+                    });
+            }
+        });
+    };
 
     return (
         <>
-
             <CustomModal
                 modalTitle={`Attendance List - ${attendanceData && attendanceData.attendancePeriod} Period`}
                 open={open}
@@ -116,93 +148,58 @@ const EmployeeAttendanceListView = ({
                     style={{
                         width: '100%',
                         display: 'flex',
-                        justifyContent: 'space-around',
+                        justifyContent: 'right',
                         alignItems: 'center',
                         marginTop: '1em',
                         marginBottom: '1em',
                     }}
                 >
-                    <Col xs={24} xl={11} xxl={11}>
-                        <div style={{ border: "1px solid #D3D3D3", borderRadius: "10px", margin: "1em" }}>
-                            <Typography style={{ color: '#3f3d56', margin: '10px', fontFamily: "Montserrat, sans-serif", fontWeight: 'bold' }} id="modal-modal-title" component="p" align='left'>Overtime</Typography>
-                            <Divider />
+                    <Space>
+                        <Button
+                            type='primary'
+                            icon={<CheckOutlined />}
+                            // disabled={attendanceData.state === "Validated"}
+                            onClick={() => {
+                                validateAttendance(attendanceData.id);
+                            }}
+                        >
+                            Validate
+                        </Button>
 
-                            <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                                <div style={{ height: "300px", width: '97%' }}>
-                                    <DataGrid
-                                        rows={overtime}
-                                        // loading={loading}
-                                        columns={[
-                                            {
-                                                field: 'date',
-                                                headerName: 'Date',
-                                                flex: 1,
-                                                hideable: false,
-                                            },
-                                            {
-                                                field: 'from',
-                                                headerName: 'From',
-                                                flex: 1,
-                                                hideable: false,
-                                            },
-                                            {
-                                                field: 'to',
-                                                headerName: 'To',
-                                                flex: 1,
-                                                hideable: false,
-                                            },
-                                        ]}
-                                        autoPageSize={true}
-                                        disableRowSelectionOnClick={true}
-                                    />
-                                </div>
-                            </Box>
+                        <Button
+                            type='primary'
+                            danger
+                            icon={<CloseOutlined />}
+                            // disabled={attendanceData.state === "Refused (LM)"}
+                            onClick={() => {
+                                refuseAttendance(attendanceData.id);
+                            }}
+                        >
+                            Refuse
+                        </Button>
 
-                        </div>
-                    </Col>
-
-                    <Col xs={24} xl={11} xxl={11}>
-                        <div style={{ border: "1px solid #D3D3D3", borderRadius: "10px", margin: "1em" }}>
-                            <Typography style={{ color: '#3f3d56', margin: '10px', fontFamily: "Montserrat, sans-serif", fontWeight: 'bold' }} id="modal-modal-title" component="p" align='left'>Comment</Typography>
-
-                            <Divider />
-
-                            <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                                <div style={{ height: "300px", width: '97%' }}>
-                                    <DataGrid
-                                        rows={comments}
-                                        // loading={loading}
-                                        columns={[
-                                            {
-                                                field: 'timestamp',
-                                                headerName: 'Timestamp',
-                                                flex: 1,
-                                                hideable: false,
-                                            },
-                                            {
-                                                field: 'commentBy',
-                                                headerName: 'Comment By',
-                                                flex: 1,
-                                                hideable: false,
-                                            },
-                                            {
-                                                field: 'comment',
-                                                headerName: 'Comment',
-                                                flex: 2,
-                                                hideable: false,
-                                            },
-                                        ]}
-                                        autoPageSize={true}
-                                        disableRowSelectionOnClick={true}
-                                    />
-                                </div>
-                            </Box>
-                        </div>
-                    </Col>
+                        <Button
+                            type='primary'
+                            icon={<PaperClipOutlined />}
+                            onClick={() => {
+                                setWriteCommentModalOpen(true);
+                            }}
+                        >
+                            Write Comment
+                        </Button>
+                    </Space>
                 </Row>
+                
+                <WriteCommentModal 
+                    docID={attendanceData?.id}
+                    oldComments={attendanceData?.comments}
+                    open={writeCommentModalOpen}
+                    setOpen={setWriteCommentModalOpen}
+                />
+
             </CustomModal>
         </>
     )
 }
 
-export default EmployeeAttendanceListView;
+export default ManagerAttendanceListView;

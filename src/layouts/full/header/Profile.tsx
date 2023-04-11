@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
     Box,
@@ -17,6 +17,7 @@ import { db } from "@/backend/api/firebase";
 import { EmployeeData } from "@/backend/models/employeeData";
 import { onSnapshot, collection, QuerySnapshot, DocumentData } from "firebase/firestore";
 import router from "next/router";
+import AppContext from "@/components/context/AppContext";
 
 const Profile = () => {
     const [anchorEl2, setAnchorEl2] = useState(null);
@@ -27,44 +28,8 @@ const Profile = () => {
         setAnchorEl2(null);
     };
 
-    const [employeeID, setEmployeeID] = useState<any>({});
-    const [employeeData, setEmployeeData] = useState<EmployeeData>();
-
-    const [pageLoading, setPageLoading] = useState<boolean>(true);
-    // check login state
-    useEffect(() => {
-        const loggedIn: string = localStorage.getItem('loggedIn') as string;
-        // console.log("Logged In: ", loggedIn);
-
-        if (loggedIn === null || loggedIn === undefined) {
-            // router.push('/');
-        }
-        else {
-            const user: EmployeeData = JSON.parse(localStorage.getItem('user') as string);
-
-            setEmployeeID(user.employeeID)
-            // setPageLoading(false);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => onSnapshot(collection(db, "employee"), (snapshot: QuerySnapshot<DocumentData>) => {
-        const data: any[] = [];
-        snapshot.docs.map((doc) => {
-            data.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-
-        const employee: EmployeeData | undefined = data.find((doc) => doc.employeeID === employeeID);
-
-        if (employee) {
-            setEmployeeData(employee);
-            setPageLoading(false);
-        }
-
-    }), [employeeID]);
+    const context = useContext(AppContext);
+    const employeeData: EmployeeData = context.user;
 
     return (
         <Box>
@@ -165,6 +130,7 @@ const Profile = () => {
                         fullWidth
                         onClick={() => {
                             localStorage.clear();
+                            context.logout();
                             router.push('/');
                         }}
                     >

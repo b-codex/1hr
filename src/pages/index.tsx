@@ -1,29 +1,30 @@
 /* eslint-disable @next/next/no-img-element */
 import { login } from '@/backend/api/auth/login'
 import { EmployeeData } from '@/backend/models/employeeData'
+import AppContext from '@/components/context/AppContext'
 import { Button, Col, Form, Input, Row, Spin, message } from 'antd'
 import type { NextPage } from 'next'
 import { useRouter } from "next/router"
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 const Login: NextPage = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const [pageLoading, setPageLoading] = useState<boolean>(true);
-    // check login state
-    useEffect(() => {
-        const loggedIn: string = localStorage.getItem('loggedIn') as string;
-        // console.log("Logged In: ", loggedIn);
+    const context = useContext(AppContext);
+    const employeeData: EmployeeData = context.user;
+    const employeeID: string = context.employeeID;
 
-        if (loggedIn === null || loggedIn === undefined) {
-            setPageLoading(false);
-        }
-        else {
+    const [pageLoading, setPageLoading] = useState<boolean>(true);
+    useEffect(() => {
+        // console.log(context);
+        if (context.user) {
             router.push('/profile');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        else {
+            setPageLoading(false);
+        }
     }, []);
 
     const success = () => {
@@ -53,16 +54,18 @@ const Login: NextPage = () => {
                     }
                     if (response !== undefined && response !== null) {
                         console.log("Login Success.");
-                        console.log('user: ', response);
+                        // console.log('user: ', response);
 
                         const user: EmployeeData = response;
                         delete user.password;
+
+                        context.login(user);
 
                         localStorage.setItem("user", JSON.stringify(user));
                         localStorage.setItem("loggedIn", 'true');
 
                         success();
-                        
+
                         router.push('/profile');
                         // setLoading(false);
                     }
@@ -82,17 +85,16 @@ const Login: NextPage = () => {
         formFailed();
     };
 
-    if (pageLoading === true) {
+    if (pageLoading) {
         return (
             <>
                 <Row
                     style={{
-                        width: "100vw",
-                        height: "100vh",
+                        width: "calc(100vw - 1rem)",
+                        height: "calc(100vh - 1rem)",
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "center",
-                        justifyItems: 'center',
+                        alignItems: "center",
                     }}
                 >
                     <Spin />
@@ -190,7 +192,6 @@ const Login: NextPage = () => {
             </>
         );
     }
-
 }
 
 export default Login

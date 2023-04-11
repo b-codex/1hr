@@ -2,6 +2,7 @@ import moment from 'moment';
 import { batchUpdate } from '../api/batch';
 import { fetchAttendanceList } from '../api/getFunctions';
 import { months } from '../constants/months';
+import { AttendanceData } from '../models/attendanceData';
 
 const date: number = moment().date();
 const month: string = months[moment().month()];
@@ -13,7 +14,7 @@ export function checkAttendanceStage() {
 
             const attendanceList: any[] = await fetchAttendanceList();
 
-            attendanceList.forEach((doc: any) => {
+            attendanceList.forEach((doc: AttendanceData) => {
 
                 const currentMonth: number = months.indexOf(month);
                 const docMonth: number = months.indexOf(doc.attendancePeriod);
