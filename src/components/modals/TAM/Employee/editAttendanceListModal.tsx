@@ -318,8 +318,7 @@ function EditComponent(
                                     sx={{
                                         borderRight: "1px solid #D3D3D3",
                                         backgroundColor: "#3f3d56",
-                                        color: "#ffe6a7",
-                                        fontFamily: "Montserrat, sans-serif",
+                                        color: "#ffffff",
                                     }}
                                     variant="head"
                                 >
@@ -333,7 +332,6 @@ function EditComponent(
                                             borderRight: "1px solid #D3D3D3",
                                             backgroundColor: "#3f3d56",
                                             color: "#ffffff",
-                                            fontFamily: "Montserrat, sans-serif",
                                         }}
                                         align='center'
                                         colSpan={month1Data.length}
@@ -349,7 +347,6 @@ function EditComponent(
                                             borderRight: "1px solid #D3D3D3",
                                             backgroundColor: "#3f3d56",
                                             color: "#ffffff",
-                                            fontFamily: "Montserrat, sans-serif",
                                         }}
                                         align='center'
                                         colSpan={month2Data.length}
@@ -369,7 +366,6 @@ function EditComponent(
                                 <TableCell
                                     sx={{
                                         borderRight: "1px solid #D3D3D3",
-                                        fontFamily: "Montserrat, sans-serif",
                                     }}
                                     variant="head"
                                 >
@@ -381,9 +377,9 @@ function EditComponent(
                                         <TableCell
                                             sx={{
                                                 borderRight: "1px solid #D3D3D3",
-                                                fontFamily: "Montserrat, sans-serif",
                                             }}
                                             key={index}
+                                            style={{ textAlign: "center" }}
                                         >
                                             {value}
                                         </TableCell>
@@ -396,7 +392,6 @@ function EditComponent(
                                         <TableCell
                                             sx={{
                                                 borderRight: "1px solid #D3D3D3",
-                                                fontFamily: "Montserrat, sans-serif",
                                             }}
                                             key={index}
                                         >
@@ -415,7 +410,6 @@ function EditComponent(
                                 <TableCell
                                     sx={{
                                         borderRight: "1px solid #D3D3D3",
-                                        fontFamily: "Montserrat, sans-serif",
                                     }}
                                     variant="head"
                                 >
@@ -440,7 +434,6 @@ function EditComponent(
                                                     sx={{
                                                         borderRight: "1px solid #D3D3D3",
                                                         backgroundColor: dayInWorkingDays ? "" : "gray",
-                                                        fontFamily: "Montserrat, sans-serif",
                                                     }}
                                                     key={index}
                                                 >
@@ -450,6 +443,7 @@ function EditComponent(
                                                                 name={[month1, value]}
                                                                 rules={[{ required: true, message: "" }]}
                                                                 initialValue={attendance[month1][value]}
+                                                                noStyle
                                                             >
                                                                 <Select
                                                                     style={{ width: 60 }}
@@ -484,7 +478,6 @@ function EditComponent(
                                                     sx={{
                                                         borderRight: "1px solid #D3D3D3",
                                                         backgroundColor: dayInWorkingDays ? "" : "gray",
-                                                        fontFamily: "Montserrat, sans-serif",
                                                     }}
                                                     key={index}
                                                 >
@@ -494,6 +487,7 @@ function EditComponent(
                                                                 name={[month2, value]}
                                                                 rules={[{ required: true, message: "" }]}
                                                                 initialValue={attendance[month2][value]}
+                                                                noStyle
                                                             >
                                                                 <Select
                                                                     style={{ width: 60 }}
