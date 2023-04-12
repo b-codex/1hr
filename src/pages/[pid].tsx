@@ -21,6 +21,7 @@ import HRSettings from "@/components/routes/HR/hrSettings";
 import AttendanceApproval from "@/components/routes/HR/attendanceApproval";
 import RequestModification from "@/components/routes/HR/requestModification";
 import LeaveValidation from "@/components/routes/Manager/leaveValidation";
+import LeaveApproval from "@/components/routes/HR/leaveApproval";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -123,6 +124,10 @@ function handleMenuClick(e: any) {
     if (e.key == "lv") {
         pushWithCheck("/lv");
     }
+
+    if (e.key == "la") {
+        pushWithCheck("/la");
+    }
 }
 
 export default function Home() {
@@ -206,31 +211,6 @@ export default function Home() {
                             />
                         </>
 
-                        {/* HR Monitor */}
-                        {
-                            context.role?.includes("HR Manager") &&
-                            <>
-                                <>
-                                    <Divider orientation="left">
-                                        <Typography variant="body1">
-                                            {collapsed ? "" : "HR Monitor"}
-                                        </Typography>
-                                    </Divider>
-
-                                    <Menu
-                                        theme="light"
-                                        mode="inline"
-                                        items={hrManagerMonitor}
-                                        selectedKeys={[`${router.query['pid']}`]}
-                                        onClick={(menu) => {
-                                            handleMenuClick(menu);
-                                        }}
-                                    />
-                                </>
-                            </>
-                        }
-
-
                         {/* Manager */}
                         {
                             context.role?.includes("Manager") &&
@@ -246,6 +226,30 @@ export default function Home() {
                                         theme="light"
                                         mode="inline"
                                         items={managerMonitor}
+                                        selectedKeys={[`${router.query['pid']}`]}
+                                        onClick={(menu) => {
+                                            handleMenuClick(menu);
+                                        }}
+                                    />
+                                </>
+                            </>
+                        }
+
+                        {/* HR Monitor */}
+                        {
+                            context.role?.includes("HR Manager") &&
+                            <>
+                                <>
+                                    <Divider orientation="left">
+                                        <Typography variant="body1">
+                                            {collapsed ? "" : "HR Monitor"}
+                                        </Typography>
+                                    </Divider>
+
+                                    <Menu
+                                        theme="light"
+                                        mode="inline"
+                                        items={hrManagerMonitor}
                                         selectedKeys={[`${router.query['pid']}`]}
                                         onClick={(menu) => {
                                             handleMenuClick(menu);
@@ -281,6 +285,7 @@ export default function Home() {
                             {pid === "hrs" && <HRSettings />}
                             {pid === "ata" && <AttendanceApproval />}
                             {pid === "rm" && <RequestModification />}
+                            {pid === "la" && <LeaveApproval />}
 
                             {/* Manager */}
                             {pid === "atv" && <AttendanceValidation />}

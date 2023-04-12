@@ -1,4 +1,5 @@
 export interface LeaveData {
+    id?: string;
     leaveRequestID: string;
     leaveState: string;
     leaveStage: string;
@@ -8,4 +9,5 @@ export interface LeaveData {
     lastDayOfLeave: string;
     dateOfReturn: string;
     numberOfLeaveDaysRequested: number;
+    employeeID: string;
 }
