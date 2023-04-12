@@ -49,9 +49,14 @@ export const addEmployee = async (data: EmployeeData) => {
     const month: number = birthDate.get('month');
     const year: number = birthDate.get('year');
 
-    const eid: string = `${firstName.toLowerCase().at(0)}${lastName.toLowerCase().slice(0, 2)}-${day.toString().at(0)}${month.toString().at(0)}${year.toString().at(0)}`;
-    data.employeeID = eid;
+    let eid: string = `${firstName.toLowerCase().at(0)}${lastName.toLowerCase().slice(0, 2)}-${day.toString().at(0)}${month.toString().at(0)}${year.toString().at(0)}`;
 
+    // check if that employee id is already assigned
+    const employees = await fetchEmployees() as EmployeeData[];
+    const listOfIDs: string[] = employees.map((employee) => employee.employeeID) as string[];
+    if (listOfIDs.includes(eid)) eid = eid + `-${listOfIDs.length}`;
+
+    data.employeeID = eid;
     const hrSettings: any[] = await fetchHRSettings();
 
     const groupedHRSettings: any = groupBy("type", hrSettings);
@@ -111,7 +116,8 @@ export const addEmployee = async (data: EmployeeData) => {
                 attendanceData.attendance[month] = {};
 
                 /* Checking if the months[index - 1] is undefined, if it is undefined, returns the year - 1. if it is not undefined, returns the current year */
-                const y: number = months[index - 1] === undefined ? year - 1 : year;
+                // const y: number = months[index - 1] === undefined ? year - 1 : year;
+                const y: number = month === "January" ? year - 1 : year;
 
                 /* Assigning present or absent values for the past month */
                 for (let index = 1; index <= daysInThePastMonth; index++) {
