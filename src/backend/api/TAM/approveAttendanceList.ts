@@ -10,7 +10,7 @@ export async function approveAttendanceList(docID: string) {
     let result: boolean = false;
 
     const update: any = {
-        "state": "Approved",
+        state: "Approved",
     };
 
     const docRef = doc(db, "attendance", docID);
@@ -32,8 +32,8 @@ export async function approveBatchAttendanceList(ids: string[]) {
     const dataArray: any[] = [];
     ids.forEach(id => {
         const update: any = {
-            "id": id,
-            "state": "Approved",
+            id: id,
+            state: "Approved",
         };
 
         dataArray.push(update);

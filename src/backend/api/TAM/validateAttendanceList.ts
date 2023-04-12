@@ -10,7 +10,7 @@ export async function validateAttendanceList(docID: string) {
     let result: boolean = false;
 
     const update: any = {
-        "state": "Validated",
+        state: "Validated",
     };
 
     const docRef = doc(db, "attendance", docID);
@@ -32,8 +32,8 @@ export async function validateBatchAttendanceList(ids: string[]) {
     const dataArray: any[] = [];
     ids.forEach(id => {
         const update: any = {
-            "id": id,
-            "state": "Validated",
+            id: id,
+            state: "Validated",
         };
 
         dataArray.push(update);

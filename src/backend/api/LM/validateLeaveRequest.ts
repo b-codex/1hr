@@ -5,15 +5,15 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { batchUpdate } from "../batch";
 
-// refuse attendance list
-export async function refuseAttendanceList(docID: string, by: "HR" | "LM") {
+// validate leave request
+export async function validateLeaveRequest(docID: string) {
     let result: boolean = false;
 
     const update: any = {
-        state: by === "HR" ? "Refused (HR)" : "Refused (LM)",
+        leaveStage: "Validated",
     };
 
-    const docRef = doc(db, "attendance", docID);
+    const docRef = doc(db, "leaveManagement", docID);
 
     result = await updateDoc(docRef, update)
         .then(() => true)
@@ -25,22 +25,22 @@ export async function refuseAttendanceList(docID: string, by: "HR" | "LM") {
     return result;
 }
 
-// refuse batch attendance list
-export async function refuseBatchAttendanceList(ids: string[], by: "HR" | "LM") {
+// validate batch leave request
+export async function validateBatchLeaveRequest(ids: string[]) {
     let result: boolean = false;
 
     const dataArray: any[] = [];
     ids.forEach(id => {
         const update: any = {
             id: id,
-            state: by === "HR" ? "Refused (HR)" : "Refused (LM)",
+            leaveStage: "Validated",
         };
 
         dataArray.push(update);
     });
 
 
-    result = await batchUpdate(dataArray, 'attendance')
+    result = await batchUpdate(dataArray, 'leaveManagement')
         .then(() => true)
         .catch(err => {
             log(err);

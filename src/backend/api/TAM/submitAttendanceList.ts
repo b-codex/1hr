@@ -9,7 +9,7 @@ export async function submitAttendanceList(docID: string) {
     let result: boolean = false;
 
     const update: any = {
-        "state": "Submitted",
+        state: "Submitted",
     };
 
     const docRef = doc(db, "attendance", docID);

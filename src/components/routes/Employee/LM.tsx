@@ -129,13 +129,6 @@ const LeaveManagement = () => {
             type: 'number',
         },
         {
-            field: 'balanceLeaveDays',
-            headerName: 'Balance Leave Days',
-            flex: 1,
-            // hideable: false,
-            type: 'number',
-        },
-        {
             field: "actions",
             headerName: 'Actions',
             type: "actions",

@@ -20,6 +20,7 @@ import EmployeeManagement from "@/components/routes/HR/employeeManagement";
 import HRSettings from "@/components/routes/HR/hrSettings";
 import AttendanceApproval from "@/components/routes/HR/attendanceApproval";
 import RequestModification from "@/components/routes/HR/requestModification";
+import LeaveValidation from "@/components/routes/Manager/leaveValidation";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -117,6 +118,10 @@ function handleMenuClick(e: any) {
 
     if (e.key == "rm") {
         pushWithCheck("/rm");
+    }
+
+    if (e.key == "lv") {
+        pushWithCheck("/lv");
     }
 }
 
@@ -279,6 +284,7 @@ export default function Home() {
 
                             {/* Manager */}
                             {pid === "atv" && <AttendanceValidation />}
+                            {pid === "lv" && <LeaveValidation />}
                         </Content>
 
                         {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}
