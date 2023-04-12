@@ -8,7 +8,7 @@ export interface AttendanceData {
     attendance: any,
     overtime: any,
     modificationRequested: boolean,
-    modifications: any[],
+    modifications: ModificationData[],
     stage: string,
     associatedShiftType: string,
 }
@@ -17,6 +17,13 @@ export interface CommentData {
     commentBy: string,
     timestamp: string,
     comment: string,
+}
+
+export interface ModificationData { 
+    date: string,
+    old: string,
+    new: string,
+    state: string,
 }
 
 //? the attendance data is grouped by month

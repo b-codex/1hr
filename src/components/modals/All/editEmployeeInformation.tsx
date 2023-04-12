@@ -57,11 +57,10 @@ function EditEmployeeInformation(
     useEffect(() => {
         if (data && docID) {
             const keys: string[] = Object.keys(data);
-            if (keys.length > 0) {
-                keys.forEach(key => {
-                    form.setFieldValue(key, data[key]);
-                });
-            }
+            keys.forEach(key => {
+                if (key === "birthDate") form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
+                else form.setFieldValue(key, data[key]);
+            });
         }
     }, [data, docID, form]);
 

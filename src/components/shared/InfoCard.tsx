@@ -18,11 +18,12 @@ const InfoCard = ({ children, className, title, width }: Props) => {
             style={{
                 margin: "1em 0",
                 padding: "1em",
-                width: width ?? "fit-content"
+                width: width ?? "fit-content",
+                zIndex: 100,
             }}
         >
             <Typography
-                variant="h4"
+                variant="h5"
             >
                 {title}
             </Typography>

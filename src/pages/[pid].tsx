@@ -18,6 +18,8 @@ import UserProfile from "@/components/routes/Employee/UserProfile";
 import AttendanceValidation from "@/components/routes/Manager/attendanceValidation";
 import EmployeeManagement from "@/components/routes/HR/employeeManagement";
 import HRSettings from "@/components/routes/HR/hrSettings";
+import AttendanceApproval from "@/components/routes/HR/attendanceApproval";
+import RequestModification from "@/components/routes/HR/requestModification";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -52,6 +54,7 @@ const utilities: MenuItem[] = [
 const hrManagerMonitor: MenuItem[] = [
     getItem('Attendance Approval', 'ata', <DesktopOutlined />),
     getItem('Leave Approval', 'la', <DesktopOutlined />),
+    getItem('Request Modification', 'rm', <DesktopOutlined />),
     getItem('Escalated Issue', 'ei', <DesktopOutlined />),
     getItem('HR Settings', 'hrs', <DesktopOutlined />),
     getItem('Employee Management', 'em', <DesktopOutlined />),
@@ -106,6 +109,14 @@ function handleMenuClick(e: any) {
 
     if (e.key == "hrs") {
         pushWithCheck("/hrs");
+    }
+
+    if (e.key == "ata") {
+        pushWithCheck("/ata");
+    }
+
+    if (e.key == "rm") {
+        pushWithCheck("/rm");
     }
 }
 
@@ -188,22 +199,6 @@ export default function Home() {
                                     handleMenuClick(menu);
                                 }}
                             />
-
-                            <Divider orientation="left">
-                                <Typography variant="body1">
-                                    {collapsed ? "" : "Utilities"}
-                                </Typography>
-                            </Divider>
-
-                            <Menu
-                                theme="light"
-                                mode="inline"
-                                items={utilities}
-                                selectedKeys={[`${router.query['pid']}`]}
-                                onClick={(menu) => {
-                                    handleMenuClick(menu);
-                                }}
-                            />
                         </>
 
                         {/* HR Monitor */}
@@ -279,6 +274,8 @@ export default function Home() {
                             {/* HR Manager */}
                             {pid === "em" && <EmployeeManagement />}
                             {pid === "hrs" && <HRSettings />}
+                            {pid === "ata" && <AttendanceApproval />}
+                            {pid === "rm" && <RequestModification />}
 
                             {/* Manager */}
                             {pid === "atv" && <AttendanceValidation />}

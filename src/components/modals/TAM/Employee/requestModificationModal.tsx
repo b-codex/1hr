@@ -23,7 +23,7 @@ export default function EmployeeRequestModificationModal(
     }
 ) {
     const matches = useMediaQuery('(min-width:900px)');
-    
+
     return (
         <>
             <CustomModal
@@ -105,6 +105,8 @@ function RequestModification(
                 message.warning("Nothing to modify");
             }
             if (modifications.length > 0) {
+                modifications.forEach(modification => modification.state = "Requested");
+
                 const update: AttendanceData = {
                     employeeID: data.employeeID,
                     attendancePeriod: data.attendancePeriod,

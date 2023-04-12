@@ -5,22 +5,21 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import moment from 'moment';
 import { useContext, useEffect, useState } from 'react';
 
+import { approveAttendanceList, approveBatchAttendanceList } from '@/backend/api/TAM/approveAttendanceList';
 import { refuseAttendanceList, refuseBatchAttendanceList } from '@/backend/api/TAM/refuseAttendanceList';
-import { validateAttendanceList, validateBatchAttendanceList } from '@/backend/api/TAM/validateAttendanceList';
 import { db } from '@/backend/api/firebase';
 import { calculateAbsentDays } from '@/backend/functions/absentDays';
 import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
+import { AttendanceData } from '@/backend/models/attendanceData';
 import { EmployeeData } from '@/backend/models/employeeData';
 import AppContext from '@/components/context/AppContext';
-import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
-import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
+import HRManagerAttendanceListView from '@/components/modals/TAM/HR-Manager/viewAttendanceListModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, Space, message } from 'antd';
-import { AttendanceData } from '@/backend/models/attendanceData';
-import ManagerAttendanceListView from '@/components/modals/TAM/Manager/viewAttendanceListModal';
+import HRManagerViewRequestedModifications from '@/components/modals/TAM/HR-Manager/viewRequestedModifications';
 
-const AttendanceValidation = () => {
+const RequestModification = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -84,40 +83,38 @@ const AttendanceValidation = () => {
         if (hrSettings.length > 0) {
             const ds: any[] = [];
 
-            reportees?.forEach(rID => {
-                data.forEach((doc) => {
-                    const user: EmployeeData = employees.find((e) => e.employeeID === rID);
+            data.forEach((doc: any) => {
+                if (doc.modifications.length > 0) {
+                    const user: EmployeeData = employees.find((e) => e.employeeID === doc.employeeID);
 
-                    if (rID === doc.employeeID && doc.state === "Submitted") {
-                        doc.firstName = user.firstName;
-                        doc.lastName = user.lastName;
-                        doc.employmentPosition = user.employmentPosition;
+                    doc.firstName = user.firstName;
+                    doc.lastName = user.lastName;
+                    doc.employmentPosition = user.employmentPosition;
 
-                        const shiftType: string = doc.associatedShiftType;
+                    const shiftType: string = doc.associatedShiftType;
 
-                        // getting the shift type data from hrSettings data array
-                        const shiftTypeData: any = hrSettings.find((e: any) => e.name === shiftType) ?? {};
+                    // getting the shift type data from hrSettings data array
+                    const shiftTypeData: any = hrSettings.find((e: any) => e.name === shiftType) ?? {};
 
-                        // getting the working days data from the filtered shift type data
-                        const workingDays: string[] = shiftTypeData.workingDays ?? [];
+                    // getting the working days data from the filtered shift type data
+                    const workingDays: string[] = shiftTypeData.workingDays ?? [];
 
-                        // calculating the period working days based on the shift type working days
-                        const periodWorkingDays: number = calculatePeriodWorkingDays(doc, workingDays);
+                    // calculating the period working days based on the shift type working days
+                    const periodWorkingDays: number = calculatePeriodWorkingDays(doc, workingDays);
 
-                        // calculate the worked days
-                        const workedDays: number = calculateWorkedDays(doc);
+                    // calculate the worked days
+                    const workedDays: number = calculateWorkedDays(doc);
 
-                        // calculate the absent days
-                        const absentDays: number = calculateAbsentDays(doc);
+                    // calculate the absent days
+                    const absentDays: number = calculateAbsentDays(doc);
 
-                        // adding the period working days, worked days and absent days to the document
-                        doc.periodWorkingDays = periodWorkingDays;
-                        doc.workedDays = workedDays;
-                        doc.absentDays = absentDays;
+                    // adding the period working days, worked days and absent days to the document
+                    doc.periodWorkingDays = periodWorkingDays;
+                    doc.workedDays = workedDays;
+                    doc.absentDays = absentDays;
 
-                        ds.push(doc);
-                    }
-                });
+                    ds.push(doc);
+                }
             });
 
             setDataSource(ds);
@@ -126,7 +123,7 @@ const AttendanceValidation = () => {
         }
     }), [hrSettings, reportees, employees]);
 
-    const validateAttendance = (id: string) => {
+    const approveAttendance = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -134,7 +131,7 @@ const AttendanceValidation = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await validateAttendanceList(id)
+                await approveAttendanceList(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Success.');
@@ -155,7 +152,7 @@ const AttendanceValidation = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await refuseAttendanceList(id, "LM")
+                await refuseAttendanceList(id, "HR")
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Success.');
@@ -240,10 +237,10 @@ const AttendanceValidation = () => {
                 let actionArray: any[] = [
                     <GridActionsCellItem
                         key={1}
-                        label='Validate'
+                        label='Approve'
                         icon={<CheckOutlined />}
                         onClick={() => {
-                            validateAttendance(params.row.id);
+                            approveAttendance(params.row.id);
                         }}
                         showInMenu
                     />,
@@ -279,7 +276,7 @@ const AttendanceValidation = () => {
     }, [matches]);
 
     const [selections, setSelections] = useState<string[]>([]);
-    const validateBatchAttendance = () => {
+    const approveBatchAttendance = () => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -287,7 +284,7 @@ const AttendanceValidation = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await validateBatchAttendanceList(selections)
+                await approveBatchAttendanceList(selections)
                     .then((res: boolean) => {
                         message.success("Success");
                     })
@@ -325,10 +322,10 @@ const AttendanceValidation = () => {
                         type='primary'
                         icon={<CheckOutlined />}
                         onClick={() => {
-                            validateBatchAttendance();
+                            approveBatchAttendance();
                         }}
                     >
-                        Validate
+                        Approve
                     </Button>
 
                     <Button
@@ -351,7 +348,7 @@ const AttendanceValidation = () => {
 
     return (
         <>
-            <DashboardCard title="Attendance Validation" action={<SideButtons />}>
+            <DashboardCard title="Requested Attendance List Modifications" action={<SideButtons />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -385,19 +382,13 @@ const AttendanceValidation = () => {
                 </Box>
             </DashboardCard>
 
-            <ManagerAttendanceListView
+            <HRManagerViewRequestedModifications
                 open={attendanceListViewModalOpen}
                 setOpen={setAttendanceListViewModalOpen}
-                attendanceData={activeAttendanceData}
-            />
-
-            <EmployeeAttendanceEdit
-                open={attendanceListEditModalOpen}
-                setOpen={setAttendanceListEditModalOpen}
                 attendanceData={activeAttendanceData}
             />
         </>
     );
 };
 
-export default AttendanceValidation;
+export default RequestModification;

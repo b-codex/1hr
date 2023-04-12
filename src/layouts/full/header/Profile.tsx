@@ -129,6 +129,19 @@ const Profile = () => {
                         color="primary"
                         fullWidth
                         onClick={() => {
+                            router.push('/profile');
+                        }}
+                    >
+                        My Information
+                    </Button>
+                </Box>
+
+                <Box mt={1} py={1} px={2}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        fullWidth
+                        onClick={() => {
                             localStorage.clear();
                             context.logout();
                             router.push('/');

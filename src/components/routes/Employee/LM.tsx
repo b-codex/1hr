@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Box, useMediaQuery } from '@mui/material';
+import { Box, Typography, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
@@ -12,7 +12,8 @@ import AppContext from '@/components/context/AppContext';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequestModal';
 import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, message } from 'antd';
+import { Button, Col, Modal, Row, message } from 'antd';
+import InfoCard from '@/components/shared/InfoCard';
 
 const LeaveManagement = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
@@ -202,25 +203,52 @@ const LeaveManagement = () => {
 
     return (
         <>
+            <Row
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'center',
+                }}
+            >
+                <Col xs={20} xl={4} xxl={4}>
+                    <InfoCard title='Balance Leave Days'>
+                        <Typography variant='h6' style={{ display: "flex", justifyContent: "center" }}>
+                            10
+                        </Typography>
+                    </InfoCard>
+                </Col>
+
+                <Col xs={20} xl={4} xxl={4}>
+                    <InfoCard title='Number of Leave Days Taken'>
+                        <Typography variant='h6' style={{ display: "flex", justifyContent: "center" }}>
+                            {employeeData.numberOfLeaveDaysTaken}
+                        </Typography>
+                    </InfoCard>
+                </Col>
+            </Row>
+
             <DashboardCard title="Leave Management" action={<AddButton />}>
-                <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
-                    <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
-                        <DataGrid
-                            rows={dataSource}
-                            loading={loading}
-                            columns={columns}
-                            autoPageSize={true}
-                            components={{
-                                Toolbar: GridToolbar,
-                            }}
-                            disableRowSelectionOnClick={true}
-                            columnVisibilityModel={columnVisibilityModel}
-                            onColumnVisibilityModelChange={(newModel) =>
-                                setColumnVisibilityModel(newModel)
-                            }
-                        />
-                    </div>
-                </Box>
+                <>
+                    <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
+                        <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
+                            <DataGrid
+                                rows={dataSource}
+                                loading={loading}
+                                columns={columns}
+                                autoPageSize={true}
+                                components={{
+                                    Toolbar: GridToolbar,
+                                }}
+                                disableRowSelectionOnClick={true}
+                                columnVisibilityModel={columnVisibilityModel}
+                                onColumnVisibilityModelChange={(newModel) =>
+                                    setColumnVisibilityModel(newModel)
+                                }
+                            />
+                        </div>
+                    </Box>
+                </>
             </DashboardCard>
 
             <EmployeeAddLeaveRequestModal

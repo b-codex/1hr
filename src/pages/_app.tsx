@@ -107,8 +107,8 @@ const MyApp = (props: MyAppProps) => {
     else {
         return (
             <>
-                {/* {checkAttendanceStage()}
-                {checkPerformanceEvaluationStage()} */}
+                {/* {checkAttendanceStage()} */}
+                {/* {checkPerformanceEvaluationStage()} */}
 
                 <AppContext.Provider value={{ user, role, employeeID, logout, login }}>
                     <CacheProvider value={emotionCache}>
