@@ -142,6 +142,19 @@ const Profile = () => {
                         color="primary"
                         fullWidth
                         onClick={() => {
+                            router.push('/mr');
+                        }}
+                    >
+                        My Reportees
+                    </Button>
+                </Box>
+
+                <Box mt={1} py={1} px={2}>
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        fullWidth
+                        onClick={() => {
                             localStorage.clear();
                             context.logout();
                             router.push('/');
