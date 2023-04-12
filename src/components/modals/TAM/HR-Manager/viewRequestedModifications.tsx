@@ -9,6 +9,9 @@ import CustomModal from '../../customModal';
 import WriteCommentModal from '../Manager/writeCommentModal';
 import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import generateID from '@/backend/constants/generateID';
+import { approveAttendanceModification } from '@/backend/api/TAM/approveAttendanceModification';
+import { ModificationData } from '@/backend/models/attendanceData';
+import { refuseAttendanceModification } from '@/backend/api/TAM/refuseAttendanceModification';
 
 const HRManagerViewRequestedModifications = ({
     attendanceData,
@@ -108,16 +111,16 @@ const HRManagerViewRequestedModifications = ({
                         label='Approve'
                         icon={<CheckOutlined />}
                         onClick={() => {
-                            approveAttendance(params.row.id);
+                            approveAttendance(params.row);
                         }}
                         showInMenu
                     />,
                     <GridActionsCellItem
                         key={2}
-                        label='Reject'
+                        label='Refuse'
                         icon={<CloseOutlined />}
                         onClick={() => {
-                            refuseAttendance(params.row.id);
+                            refuseAttendance(params.row);
                         }}
                         showInMenu
                     />,
@@ -128,9 +131,7 @@ const HRManagerViewRequestedModifications = ({
         },
     ];
 
-    const [writeCommentModalOpen, setWriteCommentModalOpen] = useState<boolean>(false);
-
-    const approveAttendance = (id: string) => {
+    const approveAttendance = (modification: ModificationData) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -138,10 +139,11 @@ const HRManagerViewRequestedModifications = ({
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await approveAttendanceList(id)
+                await approveAttendanceModification(attendanceData, modification)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Success.');
+                            setOpen(false);
                         }
                         else {
                             message.error('An Error Occurred.');
@@ -151,7 +153,7 @@ const HRManagerViewRequestedModifications = ({
         });
     };
 
-    const refuseAttendance = (id: string) => {
+    const refuseAttendance = (modification: ModificationData) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -159,10 +161,11 @@ const HRManagerViewRequestedModifications = ({
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await refuseAttendanceList(id, "HR")
+                await refuseAttendanceModification(attendanceData, modification)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Success.');
+                            setOpen(false);
                         }
                         else {
                             message.error('An Error Occurred.');
@@ -175,7 +178,7 @@ const HRManagerViewRequestedModifications = ({
     return (
         <>
             <CustomModal
-                modalTitle={`Attendance List - ${attendanceData && attendanceData.attendancePeriod} Period - Requested Modifications By ${attendanceData.employeeID}`}
+                modalTitle={`Attendance List - ${attendanceData && attendanceData?.attendancePeriod} Period - Requested Modifications By ${attendanceData?.employeeID}`}
                 open={open}
                 setOpen={setOpen}
                 width={matches ? '70%' : '100%'}
