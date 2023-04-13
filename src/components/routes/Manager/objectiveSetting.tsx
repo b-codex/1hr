@@ -144,6 +144,12 @@ const ObjectiveSetting = () => {
             },
         },
         {
+            field: 'objectiveResult',
+            headerName: 'Objective Result',
+            flex: 1,
+            // hideable: false,
+        },
+        {
             field: "actions",
             headerName: 'Actions',
             type: "actions",

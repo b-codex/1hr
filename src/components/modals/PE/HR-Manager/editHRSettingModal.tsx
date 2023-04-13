@@ -11,6 +11,7 @@ import { groupBy } from '@/backend/constants/groupBy';
 import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
 import moment from 'moment';
 import { days } from '@/backend/constants/days';
+import generateID from '@/backend/constants/generateID';
 
 export default function HREditSetting(
     {
@@ -94,7 +95,7 @@ function EditSetting(
         if (data !== undefined) {
             const keys: string[] = Object.keys(data);
 
-            if (type === "Evaluation Campaign" || type === "Monitoring Period") {
+            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition") {
                 keys.forEach((key) => {
                     if (key === "startDate" || key === "endDate") {
                         form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
@@ -105,7 +106,7 @@ function EditSetting(
                 });
             }
 
-            if (type === "Periodic Option" || type === "Leave Type" || type === "Leave Stage" || type === "Leave State" || type === "Shift Type") {
+            if (type === "Periodic Option" || type === "Leave Type" || type === "Leave Stage" || type === "Leave State" || type === "Shift Type" || type === "Competency Definition") {
                 keys.forEach((key) => {
                     form.setFieldValue(key, data[key]);
                 });
@@ -134,9 +135,9 @@ function EditSetting(
                 if (values[key] === undefined) values[key] = null;
             });
 
-            if (type === "Evaluation Campaign" || type === "Monitoring Period") {
-                values.startDate = dayjs(values.startDate).format("MMMM DD, YYYY");
-                values.endDate = dayjs(values.endDate).format("MMMM DD, YYYY");
+            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition") {
+                if (values.startDate) values.startDate = dayjs(values.startDate).format("MMMM DD, YYYY");
+                if (values.endDate) values.endDate = dayjs(values.endDate).format("MMMM DD, YYYY");
             }
 
             // console.log("values: ", values);
@@ -275,6 +276,15 @@ function EditSetting(
                             return (
                                 <>
                                     <ShiftType />
+                                </>
+                            );
+                        }
+
+                        // competency definition
+                        if (type === "Competency Definition") {
+                            return (
+                                <>
+                                    <CompetencyDefinition />
                                 </>
                             );
                         }
@@ -677,6 +687,78 @@ function ShiftType() {
                 <Select
                     style={{ width: "100%" }}
                     options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// competency definition
+function CompetencyDefinition() {
+    return (
+        <>
+            <Form.Item
+                label="Competency ID"
+                name="cid"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input readOnly />
+            </Form.Item>
+
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Competency Type"
+                name="competencyType"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Level"
+                name="level"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Start Date"
+                name="startDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="End Date"
+                name="endDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
                 />
             </Form.Item>
         </>

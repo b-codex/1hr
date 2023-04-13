@@ -284,6 +284,14 @@ function EditObjective(
                 </Form.Item>
 
                 <Form.Item
+                    label="Objective Result"
+                    name="objectiveResult"
+                // rules={[{ required: true, message: "" }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
                     label="Period"
                     name="period"
                     rules={[{ required: true, message: "" }]}

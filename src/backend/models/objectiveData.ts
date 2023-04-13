@@ -13,4 +13,5 @@ export interface ObjectiveData {
     employees: string[];
     roundOfEvaluation: string;
     performanceYear: number;
+    objectiveResult: string;
 }
