@@ -9,6 +9,7 @@ import DashboardCard from '@/components/shared/DashboardCard';
 import { db } from '@/backend/api/firebase';
 import { EmployeeData } from '@/backend/models/employeeData';
 import AppContext from '@/components/context/AppContext';
+import { ObjectiveData } from '@/backend/models/objectiveData';
 
 const PEObjectives = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
@@ -18,7 +19,7 @@ const PEObjectives = () => {
     const employeeData: EmployeeData = context.user;
     const employeeID: string = context.employeeID;
 
-    useEffect(() => onSnapshot(collection(db, "objectives"), (snapshot: QuerySnapshot<DocumentData>) => {
+    useEffect(() => onSnapshot(collection(db, "objective"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
             data.push({
@@ -35,7 +36,7 @@ const PEObjectives = () => {
             return date1.isBefore(date2) ? -1 : 1;
         });
 
-        const ds: any[] = data.filter((d) => d.employeeID === employeeID);
+        const ds: any[] = data.filter((d: ObjectiveData) => d.employees.includes(employeeID));
 
         setDataSource(ds);
         setLoading(false);
@@ -103,37 +104,37 @@ const PEObjectives = () => {
             flex: 1,
             // hideable: false,
         },
-        {
-            field: "actions",
-            headerName: 'Actions',
-            type: "actions",
-            flex: 1,
-            width: 100,
-            getActions: (params: any) => {
-                let actionArray: any[] = [
-                    <GridActionsCellItem
-                        key={1}
-                        label='Edit'
-                        icon={<EditOutlined />}
-                        onClick={() => {
+        // {
+        //     field: "actions",
+        //     headerName: 'Actions',
+        //     type: "actions",
+        //     flex: 1,
+        //     width: 100,
+        //     getActions: (params: any) => {
+        //         let actionArray: any[] = [
+        //             <GridActionsCellItem
+        //                 key={1}
+        //                 label='Edit'
+        //                 icon={<EditOutlined />}
+        //                 onClick={() => {
 
-                        }}
-                        showInMenu
-                    />,
-                    <GridActionsCellItem
-                        key={1}
-                        label='Delete'
-                        icon={<DeleteOutlined />}
-                        onClick={() => {
+        //                 }}
+        //                 showInMenu
+        //             />,
+        //             <GridActionsCellItem
+        //                 key={1}
+        //                 label='Delete'
+        //                 icon={<DeleteOutlined />}
+        //                 onClick={() => {
 
-                        }}
-                        showInMenu
-                    />
-                ];
+        //                 }}
+        //                 showInMenu
+        //             />
+        //         ];
 
-                return actionArray;
-            }
-        },
+        //         return actionArray;
+        //     }
+        // },
     ];
 
     const matches = useMediaQuery('(min-width:900px)');
@@ -152,7 +153,7 @@ const PEObjectives = () => {
 
     return (
         <>
-            <DashboardCard title="EmployeeObjectives">
+            <DashboardCard title="Employee Objectives">
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid

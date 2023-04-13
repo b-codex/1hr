@@ -23,6 +23,7 @@ import RequestModification from "@/components/routes/HR/requestModification";
 import LeaveValidation from "@/components/routes/Manager/leaveValidation";
 import LeaveApproval from "@/components/routes/HR/leaveApproval";
 import MyReportees from "@/components/routes/Manager/myReportees";
+import ObjectiveSetting from "@/components/routes/Manager/objectiveSetting";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -132,6 +133,10 @@ function handleMenuClick(e: any) {
 
     if (e.key == "mr") {
         pushWithCheck("/mr");
+    }
+
+    if (e.key == "os") {
+        pushWithCheck("/os");
     }
 }
 
@@ -296,6 +301,7 @@ export default function Home() {
                             {pid === "atv" && <AttendanceValidation />}
                             {pid === "lv" && <LeaveValidation />}
                             {pid === "mr" && <MyReportees />}
+                            {pid === "os" && <ObjectiveSetting />}
                         </Content>
 
                         {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2023 Created by Ant UED</Footer> */}

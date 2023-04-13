@@ -6,6 +6,7 @@ import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
 
 /* Importing the functions from the firestore.js file. */
+import dayjs from 'dayjs';
 import {
     collection,
     deleteDoc,
@@ -18,10 +19,8 @@ import moment from "moment";
 import { daysInMonth } from '../functions/periodWorkingDays';
 import { AttendanceData } from "../models/attendanceData";
 import { EmployeeData } from "../models/employeeData";
-import { batchAdd, batchDelete } from './batch';
-import { fetchEmployees, fetchHRSettings, fetchPeriodicOption } from './getFunctions';
-import { fetchPerformanceEvaluations } from './getFunctions';
-import dayjs from 'dayjs';
+import { batchAdd } from './batch';
+import { fetchEmployees, fetchHRSettings, fetchPerformanceEvaluations, fetchPeriodicOption } from './getFunctions';
 
 /* A shorthand for console.log. */
 const log = console.log;
@@ -39,6 +38,7 @@ export const hrSettingsCollection = collection(db, "hrSettings");
 export const leaveManagementCollection = collection(db, "leaveManagement");
 export const performanceEvaluationCollection = collection(db, "performanceEvaluation");
 export const employeeInfoChangeRequestCollection = collection(db, "employeeInfoChangeRequest");
+export const objectiveCollection = collection(db, "objective");
 
 // add employee
 export const addEmployee = async (data: EmployeeData) => {
