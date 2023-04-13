@@ -136,18 +136,23 @@ const Profile = () => {
                     </Button>
                 </Box>
 
-                <Box mt={1} py={1} px={2}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        fullWidth
-                        onClick={() => {
-                            router.push('/mr');
-                        }}
-                    >
-                        My Reportees
-                    </Button>
-                </Box>
+                {
+                    employeeData.role.includes("Manager") &&
+                    <>
+                        <Box mt={1} py={1} px={2}>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                fullWidth
+                                onClick={() => {
+                                    router.push('/mr');
+                                }}
+                            >
+                                My Reportees
+                            </Button>
+                        </Box>
+                    </>
+                }
 
                 <Box mt={1} py={1} px={2}>
                     <Button
