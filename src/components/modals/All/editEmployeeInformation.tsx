@@ -1,4 +1,3 @@
-import { updateEmployee } from '@/backend/api/firebase';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import { useEffect, useState } from 'react';

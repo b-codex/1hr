@@ -1,8 +1,8 @@
-import { updateEmployee } from '@/backend/api/firebase';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, Divider, Form, Input, Row, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CustomModal from '../customModal';
+import { updateEmployee } from '@/backend/api/HR-Manager/updateEmployee';
 
 export default function EditPasswordModal(
     {
