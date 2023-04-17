@@ -8,6 +8,7 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
 import { EmployeeData } from '@/backend/models/employeeData';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 
 export default function HRManagerEditEmployeeModal(
     {
@@ -86,6 +87,7 @@ function EditEmployee(
     const [departments, setDepartments] = useState<any[]>([]);
     const [reasonOfLeaving, setReasonOfLeaving] = useState<any[]>([]);
     const [bands, setBands] = useState<any[]>([]);
+    const [pid, setPid] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -104,9 +106,6 @@ function EditEmployee(
         const shiftTypes: any[] = groupedSettings["Shift Type"] ?? [];
         setShiftTypes(shiftTypes.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
 
-        const employmentPosition: any[] = groupedSettings["Employment Position"] ?? [];
-        setEmploymentPositions(employmentPosition.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
-
         const sections: any[] = groupedSettings["Section"] ?? [];
         setSections(sections.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
 
@@ -118,6 +117,10 @@ function EditEmployee(
 
         const bands: any[] = groupedSettings["Band"] ?? [];
         setBands(departments.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
+
+        const pid: any[] = groupedSettings['Position Definition'] ?? [];
+        const pidOptions: any[] = pid.map((pid: PositionDefinitionData) => pid.active === "Yes" && ({ label: pid.pid, value: pid.pid }));
+        setPid(pidOptions);
 
     }), []);
 
@@ -134,7 +137,7 @@ function EditEmployee(
 
             const keys: string[] = Object.keys(data);
             keys.forEach((key) => {
-                if (dates.includes(key)) data[key] = dayjs(data[key]).format("MMMM DD, YYYY");
+                if (dates.includes(key)) form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
                 else form.setFieldValue(key, data[key]);
             });
         }
@@ -479,7 +482,7 @@ function EditEmployee(
                         <Select
                             style={{ width: "100%" }}
                             dropdownStyle={{ zIndex: 2000, }}
-                            options={employmentPositions}
+                            options={pid}
                         />
                     </Form.Item>
 

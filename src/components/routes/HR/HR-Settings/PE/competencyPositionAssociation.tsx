@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -10,9 +10,9 @@ import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
 import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, Space, Tag, message } from 'antd';
 
-const CompetencyDefinition = () => {
+const CompetencyPositionAssociation = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,7 +38,7 @@ const CompetencyDefinition = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const filtered: any[] = groupedSettings['Competency Definition'] ?? [];
+        const filtered: any[] = groupedSettings['Competency Position Association'] ?? [];
 
         setDataSource(filtered);
         setLoading(false);
@@ -74,44 +74,32 @@ const CompetencyDefinition = () => {
             // hideable: false,
         },
         {
+            field: 'pid',
+            headerName: 'Position ID',
+            flex: 1,
+            // hideable: false,
+        },
+        {
             field: 'cid',
             headerName: 'Competency ID',
+            flex: 2,
+            // hideable: false,
+        },
+        {
+            field: 'grade',
+            headerName: 'Grade',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'name',
-            headerName: 'Name',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'competencyType',
-            headerName: 'Competency Type',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'level',
-            headerName: 'Level',
+            field: 'threshold',
+            headerName: 'Threshold',
             flex: 1,
             // hideable: false,
         },
         {
             field: 'active',
             headerName: 'Active',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'startDate',
-            headerName: 'Start Date',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'endDate',
-            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -181,7 +169,7 @@ const CompetencyDefinition = () => {
 
     return (
         <>
-            <DashboardCard title="Competency Definition" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Competency Position Association" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -205,17 +193,17 @@ const CompetencyDefinition = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Competency Position Association"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Competency Position Association"}
                 data={editData}
             />
         </>
     );
 };
 
-export default CompetencyDefinition;
+export default CompetencyPositionAssociation;

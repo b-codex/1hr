@@ -12,6 +12,8 @@ import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/fi
 import moment from 'moment';
 import { days } from '@/backend/constants/days';
 import generateID from '@/backend/constants/generateID';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
+import { CompetencyDefinitionData } from '@/backend/models/competencyDefinitionData';
 
 export default function HRAddSetting(
     {
@@ -56,6 +58,9 @@ function AddSetting(
     const [periodicOptionsData, setPeriodicOptionsData] = useState<any>([]);
     const [periodNames, setPeriodNames] = useState<any[]>([]);
 
+    const [cid, setCid] = useState<any[]>([]);
+    const [pid, setPid] = useState<any[]>([]);
+
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
@@ -85,6 +90,15 @@ function AddSetting(
             options.push({ label: name, value: name });
         });
         setPeriodNames(options);
+
+        const pid: any[] = groupedSettings['Position Definition'] ?? [];
+        const pidOptions: any[] = pid.map((pid: PositionDefinitionData) => pid.active === "Yes" && ({ label: pid.pid, value: pid.pid }));
+        setPid(pidOptions);
+
+        const cid: any[] = groupedSettings['Competency Definition'] ?? [];
+        const cidOptions: any[] = cid.map((cid: CompetencyDefinitionData) => cid.active === "Yes" && ({ label: cid.cid, value: cid.cid }));
+        setCid(cidOptions);
+
     }), []);
 
     const success = () => {
@@ -108,7 +122,7 @@ function AddSetting(
                 if (values[key] === undefined) values[key] = null;
             });
 
-            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition") {
+            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition" || type === "Position Definition") {
                 if (values.startDate) values.startDate = dayjs(values.startDate).format("MMMM DD, YYYY");
                 if (values.endDate) values.endDate = dayjs(values.endDate).format("MMMM DD, YYYY");
             }
@@ -258,6 +272,24 @@ function AddSetting(
                             return (
                                 <>
                                     <CompetencyDefinition />
+                                </>
+                            );
+                        }
+
+                        // position definition
+                        if (type === "Position Definition") {
+                            return (
+                                <>
+                                    <PositionDefinition />
+                                </>
+                            );
+                        }
+
+                        // competency position association
+                        if (type === "Competency Position Association") {
+                            return (
+                                <>
+                                    <CompetencyPositionAssociation cid={cid} pid={pid} />
                                 </>
                             );
                         }
@@ -673,9 +705,12 @@ function CompetencyDefinition() {
             <Form.Item
                 label="Competency Type"
                 name="competencyType"
-            // rules={[{ required: true, message: "" }]}
+                rules={[{ required: true, message: "" }]}
             >
-                <Input />
+                <Select
+                    style={{ width: "100%" }}
+                    options={["Soft Skill", "Hard Skill"].map(value => ({ label: value, value: value }))}
+                />
             </Form.Item>
 
             <Form.Item
@@ -716,6 +751,127 @@ function CompetencyDefinition() {
                 <DatePicker
                     style={{ width: "100%" }}
                     format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// position definition
+function PositionDefinition() {
+    return (
+        <>
+            <Form.Item
+                label="Position ID"
+                name="pid"
+                rules={[{ required: true, message: "" }]}
+                initialValue={generateID()}
+            >
+                <Input readOnly />
+            </Form.Item>
+
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Responsibility"
+                name="responsibility"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Start Date"
+                name="startDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="End Date"
+                name="endDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+        </>
+    );
+}
+
+// competency position association
+function CompetencyPositionAssociation({ pid, cid }: { pid: any[], cid: any[] }) {
+    return (
+        <>
+            <Form.Item
+                label="Position ID"
+                name="pid"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={pid}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Competency ID"
+                name="cid"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100%" }}
+                    options={cid}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Grade"
+                name="grade"
+                rules={[{ required: true, message: "" }]}
+            >
+                <InputNumber style={{ width: "100%" }} min={1} max={12} />
+            </Form.Item>
+
+            <Form.Item
+                label="Threshold"
+                name="threshold"
+                rules={[{ required: true, message: "" }]}
+            >
+                <InputNumber style={{ width: "100%" }} min={1} max={5} />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
                 />
             </Form.Item>
         </>

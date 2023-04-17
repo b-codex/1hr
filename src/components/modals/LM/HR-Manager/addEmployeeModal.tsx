@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 
 export default function HRManagerAddEmployeeModal(
     {
@@ -72,11 +73,11 @@ function AddEmployee(
 
     const [contractTypes, setContractTypes] = useState<any[]>([]);
     const [shiftTypes, setShiftTypes] = useState<any[]>([]);
-    const [employmentPositions, setEmploymentPositions] = useState<any[]>([]);
     const [sections, setSections] = useState<any[]>([]);
     const [departments, setDepartments] = useState<any[]>([]);
     const [reasonOfLeaving, setReasonOfLeaving] = useState<any[]>([]);
     const [bands, setBands] = useState<any[]>([]);
+    const [pid, setPid] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -95,9 +96,6 @@ function AddEmployee(
         const shiftTypes: any[] = groupedSettings["Shift Type"] ?? [];
         setShiftTypes(shiftTypes.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
 
-        const employmentPosition: any[] = groupedSettings["Employment Position"] ?? [];
-        setEmploymentPositions(employmentPosition.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
-
         const sections: any[] = groupedSettings["Section"] ?? [];
         setSections(sections.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
 
@@ -109,6 +107,10 @@ function AddEmployee(
 
         const bands: any[] = groupedSettings["Band"] ?? [];
         setBands(departments.map((doc) => doc.active === "Yes" && ({ label: doc.name, value: doc.name })));
+
+        const pid: any[] = groupedSettings['Position Definition'] ?? [];
+        const pidOptions: any[] = pid.map((pid: PositionDefinitionData) => pid.active === "Yes" && ({ label: pid.pid, value: pid.pid }));
+        setPid(pidOptions);
 
     }), []);
 
@@ -451,7 +453,7 @@ function AddEmployee(
                         <Select
                             style={{ width: "100%" }}
                             dropdownStyle={{ zIndex: 2000, }}
-                            options={employmentPositions}
+                            options={pid}
                         />
                     </Form.Item>
 

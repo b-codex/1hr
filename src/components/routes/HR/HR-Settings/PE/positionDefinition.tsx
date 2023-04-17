@@ -12,7 +12,7 @@ import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal'
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, message } from 'antd';
 
-const CompetencyDefinition = () => {
+const PositionDefinition = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,7 +38,7 @@ const CompetencyDefinition = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const filtered: any[] = groupedSettings['Competency Definition'] ?? [];
+        const filtered: any[] = groupedSettings['Position Definition'] ?? [];
 
         setDataSource(filtered);
         setLoading(false);
@@ -74,8 +74,8 @@ const CompetencyDefinition = () => {
             // hideable: false,
         },
         {
-            field: 'cid',
-            headerName: 'Competency ID',
+            field: 'pid',
+            headerName: 'Position ID',
             flex: 1,
             // hideable: false,
         },
@@ -86,14 +86,8 @@ const CompetencyDefinition = () => {
             // hideable: false,
         },
         {
-            field: 'competencyType',
-            headerName: 'Competency Type',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'level',
-            headerName: 'Level',
+            field: 'responsibility',
+            headerName: 'Responsibility',
             flex: 1,
             // hideable: false,
         },
@@ -181,7 +175,7 @@ const CompetencyDefinition = () => {
 
     return (
         <>
-            <DashboardCard title="Competency Definition" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Position Definition" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -205,17 +199,17 @@ const CompetencyDefinition = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Position Definition"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Position Definition"}
                 data={editData}
             />
         </>
     );
 };
 
-export default CompetencyDefinition;
+export default PositionDefinition;

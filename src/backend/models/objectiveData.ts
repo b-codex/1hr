@@ -1,4 +1,5 @@
 export interface ObjectiveData {
+    timestamp: string;
     id?: string;
     objectiveID: string;
     state: string;

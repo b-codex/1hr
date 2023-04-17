@@ -1,5 +1,5 @@
 import { DocumentData, QuerySnapshot, getDocs, query, where } from "firebase/firestore";
-import { attendanceCollection, employeeCollection, hrSettingsCollection, performanceEvaluationCollection } from "./firebase";
+import { attendanceCollection, competencyAssessmentCollection, employeeCollection, hrSettingsCollection, performanceEvaluationCollection } from "./firebase";
 import { groupBy } from "../constants/groupBy";
 
 export const fetchHRSettings = async () => {
@@ -204,6 +204,28 @@ export const fetchPerformanceEvaluations = async () => {
         })
         .catch((e: any) => {
             console.log("Catching while fetching performance evaluations: ", e);
+            return [];
+        });
+
+    return response;
+}
+
+export const fetchCompetencyAssessments = async () => {
+    const q = query(competencyAssessmentCollection);
+
+    const response: any[] = await getDocs(q)
+        .then((snapshot: QuerySnapshot<DocumentData>) => {
+            const data: any[] = [];
+            snapshot.docs.map((doc) => {
+                data.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+            return data;
+        })
+        .catch((e: any) => {
+            console.log("Catching while fetching competency assessments: ", e);
             return [];
         });
 

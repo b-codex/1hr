@@ -39,6 +39,7 @@ export const leaveManagementCollection = collection(db, "leaveManagement");
 export const performanceEvaluationCollection = collection(db, "performanceEvaluation");
 export const employeeInfoChangeRequestCollection = collection(db, "employeeInfoChangeRequest");
 export const objectiveCollection = collection(db, "objective");
+export const competencyAssessmentCollection = collection(db, "competencyAssessment");
 
 // add employee
 export const addEmployee = async (data: EmployeeData) => {

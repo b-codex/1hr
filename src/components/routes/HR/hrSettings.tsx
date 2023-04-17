@@ -8,6 +8,8 @@ import MonitoringPeriods from './HR-Settings/PE/monitoringPeriods';
 import PeriodicOptions from './HR-Settings/PE/periodicOptions';
 import ShiftTypes from './HR-Settings/TAM/shiftTypes';
 import CompetencyDefinition from './HR-Settings/PE/competencyDefinition';
+import PositionDefinition from './HR-Settings/PE/positionDefinition';
+import CompetencyPositionAssociation from './HR-Settings/PE/competencyPositionAssociation';
 
 // TAM Settings
 const timeAndAttendanceManagementSettings: any[] = [
@@ -87,11 +89,16 @@ const performanceEvaluationSettings: any[] = [
         label: "Competency Definition",
         children: <CompetencyDefinition />,
     },
-    // {
-    //     key: "5",
-    //     label: "Position Definition",
-    //     children: <CompetencyDefinition />,
-    // },
+    {
+        key: "5",
+        label: "Position Definition",
+        children: <PositionDefinition />,
+    },
+    {
+        key: "6",
+        label: "Competency Position Association",
+        children: <CompetencyPositionAssociation />,
+    },
 ];
 function PerformanceEvaluationTabs() {
 
