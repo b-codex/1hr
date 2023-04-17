@@ -1,17 +1,14 @@
-import { approveAttendanceList } from '@/backend/api/TAM/approveAttendanceList';
-import { refuseAttendanceList } from '@/backend/api/TAM/refuseAttendanceList';
+import { approveAttendanceModification } from '@/backend/api/TAM/approveAttendanceModification';
+import { refuseAttendanceModification } from '@/backend/api/TAM/refuseAttendanceModification';
+import generateID from '@/backend/constants/generateID';
 import { months } from '@/backend/constants/months';
-import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography, useMediaQuery } from '@mui/material';
-import { Button, Modal, Row, Space, message } from 'antd';
+import { ModificationData } from '@/backend/models/attendanceData';
+import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { useMediaQuery } from '@mui/material';
+import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { Modal, message } from 'antd';
 import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
-import WriteCommentModal from '../Manager/writeCommentModal';
-import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import generateID from '@/backend/constants/generateID';
-import { approveAttendanceModification } from '@/backend/api/TAM/approveAttendanceModification';
-import { ModificationData } from '@/backend/models/attendanceData';
-import { refuseAttendanceModification } from '@/backend/api/TAM/refuseAttendanceModification';
 
 const HRManagerViewRequestedModifications = ({
     attendanceData,
