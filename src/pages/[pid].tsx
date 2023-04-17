@@ -74,7 +74,6 @@ const hrManagerMonitor: MenuItem[] = [
     getItem('Leave Approval', 'la', <SyncLockIcon />),
     getItem('Request Modification', 'rm', <BrowseGalleryIcon />),
     getItem('Employee Management', 'em', <PeopleAltIcon />),
-    getItem('HRS', 'hrs', <PeopleAltIcon />),
 ];
 
 const managerMonitor: MenuItem[] = [
@@ -128,10 +127,6 @@ function handleMenuClick(e: any) {
 
     if (e.key == "em") {
         pushWithCheck("/em");
-    }
-
-    if (e.key == "hrs") {
-        pushWithCheck("/hrs");
     }
 
     if (e.key == "ata") {
@@ -343,9 +338,7 @@ export default function Home() {
                             {pid === "profile" && <UserProfile />}
 
                             {/* HR Manager */}
-                            {pid === "hrs" && <HRSettings />}
                             {pid === "em" && <EmployeeManagement />}
-                            {pid === "hrs" && <HRSettings />}
                             {pid === "ata" && <AttendanceApproval />}
                             {pid === "rm" && <RequestModification />}
                             {pid === "la" && <LeaveApproval />}

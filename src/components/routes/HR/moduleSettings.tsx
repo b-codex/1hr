@@ -11,24 +11,15 @@ import CompetencyDefinition from './HR-Settings/PE/competencyDefinition';
 import PositionDefinition from './HR-Settings/PE/positionDefinition';
 import CompetencyPositionAssociation from './HR-Settings/PE/competencyPositionAssociation';
 
-const companySetup: any[] = [
+// TAM Settings
+const timeAndAttendanceManagementSettings: any[] = [
     {
         key: "1",
-        label: "Basic Info",
-        children: [],
-    },
-    {
-        key: "2",
-        label: "Department",
-        children: [],
-    },
-    {
-        key: "3",
-        label: "Section",
-        children: [],
+        label: "Shift Types",
+        children: <ShiftTypes />,
     },
 ];
-function CompanySetupTabs() {
+function AttendanceManagementTabs() {
 
     return (
         <>
@@ -36,31 +27,32 @@ function CompanySetupTabs() {
                 defaultActiveKey="1"
                 tabPosition='left'
                 centered
-                items={companySetup}
+                items={timeAndAttendanceManagementSettings}
                 style={{}}
             />
         </>
     );
 };
 
-const jobMgmt: any[] = [
+// LM Settings
+const leaveManagementSettings: any[] = [
     {
         key: "1",
-        label: "Basic Info",
-        children: [],
+        label: "Leave Types",
+        children: <LeaveTypes />,
     },
     {
         key: "2",
-        label: "Department",
-        children: [],
+        label: "Leave Stages",
+        children: <LeaveStages />
     },
     {
         key: "3",
-        label: "Section",
-        children: [],
+        label: "Leave States",
+        children: <LeaveStates />,
     },
 ];
-function JobMgmtTabs() {
+function LeaveManagementTabs() {
 
     return (
         <>
@@ -68,7 +60,55 @@ function JobMgmtTabs() {
                 defaultActiveKey="1"
                 tabPosition='left'
                 centered
-                items={jobMgmt}
+                items={leaveManagementSettings}
+                style={{}}
+            />
+        </>
+    );
+};
+
+// PE Settings
+const performanceEvaluationSettings: any[] = [
+    {
+        key: "1",
+        label: "Periodic Options",
+        children: <PeriodicOptions />,
+    },
+    {
+        key: "2",
+        label: "Evaluation Campaigns",
+        children: <EvaluationCampaigns />,
+    },
+    {
+        key: "3",
+        label: "Monitoring Periods",
+        children: <MonitoringPeriods />,
+    },
+    {
+        key: "4",
+        label: "Competency Definition",
+        children: <CompetencyDefinition />,
+    },
+    {
+        key: "5",
+        label: "Position Definition",
+        children: <PositionDefinition />,
+    },
+    {
+        key: "6",
+        label: "Competency Position Association",
+        children: <CompetencyPositionAssociation />,
+    },
+];
+function PerformanceManagementTabs() {
+
+    return (
+        <>
+            <Tabs
+                defaultActiveKey="1"
+                tabPosition='left'
+                centered
+                items={performanceEvaluationSettings}
                 style={{}}
             />
         </>
@@ -77,19 +117,19 @@ function JobMgmtTabs() {
 
 const items: any[] = [
     {
-        key: "CS",
-        label: "Company Setup",
-        children: <CompanySetupTabs />,
+        key: "TAM",
+        label: "Attendance Management",
+        children: <AttendanceManagementTabs />,
     },
     {
-        key: "JM",
-        label: "Job Management",
-        children: [],
+        key: "LM",
+        label: "Leave Management",
+        children: <LeaveManagementTabs />,
     },
     {
-        key: "IS",
-        label: "Issue",
-        children: [],
+        key: "PE",
+        label: "Performance Management",
+        children: <PerformanceManagementTabs />,
     },
 ];
 
@@ -97,7 +137,7 @@ const ModuleSettings = () => {
     return (
         <>
             <Tabs
-                defaultActiveKey="CS"
+                defaultActiveKey="TAM"
                 centered
                 items={items}
                 style={{
