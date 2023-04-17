@@ -3,5 +3,5 @@ export interface LeaveTypeData {
     timestamp: string;
     name: string;
     authorizedDays: string;
-    active: string;
+    active: "Yes" | "No";
 };

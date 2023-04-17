@@ -4,5 +4,5 @@ export interface CompetencyPositionAssociationData {
     cid: string;
     grade: number;
     threshold: number;
-    active: string;
+    active: "Yes" | "No";
 }

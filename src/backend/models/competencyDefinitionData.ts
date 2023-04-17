@@ -4,7 +4,7 @@ export interface CompetencyDefinitionData {
     name: string;
     competencyType: string;
     level: string;
-    active: string;
+    active: "Yes" | "No";
     startDate: string;
     endDate: string;
 }

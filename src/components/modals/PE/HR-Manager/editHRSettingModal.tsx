@@ -15,6 +15,8 @@ import generateID from '@/backend/constants/generateID';
 import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 import { CompetencyDefinitionData } from '@/backend/models/competencyDefinitionData';
 import { ObjectiveData } from '@/backend/models/objectiveData';
+import { DepartmentData } from '@/backend/models/departmentData';
+import { SectionData } from '@/backend/models/sectionData';
 
 export default function HREditSetting(
     {
@@ -67,6 +69,7 @@ function EditSetting(
     const [pid, setPid] = useState<any[]>([]);
 
     const [sections, setSections] = useState<any[]>([]);
+    const [departments, setDepartments] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -107,8 +110,12 @@ function EditSetting(
         setCid(cidOptions);
 
         const scs: any[] = groupedSettings['Section'] ?? [];
-        const sections: any[] = scs.map((sc: any) => sc.active === "Yes" && ({ label: sc.name, value: sc.name }));
+        const sections: any[] = scs.map((sc: SectionData) => sc.active === "Yes" && ({ label: sc.name, value: sc.name }));
         setSections(sections);
+
+        const dept: any[] = groupedSettings['Department'] ?? [];
+        const deps: any[] = dept.map((dep: DepartmentData) => dep.active === "Yes" && ({ label: dep.name, value: dep.name }));
+        setDepartments(deps);
 
     }), []);
 
@@ -163,10 +170,10 @@ function EditSetting(
         if (data !== undefined) {
             const keys: string[] = Object.keys(data);
 
-            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition" || type === "Position Definition") {
+            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition" || type === "Position Definition" || type === "Section") {
                 keys.forEach((key) => {
                     if (key === "startDate" || key === "endDate") {
-                        form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
+                        if (data[key]) form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
                     }
                     else {
                         if (data[key] !== null) form.setFieldValue(key, data[key]);
@@ -202,7 +209,7 @@ function EditSetting(
                 if (values[key] === undefined) values[key] = null;
             });
 
-            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition") {
+            if (type === "Evaluation Campaign" || type === "Monitoring Period" || type === "Competency Definition" || type === "Position Definition" || type === "Section") {
                 if (values.startDate) values.startDate = dayjs(values.startDate).format("MMMM DD, YYYY");
                 if (values.endDate) values.endDate = dayjs(values.endDate).format("MMMM DD, YYYY");
             }
@@ -379,6 +386,15 @@ function EditSetting(
                             return (
                                 <>
                                     <Department employees={employees} objectives={objectives} sections={sections} />
+                                </>
+                            );
+                        }
+
+                        // section
+                        if (type === "Section") {
+                            return (
+                                <>
+                                    <Section departments={departments} employees={employees} />
                                 </>
                             );
                         }
@@ -1036,6 +1052,17 @@ function Department({ employees, sections, objectives }: { employees: any[], sec
                 />
             </Form.Item>
 
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+
             <Divider orientation='left'>
                 KPI
             </Divider>
@@ -1116,6 +1143,94 @@ function Department({ employees, sections, objectives }: { employees: any[], sec
                     </>
                 )}
             </Form.List>
+        </>
+    );
+}
+
+// section
+function Section({ departments, employees }: { departments: any[], employees: any[] }) {
+    return (
+        <>
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Section ID"
+                name="sectionID"
+                rules={[{ required: true, message: "" }]}
+                initialValue={generateID()}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Section Head Name"
+                name="sectionHeadName"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Related Department"
+                name="relatedDept"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={departments}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Associated Employees"
+                name="associatedEmployees"
+                // rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={employees}
+                    mode='multiple'
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Active"
+                name="active"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Start Date"
+                name="startDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="End Date"
+                name="endDate"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <DatePicker
+                    style={{ width: "100%" }}
+                    format={"MMMM DD, YYYY"}
+                />
+            </Form.Item>
         </>
     );
 }

@@ -1,6 +1,7 @@
 
 import { Tabs } from 'antd';
 import Department from './HR-Settings/Core/department';
+import Section from './HR-Settings/Core/section';
 
 const companySetup: any[] = [
     {
@@ -16,7 +17,7 @@ const companySetup: any[] = [
     {
         key: "3",
         label: "Section",
-        children: [],
+        children: <Section />,
     },
 ];
 function CompanySetupTabs() {

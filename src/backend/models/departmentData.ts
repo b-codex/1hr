@@ -6,6 +6,7 @@ export interface DepartmentData {
     associatedSections: string[];
     associatedEmployees: string[];
     kpi: KPIData[];
+    active: "Yes" | "No";
 }
 
 interface KPIData {

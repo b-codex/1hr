@@ -6,5 +6,5 @@ export interface PositionDefinitionData {
     responsibility: string;
     startDate: string;
     endDate: string;
-    active: string;
+    active: "Yes" | "No";
 }
