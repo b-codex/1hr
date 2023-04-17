@@ -1,26 +1,12 @@
-import { days } from './../constants/days';
-import { groupBy } from './../constants/groupBy';
-import { months } from './../constants/months';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase-config";
 
 /* Importing the functions from the firestore.js file. */
-import dayjs from 'dayjs';
 import {
     collection,
-    deleteDoc,
-    doc,
-    getFirestore,
-    setDoc,
-    updateDoc
+    getFirestore
 } from "firebase/firestore";
-import moment from "moment";
-import { daysInMonth } from '../functions/periodWorkingDays';
-import { AttendanceData } from "../models/attendanceData";
-import { EmployeeData } from "../models/employeeData";
-import { batchAdd } from './batch';
-import { fetchEmployees, fetchHRSettings, fetchPerformanceEvaluations, fetchPeriodicOption } from './getFunctions';
 
 /* A shorthand for console.log. */
 const log = console.log;

@@ -6,7 +6,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typograph
 import { Button, Modal, Row, Space, message } from 'antd';
 import { useState } from 'react';
 import CustomModal from '../../customModal';
-import WriteCommentModal from '../Manager/writeCommentModal';
+import WriteCommentModal from '../../Manager/writeCommentModal';
 
 const HRManagerAttendanceListView = ({
     attendanceData,
