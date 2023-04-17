@@ -10,10 +10,10 @@ import { db } from '@/backend/api/firebase';
 import { EmployeeData } from '@/backend/models/employeeData';
 import AppContext from '@/components/context/AppContext';
 import EmployeeAddLeaveRequestModal from '@/components/modals/LM/addLeaveRequestModal';
-import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Col, Modal, Row, message } from 'antd';
 import InfoCard from '@/components/shared/InfoCard';
+import EmployeeEditLeaveRequestModal from '@/components/modals/LM/editLeaveRequestModal';
 
 const LeaveManagement = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
