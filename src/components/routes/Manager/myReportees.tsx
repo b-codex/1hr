@@ -35,7 +35,7 @@ const MyReportees = () => {
 
         setDataSource(ds);
         setLoading(false);
-    }), []);
+    }), [reportees]);
 
     /* creating columns. */
     const columns: GridColDef[] = [

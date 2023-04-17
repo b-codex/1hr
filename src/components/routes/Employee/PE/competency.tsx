@@ -25,9 +25,6 @@ const PECompetency = () => {
     const employeeData: EmployeeData = context.user;
     const employeeID: string = context.employeeID;
 
-    const [competencies, setCompetencies] = useState<CompetencyDefinitionData[]>([]);
-    const [competencyType, setCompetencyType] = useState<any>();
-
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
@@ -53,15 +50,11 @@ const PECompetency = () => {
             doc.cd = cd;
         });
 
-        // console.log(competencies)
-        const competencyType: any = groupBy("competencyType", competencies);
-        setCompetencyType(competencyType);
-
         const CPA: any[] = groupedSettings['Competency Position Association'] ?? [];
         const filteredForCurrentEmployee: CompetencyPositionAssociationData[] = CPA.filter((association: CompetencyPositionAssociationData) => association.pid === employeeData.employmentPosition);
 
         setDataSource(filteredForCurrentEmployee);
-    }), [employeeID]);
+    }), [employeeID, employeeData.employmentPosition]);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [form] = Form.useForm();
