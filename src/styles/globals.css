@@ -111,9 +111,14 @@ body {
     cursor: pointer !important;
 }
 
-.competencyRow-true > .ant-radio{
+.competencyRow-true>.ant-radio {
     border: 2px solid red;
     border-radius: 100px;
+}
+
+.ant-menu {
+    border: none !important;
+    /* border-right: 1px solid red !important; */
 }
 
 @media only screen and (max-width: 900px) {

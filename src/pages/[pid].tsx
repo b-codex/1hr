@@ -25,6 +25,23 @@ import LeaveApproval from "@/components/routes/HR/leaveApproval";
 import MyReportees from "@/components/routes/Manager/myReportees";
 import ObjectiveSetting from "@/components/routes/Manager/objectiveSetting";
 
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AirlineSeatFlatIcon from '@mui/icons-material/AirlineSeatFlat';
+import SpeedIcon from '@mui/icons-material/Speed';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
+import ManageHistoryIcon from '@mui/icons-material/ManageHistory';
+import SyncLockIcon from '@mui/icons-material/SyncLock';
+import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import GroupsIcon from '@mui/icons-material/Groups';
+import HailIcon from '@mui/icons-material/Hail';
+import RuleIcon from '@mui/icons-material/Rule';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import SettingsIcon from '@mui/icons-material/Settings';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import ModuleSettings from "@/components/routes/HR/moduleSettings";
+
 const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -44,33 +61,34 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('Time & Attendance Management', 'tam', <DesktopOutlined />),
-    getItem('Leave Management', 'lm', <DesktopOutlined />),
-    getItem('Performance Evaluation', 'pe', <DesktopOutlined />),
-    getItem('Talent Acquisition', 'ta', <DesktopOutlined />),
-    getItem('Training & Development', 'trd', <DesktopOutlined />),
-];
-
-const utilities: MenuItem[] = [
-    getItem('Profile', 'profile', <UserOutlined />),
+    getItem('Time & Attendance Management', 'tam', <AccessTimeIcon />),
+    getItem('Leave Management', 'lm', <AirlineSeatFlatIcon />),
+    getItem('Performance Evaluation', 'pe', <SpeedIcon />),
+    getItem('Talent Acquisition', 'ta', <PersonAddIcon />),
+    getItem('Training & Development', 'trd', <ModelTrainingIcon />),
 ];
 
 const hrManagerMonitor: MenuItem[] = [
-    getItem('Attendance Approval', 'ata', <DesktopOutlined />),
-    getItem('Leave Approval', 'la', <DesktopOutlined />),
-    getItem('Request Modification', 'rm', <DesktopOutlined />),
-    getItem('Escalated Issue', 'ei', <DesktopOutlined />),
-    getItem('HR Settings', 'hrs', <DesktopOutlined />),
-    getItem('Employee Management', 'em', <DesktopOutlined />),
+    getItem('Attendance Approval', 'ata', <ManageHistoryIcon />),
+    getItem('Leave Approval', 'la', <SyncLockIcon />),
+    getItem('Request Modification', 'rm', <BrowseGalleryIcon />),
+    getItem('Employee Management', 'em', <PeopleAltIcon />),
+    getItem('HRS', 'hrs', <PeopleAltIcon />),
 ];
 
 const managerMonitor: MenuItem[] = [
-    getItem('Attendance Validation', 'atv', <DesktopOutlined />),
-    getItem('Leave Validation', 'lv', <DesktopOutlined />),
-    getItem('Objective Setting', 'os', <DesktopOutlined />),
-    getItem('Hiring Need', 'hn', <DesktopOutlined />),
-    getItem('My Reportees', 'mr', <DesktopOutlined />),
-    getItem('Issue Escalation', 'ie', <DesktopOutlined />),
+    getItem('Attendance Validation', 'atv', <ManageHistoryIcon />),
+    getItem('Leave Validation', 'lv', <SyncLockIcon />),
+    getItem('Objective Setting', 'os', <MiscellaneousServicesIcon />),
+    getItem('Hiring Need', 'hn', <HailIcon />),
+    getItem('My Reportees', 'mr', <GroupsIcon />),
+    getItem('Issue Escalation', 'ie', <RuleIcon />),
+];
+
+const hrSettings: MenuItem[] = [
+    getItem('Core Settings', 'cs', <SettingsIcon />),
+    getItem('Module Settings', 'ms', <WidgetsIcon />),
+    getItem('Escalated Issue', 'ei', <RuleIcon />),
 ];
 
 /**
@@ -138,6 +156,10 @@ function handleMenuClick(e: any) {
     if (e.key == "os") {
         pushWithCheck("/os");
     }
+
+    if (e.key == "ms") {
+        pushWithCheck("/ms");
+    }
 }
 
 export default function Home() {
@@ -198,6 +220,7 @@ export default function Home() {
                         style={{
                             backgroundColor: 'white',
                             // position: 'fixed',
+                            borderRight: "1px solid #ecebe4",
                         }}
                     >
                         <Logo />
@@ -269,6 +292,30 @@ export default function Home() {
                             </>
                         }
 
+                        {/* HR Monitor */}
+                        {
+                            context.role?.includes("HR Manager") &&
+                            <>
+                                <>
+                                    <Divider orientation="left">
+                                        <Typography variant="body1">
+                                            {collapsed ? "" : "HR Settings"}
+                                        </Typography>
+                                    </Divider>
+
+                                    <Menu
+                                        theme="light"
+                                        mode="inline"
+                                        items={hrSettings}
+                                        selectedKeys={[`${router.query['pid']}`]}
+                                        onClick={(menu) => {
+                                            handleMenuClick(menu);
+                                        }}
+                                    />
+                                </>
+                            </>
+                        }
+
                     </Sider>
 
                     <Layout
@@ -291,11 +338,13 @@ export default function Home() {
                             {pid === "profile" && <UserProfile />}
 
                             {/* HR Manager */}
+                            {pid === "hrs" && <HRSettings />}
                             {pid === "em" && <EmployeeManagement />}
                             {pid === "hrs" && <HRSettings />}
                             {pid === "ata" && <AttendanceApproval />}
                             {pid === "rm" && <RequestModification />}
                             {pid === "la" && <LeaveApproval />}
+                            {pid === "ms" && <ModuleSettings />}
 
                             {/* Manager */}
                             {pid === "atv" && <AttendanceValidation />}

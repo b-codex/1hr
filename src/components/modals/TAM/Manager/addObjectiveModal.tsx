@@ -1,16 +1,16 @@
+import { addObjective } from '@/backend/api/PE/addObjective';
 import { db } from '@/backend/api/firebase';
 import generateID from '@/backend/constants/generateID';
 import { groupBy } from '@/backend/constants/groupBy';
 import { EmployeeData } from '@/backend/models/employeeData';
-import AppContext from '@/components/context/AppContext';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Button, DatePicker, Divider, Form, Input, InputNumber, Row, Select, message } from 'antd';
+import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomModal from '../../customModal';
-import { addObjective } from '@/backend/api/PE/addObjective';
 
 export default function ManagerAddObjectiveModal(
     {
@@ -216,6 +216,14 @@ function EditObjective(
                 </Form.Item>
 
                 <Form.Item
+                    label="Related KPI"
+                    name="relatedKPI"
+                // rules={[{ required: true, message: "" }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
                     label="Specificity"
                     name="specificity"
                 // rules={[{ required: true, message: "" }]}
@@ -331,6 +339,138 @@ function EditObjective(
                         mode='multiple'
                     />
                 </Form.Item>
+
+                <Form.Item
+                    label="Completion Rate"
+                    name="completionRate"
+                // rules={[{ required: true, message: "" }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Divider orientation='left'>
+                    Employee Comment
+                </Divider>
+
+                <Form.List name="employeeComment">
+                    {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => {
+                                return (
+                                    <>
+                                        <Row
+                                            style={{
+                                                width: "100%",
+                                                display: "flex",
+                                                justifyContent: "space-around",
+                                                alignItems: "baseline",
+                                            }}
+                                        >
+                                            <Col xs={20} xl={10} xxl={10}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label={"Timestamp"}
+                                                    name={[name, 'timestamp']}
+                                                    initialValue={dayjs().format("MMMM DD, YYYY h:mm A")}
+                                                >
+                                                    <Input readOnly />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col xs={20} xl={10} xxl={10}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label={"Comment"}
+                                                    name={[name, 'comment']}
+                                                    rules={[{ required: true, message: '' }]}
+                                                >
+                                                    <Input.TextArea rows={2} />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                        </Row>
+                                    </>
+                                );
+                            })}
+
+                            <Form.Item
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                                    Add
+                                </Button>
+                            </Form.Item>
+                        </>
+                    )}
+                </Form.List>
+
+                <Divider orientation='left'>
+                    Manager Comment
+                </Divider>
+
+                <Form.List name="managerComment">
+                    {(fields, { add, remove }) => (
+                        <>
+                            {fields.map(({ key, name, ...restField }) => {
+                                return (
+                                    <>
+                                        <Row
+                                            style={{
+                                                width: "100%",
+                                                display: "flex",
+                                                justifyContent: "space-around",
+                                                alignItems: "baseline",
+                                            }}
+                                        >
+                                            <Col xs={20} xl={10} xxl={10}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label={"Timestamp"}
+                                                    name={[name, 'timestamp']}
+                                                    initialValue={dayjs().format("MMMM DD, YYYY h:mm A")}
+                                                >
+                                                    <Input readOnly />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <Col xs={20} xl={10} xxl={10}>
+                                                <Form.Item
+                                                    {...restField}
+                                                    label={"Comment"}
+                                                    name={[name, 'comment']}
+                                                    rules={[{ required: true, message: '' }]}
+                                                >
+                                                    <Input.TextArea rows={2} />
+                                                </Form.Item>
+                                            </Col>
+
+                                            <MinusCircleOutlined onClick={() => remove(name)} />
+                                        </Row>
+                                    </>
+                                );
+                            })}
+
+                            <Form.Item
+                                style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                                    Add
+                                </Button>
+                            </Form.Item>
+                        </>
+                    )}
+                </Form.List>
 
                 <Row align={"middle"} justify={"center"}>
                     <Form.Item>

@@ -4,6 +4,7 @@ export interface ObjectiveData {
     objectiveID: string;
     state: string;
     title: string;
+    relatedKPI?: string;
     specificity: string;
     measurability: string;
     attainability: string;
@@ -15,4 +16,7 @@ export interface ObjectiveData {
     roundOfEvaluation: string;
     performanceYear: number;
     objectiveResult: string;
+    completionRate: string;
+    employeeComment: any[];
+    managerComment: any[];
 }

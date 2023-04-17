@@ -44,12 +44,12 @@ const ObjectiveSetting = () => {
 
     /* creating columns. */
     const columns: GridColDef[] = [
-        {
-            field: 'timestamp',
-            headerName: 'Timestamp',
-            flex: 1,
-            hideable: false,
-        },
+        // {
+        //     field: 'timestamp',
+        //     headerName: 'Timestamp',
+        //     flex: 1,
+        //     hideable: false,
+        // },
         {
             field: 'objectiveID',
             headerName: 'Objective ID',
@@ -68,84 +68,96 @@ const ObjectiveSetting = () => {
             flex: 1,
             // hideable: false,
         },
+        // {
+        //     field: 'specificity',
+        //     headerName: 'Specificity',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'measurability',
+        //     headerName: 'Measurability',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'attainability',
+        //     headerName: 'Attainability',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'relevancy',
+        //     headerName: 'Relevancy',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'timePeriod',
+        //     headerName: 'Time Period',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'targetDate',
+        //     headerName: 'Target Date',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'completionRate',
+        //     headerName: 'Completion Rate',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'period',
+        //     headerName: 'Period',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'roundOfEvaluation',
+        //     headerName: 'Round Of Evaluation',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'performanceYear',
+        //     headerName: 'Performance Year',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
+        // {
+        //     field: 'employees',
+        //     headerName: 'Employees',
+        //     flex: 2,
+        //     // hideable: false,
+        //     renderCell: (params: GridRenderCellParams) => {
+        //         return (
+        //             <Space>
+        //                 {
+        //                     params.row.employees.map((employee: string) => <Tag key={employee}>{employee}</Tag>)
+        //                 }
+        //             </Space>
+        //         )
+        //     },
+        // },
+        // {
+        //     field: 'objectiveResult',
+        //     headerName: 'Objective Result',
+        //     flex: 1,
+        //     // hideable: false,
+        // },
         {
-            field: 'specificity',
-            headerName: 'Specificity',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'measurability',
-            headerName: 'Measurability',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'attainability',
-            headerName: 'Attainability',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'relevancy',
-            headerName: 'Relevancy',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'timePeriod',
-            headerName: 'Time Period',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'targetDate',
-            headerName: 'Target Date',
+            field: 'relatedKPI',
+            headerName: 'Related KPI',
             flex: 1,
             // hideable: false,
         },
         {
             field: 'completionRate',
             headerName: 'Completion Rate',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'period',
-            headerName: 'Period',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'roundOfEvaluation',
-            headerName: 'Round Of Evaluation',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'performanceYear',
-            headerName: 'Performance Year',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'employees',
-            headerName: 'Employees',
-            flex: 2,
-            // hideable: false,
-            renderCell: (params: GridRenderCellParams) => {
-                return (
-                    <Space>
-                        {
-                            params.row.employees.map((employee: string) => <Tag key={employee}>{employee}</Tag>)
-                        }
-                    </Space>
-                )
-            },
-        },
-        {
-            field: 'objectiveResult',
-            headerName: 'Objective Result',
             flex: 1,
             // hideable: false,
         },
@@ -188,17 +200,9 @@ const ObjectiveSetting = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                title: matches,
-                specificity: matches,
-                measurability: matches,
-                attainability: matches,
-                relevancy: matches,
-                timePeriod: matches,
-                targetDate: matches,
+                // title: matches,
+                relatedKPI: matches,
                 completionRate: matches,
-                period: matches,
-                roundOfEvaluation: matches,
-                performanceYear: matches,
                 actions: matches,
             }
         );
