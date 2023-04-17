@@ -41,6 +41,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import ModuleSettings from "@/components/routes/HR/moduleSettings";
+import CoreSettings from "@/components/routes/HR/coreSettings";
 
 const { Content, Footer, Sider } = Layout;
 
@@ -159,6 +160,10 @@ function handleMenuClick(e: any) {
 
     if (e.key == "ms") {
         pushWithCheck("/ms");
+    }
+
+    if (e.key == "cs") {
+        pushWithCheck("/cs");
     }
 }
 
@@ -345,6 +350,7 @@ export default function Home() {
                             {pid === "rm" && <RequestModification />}
                             {pid === "la" && <LeaveApproval />}
                             {pid === "ms" && <ModuleSettings />}
+                            {pid === "cs" && <CoreSettings />}
 
                             {/* Manager */}
                             {pid === "atv" && <AttendanceValidation />}

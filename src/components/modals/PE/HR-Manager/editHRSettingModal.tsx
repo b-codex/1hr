@@ -14,6 +14,7 @@ import { days } from '@/backend/constants/days';
 import generateID from '@/backend/constants/generateID';
 import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 import { CompetencyDefinitionData } from '@/backend/models/competencyDefinitionData';
+import { ObjectiveData } from '@/backend/models/objectiveData';
 
 export default function HREditSetting(
     {
@@ -65,6 +66,8 @@ function EditSetting(
     const [cid, setCid] = useState<any[]>([]);
     const [pid, setPid] = useState<any[]>([]);
 
+    const [sections, setSections] = useState<any[]>([]);
+
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
         snapshot.docs.map((doc) => {
@@ -102,6 +105,58 @@ function EditSetting(
         const cid: any[] = groupedSettings['Competency Definition'] ?? [];
         const cidOptions: any[] = cid.map((cid: CompetencyDefinitionData) => cid.active === "Yes" && ({ label: cid.cid, value: cid.cid }));
         setCid(cidOptions);
+
+        const scs: any[] = groupedSettings['Section'] ?? [];
+        const sections: any[] = scs.map((sc: any) => sc.active === "Yes" && ({ label: sc.name, value: sc.name }));
+        setSections(sections);
+
+    }), []);
+
+    const [employees, setEmployees] = useState<any>([]);
+    useEffect(() => onSnapshot(collection(db, "employee"), (snapshot: QuerySnapshot<DocumentData>) => {
+        const data: any[] = [];
+        snapshot.docs.map((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        const options: any[] = [];
+        data.forEach(user => {
+            options.push(
+                {
+                    label: user.employeeID,
+                    value: user.employeeID,
+                }
+            );
+        });
+
+        setEmployees(options);
+
+    }), []);
+
+
+    const [objectives, setObjectives] = useState<any[]>([]);
+    useEffect(() => onSnapshot(collection(db, "objective"), (snapshot: QuerySnapshot<DocumentData>) => {
+        const data: any[] = [];
+        snapshot.docs.map((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        /* Sorting the data by date. */
+        data.sort((a, b) => {
+            let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
+            let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
+
+            return date1.isBefore(date2) ? -1 : 1;
+        });
+
+        const objectives: any[] = data.map((obj: ObjectiveData) => ({ label: obj.objectiveID, value: obj.objectiveID }));
+        setObjectives(objectives);
     }), []);
 
     useEffect(() => {
@@ -114,16 +169,15 @@ function EditSetting(
                         form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
                     }
                     else {
-                        form.setFieldValue(key, data[key]);
+                        if (data[key] !== null) form.setFieldValue(key, data[key]);
                     }
                 });
             }
-
-            // if (type === "Periodic Option" || type === "Leave Type" || type === "Leave Stage" || type === "Leave State" || type === "Shift Type" || type === "Competency Definition" || type === "Position Definition") {
+            else {
                 keys.forEach((key) => {
-                    form.setFieldValue(key, data[key]);
+                    if (data[key] !== null) form.setFieldValue(key, data[key]);
                 });
-            // }
+            }
         }
     }, [data, form, type]);
 
@@ -316,6 +370,15 @@ function EditSetting(
                             return (
                                 <>
                                     <CompetencyPositionAssociation cid={cid} pid={pid} />
+                                </>
+                            );
+                        }
+
+                        // department
+                        if (type === "Department") {
+                            return (
+                                <>
+                                    <Department employees={employees} objectives={objectives} sections={sections} />
                                 </>
                             );
                         }
@@ -917,6 +980,142 @@ function CompetencyPositionAssociation({ pid, cid }: { pid: any[], cid: any[] })
                     options={["Yes", "No"].map((value) => ({ label: value, value: value }))}
                 />
             </Form.Item>
+        </>
+    );
+}
+
+// department
+function Department({ employees, sections, objectives }: { employees: any[], sections: any[], objectives: any[] }) {
+    return (
+        <>
+            <Form.Item
+                label="Department Name"
+                name="name"
+                rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Department Size"
+                name="size"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Department Head Name"
+                name="deptHeadName"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            <Form.Item
+                label="Associated Employees"
+                name="associatedEmployees"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={employees}
+                    mode="multiple"
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Associated Sections"
+                name="associatedSections"
+            // rules={[{ required: true, message: "" }]}
+            >
+                <Select
+                    style={{ width: "100" }}
+                    options={sections}
+                    mode="multiple"
+                />
+            </Form.Item>
+
+            <Divider orientation='left'>
+                KPI
+            </Divider>
+
+            <Form.List name="kpi">
+                {(fields, { add, remove }) => (
+                    <>
+                        {fields.map(({ key, name, ...restField }) => {
+                            return (
+                                <>
+                                    <Row
+                                        style={{
+                                            width: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "baseline",
+                                        }}
+                                    >
+                                        <Col xs={20} xl={6} xxl={6}>
+                                            <Form.Item
+                                                {...restField}
+                                                // label={"Department KPI Year"}
+                                                name={[name, 'deptKPIYear']}
+                                                rules={[{ required: true, message: "" }]}
+                                            >
+                                                <Input
+                                                    placeholder={"Department KPI Year"}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={20} xl={7} xxl={7}>
+                                            <Form.Item
+                                                {...restField}
+                                                // label={"Department KPI Definition"}
+                                                name={[name, 'deptKPIDefinition']}
+                                                rules={[{ required: true, message: "" }]}
+                                            >
+                                                <Input
+                                                    placeholder={"Department KPI Definition"}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <Col xs={20} xl={8} xxl={8}>
+                                            <Form.Item
+                                                {...restField}
+                                                // label={"Associated Company Objective"}
+                                                name={[name, 'associatedCompanyObjective']}
+                                                rules={[{ required: true, message: "" }]}
+                                            >
+                                                <Select
+                                                    style={{ width: "100" }}
+                                                    options={objectives}
+                                                    placeholder={"Associated Company Objective"}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+
+                                        <MinusCircleOutlined onClick={() => remove(name)} />
+                                    </Row>
+                                </>
+                            );
+                        })}
+
+                        <Form.Item
+                            style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}
+                        >
+                            <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+                                Add
+                            </Button>
+                        </Form.Item>
+                    </>
+                )}
+            </Form.List>
         </>
     );
 }
