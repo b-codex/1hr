@@ -91,7 +91,7 @@ const Profile = () => {
                     <Space size={15}>
                         <PhoneOutlined rotate={90} />
 
-                        <Typography>{employeeData?.personalPhoneNumber}</Typography>
+                        <Typography>{employeeData?.personalPhoneNumber ?? employeeData?.companyPhoneNumber}</Typography>
                     </Space>
                 </Box>
 
@@ -99,7 +99,7 @@ const Profile = () => {
                     <Space size={15}>
                         <MailOutlined />
 
-                        <Typography>{employeeData?.personalEmail}</Typography>
+                        <Typography>{employeeData?.personalEmail ?? employeeData?.companyEmail}</Typography>
                     </Space>
                 </Box>
 
