@@ -3,12 +3,12 @@ import { db } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
 import findDifferenceInDays from '@/backend/functions/differenceInDays';
 import { LeaveRequestData } from '@/backend/models/leaveRequestData';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import CustomModal from '../customModal';
 
 export default function EmployeeEditLeaveRequestModal(
     {
@@ -24,7 +24,7 @@ export default function EmployeeEditLeaveRequestModal(
     }
 ) {
     const matches = useMediaQuery('(min-width:900px)');
-    
+
     return (
         <>
             <CustomModal

@@ -1,21 +1,27 @@
-import { addEmployee, db } from '@/backend/api/firebase';
+import { db } from '@/backend/api/firebase';
 import generateID from '@/backend/constants/generateID';
 import { groupBy } from '@/backend/constants/groupBy';
+import { EmployeeData } from '@/backend/models/employeeData';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
-import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
+import CustomModal from '../customModal';
+import { updateEmployee } from '@/backend/api/HR-Manager/updateEmployee';
 
-export default function HRManagerAddEmployeeModal(
+export default function HRManagerEditEmployeeModal(
     {
         open,
         setOpen,
+        data,
+        docID,
     }: {
         open: boolean,
         setOpen: any,
+        data: EmployeeData,
+        docID: string,
     }
 ) {
     const matches = useMediaQuery('(min-width:900px)');
@@ -25,20 +31,24 @@ export default function HRManagerAddEmployeeModal(
             <CustomModal
                 open={open}
                 setOpen={setOpen}
-                modalTitle='Add New Employee'
+                modalTitle='Edit Employee'
                 width={matches ? "50%" : "100%"}
             >
-                <AddEmployee setOpen={setOpen} />
+                <EditEmployee setOpen={setOpen} data={data} docID={docID} />
             </CustomModal>
         </>
     );
 }
 
-function AddEmployee(
+function EditEmployee(
     {
         setOpen,
+        data,
+        docID,
     }: {
         setOpen: any,
+        data: any,
+        docID: string,
     }
 ) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -73,6 +83,7 @@ function AddEmployee(
 
     const [contractTypes, setContractTypes] = useState<any[]>([]);
     const [shiftTypes, setShiftTypes] = useState<any[]>([]);
+    const [employmentPositions, setEmploymentPositions] = useState<any[]>([]);
     const [sections, setSections] = useState<any[]>([]);
     const [departments, setDepartments] = useState<any[]>([]);
     const [reasonOfLeaving, setReasonOfLeaving] = useState<any[]>([]);
@@ -114,6 +125,25 @@ function AddEmployee(
 
     }), []);
 
+    useEffect(() => {
+        if (data && docID) {
+            const dates: string[] = [
+                'birthDate',
+                'contractStartingDate',
+                'contractTerminationDate',
+                'contractTerminationDate',
+                'probationPeriodEndDate',
+                'lastDateOfProbation',
+            ];
+
+            const keys: string[] = Object.keys(data);
+            keys.forEach((key) => {
+                if (dates.includes(key)) form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
+                else form.setFieldValue(key, data[key]);
+            });
+        }
+    }, [data, docID, form]);
+
     const success = () => {
         message.success('Success.');
     };
@@ -147,7 +177,7 @@ function AddEmployee(
 
             // console.log("values: ", values);
 
-            await addEmployee(values)
+            await updateEmployee(values, docID)
                 .then((res: boolean) => {
 
                     if (res === true) {
@@ -234,7 +264,7 @@ function AddEmployee(
                     <Form.Item
                         label="Birth Place"
                         name="birthPlace"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -242,7 +272,7 @@ function AddEmployee(
                     <Form.Item
                         label="Gender"
                         name="gender"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -254,7 +284,7 @@ function AddEmployee(
                     <Form.Item
                         label="Marital Status"
                         name="maritalStatus"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%", }}
@@ -265,7 +295,7 @@ function AddEmployee(
                     <Form.Item
                         label="Personal Phone Number"
                         name="personalPhoneNumber"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -273,7 +303,7 @@ function AddEmployee(
                     <Form.Item
                         label="Personal Email"
                         name="personalEmail"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -281,7 +311,7 @@ function AddEmployee(
                     <Form.Item
                         label="Bank Account"
                         name="bankAccount"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -289,7 +319,7 @@ function AddEmployee(
                     <Form.Item
                         label="Tin Number"
                         name="tinNumber"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -313,7 +343,7 @@ function AddEmployee(
                     <Form.Item
                         label="Contract Type"
                         name="contactType"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -325,7 +355,7 @@ function AddEmployee(
                     <Form.Item
                         label="Contact Status"
                         name="contactStatus"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -337,7 +367,7 @@ function AddEmployee(
                     <Form.Item
                         label="Contact Starting Date"
                         name="contactStartingDate"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <DatePicker
                             style={{ width: "100%" }}
@@ -355,7 +385,7 @@ function AddEmployee(
                     <Form.Item
                         label="Contact Termination Date"
                         name="contactTerminationDate"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <DatePicker
                             style={{ width: "100%" }}
@@ -366,7 +396,7 @@ function AddEmployee(
                     <Form.Item
                         label="Probation Period End Date"
                         name="probationPeriodEndDate"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <DatePicker
                             style={{ width: "100%" }}
@@ -377,7 +407,7 @@ function AddEmployee(
                     <Form.Item
                         label="Last Date of Probation"
                         name="lastDateOfProbation"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <DatePicker
                             style={{ width: "100%" }}
@@ -388,7 +418,7 @@ function AddEmployee(
                     <Form.Item
                         label="Reason of Leaving"
                         name="reasonOfLeaving"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -400,7 +430,7 @@ function AddEmployee(
                     <Form.Item
                         label="Salary"
                         name="salary"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -408,7 +438,7 @@ function AddEmployee(
                     <Form.Item
                         label="Eligible Leave Days"
                         name="eligibleLeaveDays"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -425,7 +455,7 @@ function AddEmployee(
                     <Form.Item
                         label="Company Email"
                         name="companyEmail"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -433,7 +463,7 @@ function AddEmployee(
                     <Form.Item
                         label="Company Phone Number"
                         name="companyPhoneNumber"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -448,7 +478,7 @@ function AddEmployee(
                     <Form.Item
                         label="Employment Position"
                         name="employmentPosition"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -460,7 +490,7 @@ function AddEmployee(
                     <Form.Item
                         label="Position Level"
                         name="positionLevel"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -472,7 +502,7 @@ function AddEmployee(
                     <Form.Item
                         label="Section"
                         name="section"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -484,7 +514,7 @@ function AddEmployee(
                     <Form.Item
                         label="Department"
                         name="department"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -496,7 +526,7 @@ function AddEmployee(
                     <Form.Item
                         label="Working Location"
                         name="workingLocation"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -508,7 +538,7 @@ function AddEmployee(
                     <Form.Item
                         label="Manager Position"
                         name="managerPosition"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -520,7 +550,7 @@ function AddEmployee(
                     <Form.Item
                         label="Reportees"
                         name="reportees"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -533,7 +563,7 @@ function AddEmployee(
                     <Form.Item
                         label="Reporting Line Manager Position"
                         name="reportingLineManagerPosition"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -545,7 +575,7 @@ function AddEmployee(
                     <Form.Item
                         label="Reporting Line Manager Name"
                         name="reportingLineManagerName"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -557,7 +587,7 @@ function AddEmployee(
                     <Form.Item
                         label="Grade Level"
                         name="gradeLevel"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Select
                             style={{ width: "100%" }}
@@ -592,7 +622,7 @@ function AddEmployee(
                     <Form.Item
                         label="Transport Allowance"
                         name="transportAllowance"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -600,7 +630,7 @@ function AddEmployee(
                     <Form.Item
                         label="Mobile Allowance"
                         name="mobileAllowance"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -608,7 +638,7 @@ function AddEmployee(
                     <Form.Item
                         label="Other Allowance"
                         name="otherAllowance"
-                        // rules={[{ required: true, message: "" }]}
+                    // rules={[{ required: true, message: "" }]}
                     >
                         <Input />
                     </Form.Item>

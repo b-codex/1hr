@@ -1,8 +1,8 @@
-import { addObjective } from '@/backend/api/PE/addObjective';
 import { db } from '@/backend/api/firebase';
 import generateID from '@/backend/constants/generateID';
 import { groupBy } from '@/backend/constants/groupBy';
 import { EmployeeData } from '@/backend/models/employeeData';
+import { ObjectiveData } from '@/backend/models/objectiveData';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Row, Select, message } from 'antd';
@@ -10,15 +10,18 @@ import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
+import CustomModal from '../customModal';
+import { updateObjective } from '@/backend/api/Manager/updateObjective';
 
-export default function ManagerAddObjectiveModal(
+export default function ManagerEditObjectiveModal(
     {
         open,
         setOpen,
+        data,
     }: {
         open: boolean,
         setOpen: any,
+        data: ObjectiveData,
     }
 ) {
     const matches = useMediaQuery('(min-width:900px)');
@@ -28,10 +31,10 @@ export default function ManagerAddObjectiveModal(
             <CustomModal
                 open={open}
                 setOpen={setOpen}
-                modalTitle='Add Objective'
+                modalTitle='Edit Objective'
                 width={matches ? "50%" : "100%"}
             >
-                <EditObjective setOpen={setOpen} />
+                <EditObjective setOpen={setOpen} data={data} />
             </CustomModal>
         </>
     );
@@ -40,13 +43,25 @@ export default function ManagerAddObjectiveModal(
 function EditObjective(
     {
         setOpen,
+        data,
     }: {
         setOpen: any,
+        data: any,
     }
 ) {
     const [loading, setLoading] = useState<boolean>(false);
 
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (data) {
+            const keys: string[] = Object.keys(data);
+            keys.forEach(key => {
+                if (key === "targetDate" && data[key]) form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
+                else form.setFieldValue(key, data[key]);
+            });
+        }
+    }, [data, form]);
 
     const [employees, setEmployees] = useState<any[]>([]);
     useEffect(() => onSnapshot(collection(db, "employee"), (snapshot: QuerySnapshot<DocumentData>) => {
@@ -125,7 +140,7 @@ function EditObjective(
 
             // console.log("values: ", values);
 
-            await addObjective(values)
+            await updateObjective(values, data.id)
                 .then((res: boolean) => {
 
                     if (res === true) {
@@ -141,7 +156,7 @@ function EditObjective(
                     }
                 })
                 .catch((err: any) => {
-                    console.log("error adding objective: ", err);
+                    console.log("error updating objective: ", err);
                     formFailed();
                     setLoading(false);
                 });

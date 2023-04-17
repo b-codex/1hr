@@ -9,7 +9,7 @@ import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { Button, Modal, Row, Space, Tag, message } from 'antd';
 
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
 import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 

@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { db } from '@/backend/api/firebase';
-import ManagerAddObjectiveModal from '@/components/modals/TAM/Manager/addObjectiveModal';
+import ManagerAddObjectiveModal from '@/components/modals/Manager/addObjectiveModal';
 import { Button, Modal, Space, Tag, message } from 'antd';
 import { ObjectiveData } from '@/backend/models/objectiveData';
 import ManagerEditObjectiveModal from '@/components/modals/TAM/Manager/editObjectiveModal';

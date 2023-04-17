@@ -7,18 +7,18 @@ import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, message } from 'antd';
 
-const LeaveTypes = () => {
+const CompetencyDefinition = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
+    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
+    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
-    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -34,17 +34,17 @@ const LeaveTypes = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? -1 : 1;
+            return date1.isBefore(date2) ? 1 : -1;
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveRequests: any[] = groupedSettings['Leave Type'] ?? [];
+        const filtered: any[] = groupedSettings['Competency Definition'] ?? [];
 
-        setDataSource(leaveRequests);
+        setDataSource(filtered);
         setLoading(false);
     }), []);
 
-    const leaveTypeDelete = (id: string) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -74,20 +74,44 @@ const LeaveTypes = () => {
             // hideable: false,
         },
         {
+            field: 'cid',
+            headerName: 'Competency ID',
+            flex: 1,
+            // hideable: false,
+        },
+        {
             field: 'name',
             headerName: 'Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'authorizedDays',
-            headerName: 'Authorized Days',
+            field: 'competencyType',
+            headerName: 'Competency Type',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'level',
+            headerName: 'Level',
             flex: 1,
             // hideable: false,
         },
         {
             field: 'active',
             headerName: 'Active',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'startDate',
+            headerName: 'Start Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'endDate',
+            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -105,7 +129,7 @@ const LeaveTypes = () => {
                         label='Edit'
                         onClick={() => {
                             setEditData(params.row);
-                            setEditModalOpen(true);
+                            setHrEditSettingModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -114,7 +138,7 @@ const LeaveTypes = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            leaveTypeDelete(params.row.id);
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -130,8 +154,10 @@ const LeaveTypes = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                timestamp: matches,
-                active: matches,
+                periodStart: matches,
+                periodEnd: matches,
+                campaignStartDate: matches,
+                campaignEndDate: matches,
                 actions: matches,
             }
         );
@@ -144,7 +170,7 @@ const LeaveTypes = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        setAddModalOpen(true);
+                        setHrAddSettingModalOpen(true);
                     }}
                 >
                     Add
@@ -155,7 +181,7 @@ const LeaveTypes = () => {
 
     return (
         <>
-            <DashboardCard title="Leave Types" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Competency Definition" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -177,19 +203,19 @@ const LeaveTypes = () => {
             </DashboardCard>
 
             <HRAddSetting
-                open={addModalOpen}
-                setOpen={setAddModalOpen}
-                type={"Leave Type"}
+                open={hrAddSettingModalOpen}
+                setOpen={setHrAddSettingModalOpen}
+                type={"Competency Definition"}
             />
 
             <HREditSetting
-                open={editModalOpen}
-                setOpen={setEditModalOpen}
-                type={"Leave Type"}
+                open={hrEditSettingModalOpen}
+                setOpen={setHrEditSettingModalOpen}
+                type={"Competency Definition"}
                 data={editData}
             />
         </>
     );
 };
 
-export default LeaveTypes;
+export default CompetencyDefinition;

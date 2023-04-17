@@ -7,18 +7,18 @@ import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, message } from 'antd';
 
-const EvaluationCampaigns = () => {
+const LeaveTypes = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
-    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
+    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
+    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -34,17 +34,17 @@ const EvaluationCampaigns = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? 1 : -1;
+            return date1.isBefore(date2) ? -1 : 1;
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const evaluationCampaigns: any[] = groupedSettings['Evaluation Campaign'] ?? [];
+        const leaveRequests: any[] = groupedSettings['Leave Type'] ?? [];
 
-        setDataSource(evaluationCampaigns);
+        setDataSource(leaveRequests);
         setLoading(false);
     }), []);
 
-    const hrSettingDelete = (id: string) => {
+    const leaveTypeDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -74,32 +74,20 @@ const EvaluationCampaigns = () => {
             // hideable: false,
         },
         {
-            field: 'period',
-            headerName: 'Period',
+            field: 'name',
+            headerName: 'Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'round',
-            headerName: 'Round',
+            field: 'authorizedDays',
+            headerName: 'Authorized Days',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'campaignName',
-            headerName: 'Campaign Name',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'startDate',
-            headerName: 'Start Date',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'endDate',
-            headerName: 'End Date',
+            field: 'active',
+            headerName: 'Active',
             flex: 1,
             // hideable: false,
         },
@@ -117,7 +105,7 @@ const EvaluationCampaigns = () => {
                         label='Edit'
                         onClick={() => {
                             setEditData(params.row);
-                            setHrEditSettingModalOpen(true);
+                            setEditModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -126,7 +114,7 @@ const EvaluationCampaigns = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            hrSettingDelete(params.row.id);
+                            leaveTypeDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -142,10 +130,8 @@ const EvaluationCampaigns = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                periodStart: matches,
-                periodEnd: matches,
-                campaignStartDate: matches,
-                campaignEndDate: matches,
+                timestamp: matches,
+                active: matches,
                 actions: matches,
             }
         );
@@ -158,7 +144,7 @@ const EvaluationCampaigns = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        setHrAddSettingModalOpen(true);
+                        setAddModalOpen(true);
                     }}
                 >
                     Add
@@ -169,7 +155,7 @@ const EvaluationCampaigns = () => {
 
     return (
         <>
-            <DashboardCard title="Evaluation Campaigns" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Leave Types" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -191,19 +177,19 @@ const EvaluationCampaigns = () => {
             </DashboardCard>
 
             <HRAddSetting
-                open={hrAddSettingModalOpen}
-                setOpen={setHrAddSettingModalOpen}
-                type={"Evaluation Campaign"}
+                open={addModalOpen}
+                setOpen={setAddModalOpen}
+                type={"Leave Type"}
             />
 
             <HREditSetting
-                open={hrEditSettingModalOpen}
-                setOpen={setHrEditSettingModalOpen}
-                type={"Evaluation Campaign"}
+                open={editModalOpen}
+                setOpen={setEditModalOpen}
+                type={"Leave Type"}
                 data={editData}
             />
         </>
     );
 };
 
-export default EvaluationCampaigns;
+export default LeaveTypes;

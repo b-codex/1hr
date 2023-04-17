@@ -1,27 +1,24 @@
-import { DeleteOutlined, EditOutlined, EllipsisOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
-import ViewEvaluationRoundsModal from '@/components/modals/View/viewEvaluationRounds';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, Row, message } from 'antd';
+import { Button, Modal, Space, Tag, message } from 'antd';
 
-const PeriodicOptions = () => {
+const CompetencyPositionAssociation = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
     const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
-    const [evaluationRoundsModalOpen, setEvaluationRoundsModalOpen] = useState<boolean>(false);
-    const [rounds, setRounds] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -41,13 +38,13 @@ const PeriodicOptions = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const periodicOptions: any[] = groupedSettings['Periodic Option'] ?? [];
+        const filtered: any[] = groupedSettings['Competency Position Association'] ?? [];
 
-        setDataSource(periodicOptions);
+        setDataSource(filtered);
         setLoading(false);
     }), []);
 
-    const hrSettingDelete = (id: string, data?: any) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -55,7 +52,7 @@ const PeriodicOptions = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteHRSetting(id, data)
+                await deleteHRSetting(id)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -77,38 +74,34 @@ const PeriodicOptions = () => {
             // hideable: false,
         },
         {
-            field: 'periodName',
-            headerName: 'Period Name',
+            field: 'pid',
+            headerName: 'Position ID',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'year',
-            headerName: 'Year',
+            field: 'cid',
+            headerName: 'Competency ID',
+            flex: 2,
+            // hideable: false,
+        },
+        {
+            field: 'grade',
+            headerName: 'Grade',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'evaluations',
-            headerName: 'Evaluations',
+            field: 'threshold',
+            headerName: 'Threshold',
             flex: 1,
             // hideable: false,
-            renderCell: (params: any) => {
-                return (
-                    <Row justify={'center'} align={'middle'}>
-                        <Button
-                            type='primary'
-                            icon={<EllipsisOutlined />}
-                            onClick={() => {
-                                setRounds(params.row.evaluations);
-                                setEvaluationRoundsModalOpen(true);
-                            }}
-                        >
-                            View
-                        </Button>
-                    </Row>
-                );
-            },
+        },
+        {
+            field: 'active',
+            headerName: 'Active',
+            flex: 1,
+            // hideable: false,
         },
         {
             field: "actions",
@@ -133,7 +126,7 @@ const PeriodicOptions = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            hrSettingDelete(params.row.id, params.row);
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -176,7 +169,7 @@ const PeriodicOptions = () => {
 
     return (
         <>
-            <DashboardCard title="Periodic Options" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Competency Position Association" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -200,23 +193,17 @@ const PeriodicOptions = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Periodic Option"}
+                type={"Competency Position Association"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Periodic Option"}
+                type={"Competency Position Association"}
                 data={editData}
-            />
-
-            <ViewEvaluationRoundsModal
-                open={evaluationRoundsModalOpen}
-                setOpen={setEvaluationRoundsModalOpen}
-                data={rounds}
             />
         </>
     );
 };
 
-export default PeriodicOptions;
+export default CompetencyPositionAssociation;

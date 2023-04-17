@@ -1,12 +1,11 @@
 import { refuseAttendanceList } from '@/backend/api/TAM/refuseAttendanceList';
 import { validateAttendanceList } from '@/backend/api/TAM/validateAttendanceList';
-import generateID from '@/backend/constants/generateID';
 import { months } from '@/backend/constants/months';
 import { CheckOutlined, CloseOutlined, ExclamationCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 import { Button, Modal, Row, Space, message } from 'antd';
-import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
+import { useState } from 'react';
+import CustomModal from '../customModal';
 import WriteCommentModal from './writeCommentModal';
 
 const ManagerAttendanceListView = ({
@@ -189,8 +188,8 @@ const ManagerAttendanceListView = ({
                         </Button>
                     </Space>
                 </Row>
-                
-                <WriteCommentModal 
+
+                <WriteCommentModal
                     docID={attendanceData?.id}
                     oldComments={attendanceData?.comments}
                     open={writeCommentModalOpen}

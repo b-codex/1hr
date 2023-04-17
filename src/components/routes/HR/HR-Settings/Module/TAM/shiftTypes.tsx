@@ -7,18 +7,18 @@ import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, Space, Tag, message } from 'antd';
 
-const MonitoringPeriods = () => {
+const ShiftTypes = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
-    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
+    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
+    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -34,17 +34,17 @@ const MonitoringPeriods = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? 1 : -1;
+            return date1.isBefore(date2) ? -1 : 1;
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const monitoringPeriod: any[] = groupedSettings['Monitoring Period'] ?? [];
+        const leaveRequests: any[] = groupedSettings['Shift Type'] ?? [];
 
-        setDataSource(monitoringPeriod);
+        setDataSource(leaveRequests);
         setLoading(false);
     }), []);
 
-    const hrSettingDelete = (id: string) => {
+    const leaveTypeDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -74,32 +74,31 @@ const MonitoringPeriods = () => {
             // hideable: false,
         },
         {
-            field: 'period',
-            headerName: 'Period',
+            field: 'name',
+            headerName: 'Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'round',
-            headerName: 'Round',
-            flex: 1,
+            field: 'workingDays',
+            headerName: 'Working Days',
+            flex: 3,
             // hideable: false,
+            renderCell: (params: any) => {
+                const workingDays: string[] = params.row.workingDays;
+
+                return (
+                    <>
+                        <Space direction='horizontal'>
+                            {workingDays.map(day => <Tag key={day}>{day}</Tag>)}
+                        </Space>
+                    </>
+                );
+            },
         },
         {
-            field: 'monitoringPeriodName',
-            headerName: 'Monitoring Period Name',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'startDate',
-            headerName: 'Start Date',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'endDate',
-            headerName: 'End Date',
+            field: 'active',
+            headerName: 'Active',
             flex: 1,
             // hideable: false,
         },
@@ -117,7 +116,7 @@ const MonitoringPeriods = () => {
                         label='Edit'
                         onClick={() => {
                             setEditData(params.row);
-                            setHrEditSettingModalOpen(true);
+                            setEditModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -126,7 +125,7 @@ const MonitoringPeriods = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            hrSettingDelete(params.row.id);
+                            leaveTypeDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -142,10 +141,8 @@ const MonitoringPeriods = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                periodStart: matches,
-                periodEnd: matches,
-                campaignStartDate: matches,
-                campaignEndDate: matches,
+                timestamp: matches,
+                active: matches,
                 actions: matches,
             }
         );
@@ -158,7 +155,7 @@ const MonitoringPeriods = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        setHrAddSettingModalOpen(true);
+                        setAddModalOpen(true);
                     }}
                 >
                     Add
@@ -169,7 +166,7 @@ const MonitoringPeriods = () => {
 
     return (
         <>
-            <DashboardCard title="Monitoring Periods" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Shift Types" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -191,19 +188,19 @@ const MonitoringPeriods = () => {
             </DashboardCard>
 
             <HRAddSetting
-                open={hrAddSettingModalOpen}
-                setOpen={setHrAddSettingModalOpen}
-                type={"Monitoring Period"}
+                open={addModalOpen}
+                setOpen={setAddModalOpen}
+                type={"Shift Type"}
             />
 
             <HREditSetting
-                open={hrEditSettingModalOpen}
-                setOpen={setHrEditSettingModalOpen}
-                type={"Monitoring Period"}
+                open={editModalOpen}
+                setOpen={setEditModalOpen}
+                type={"Shift Type"}
                 data={editData}
             />
         </>
     );
 };
 
-export default MonitoringPeriods;
+export default ShiftTypes;

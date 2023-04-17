@@ -1,13 +1,12 @@
-import generateID from '@/backend/constants/generateID';
+import { updateComment } from '@/backend/api/TAM/updateComment';
+import { CommentData } from '@/backend/models/attendanceData';
+import { EmployeeData } from '@/backend/models/employeeData';
+import AppContext from '@/components/context/AppContext';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, Divider, Form, Input, Row, message } from 'antd';
 import dayjs from 'dayjs';
 import { useContext, useState } from 'react';
-import CustomModal from '../../customModal';
-import { CommentData } from '@/backend/models/attendanceData';
-import { EmployeeData } from '@/backend/models/employeeData';
-import AppContext from '@/components/context/AppContext';
-import { updateComment } from '@/backend/api/TAM/updateComment';
+import CustomModal from '../customModal';
 
 export default function WriteCommentModal(
     {

@@ -6,20 +6,19 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
+import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
+import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, message } from 'antd';
 
-import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
-import DashboardCard from '@/components/shared/DashboardCard';
-
-const LeaveStages = () => {
+const PositionDefinition = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
+    const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
+    const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
-    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -35,17 +34,17 @@ const LeaveStages = () => {
             let date1: moment.Moment = moment(`${a.timestamp} ${a.year}`, "MMMM YYYY");
             let date2: moment.Moment = moment(`${b.timestamp} ${b.year}`, "MMMM YYYY");
 
-            return date1.isBefore(date2) ? -1 : 1;
+            return date1.isBefore(date2) ? 1 : -1;
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveStages: any[] = groupedSettings['Leave Stage'] ?? [];
+        const filtered: any[] = groupedSettings['Position Definition'] ?? [];
 
-        setDataSource(leaveStages);
+        setDataSource(filtered);
         setLoading(false);
     }), []);
 
-    const leaveStageDelete = (id: string) => {
+    const hrSettingDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -75,14 +74,38 @@ const LeaveStages = () => {
             // hideable: false,
         },
         {
+            field: 'pid',
+            headerName: 'Position ID',
+            flex: 1,
+            // hideable: false,
+        },
+        {
             field: 'name',
             headerName: 'Name',
             flex: 1,
             // hideable: false,
         },
         {
+            field: 'responsibility',
+            headerName: 'Responsibility',
+            flex: 1,
+            // hideable: false,
+        },
+        {
             field: 'active',
             headerName: 'Active',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'startDate',
+            headerName: 'Start Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'endDate',
+            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -100,7 +123,7 @@ const LeaveStages = () => {
                         label='Edit'
                         onClick={() => {
                             setEditData(params.row);
-                            setEditModalOpen(true);
+                            setHrEditSettingModalOpen(true);
                         }}
                         showInMenu
                     />,
@@ -109,7 +132,7 @@ const LeaveStages = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            leaveStageDelete(params.row.id);
+                            hrSettingDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -125,8 +148,10 @@ const LeaveStages = () => {
     useEffect(() => {
         setColumnVisibilityModel(
             {
-                timestamp: matches,
-                active: matches,
+                periodStart: matches,
+                periodEnd: matches,
+                campaignStartDate: matches,
+                campaignEndDate: matches,
                 actions: matches,
             }
         );
@@ -139,7 +164,7 @@ const LeaveStages = () => {
                     type='primary'
                     icon={<PlusOutlined />}
                     onClick={() => {
-                        setAddModalOpen(true);
+                        setHrAddSettingModalOpen(true);
                     }}
                 >
                     Add
@@ -150,7 +175,7 @@ const LeaveStages = () => {
 
     return (
         <>
-            <DashboardCard title="Leave Stages" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Position Definition" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -172,19 +197,19 @@ const LeaveStages = () => {
             </DashboardCard>
 
             <HRAddSetting
-                open={addModalOpen}
-                setOpen={setAddModalOpen}
-                type={"Leave Stage"}
+                open={hrAddSettingModalOpen}
+                setOpen={setHrAddSettingModalOpen}
+                type={"Position Definition"}
             />
 
             <HREditSetting
-                open={editModalOpen}
-                setOpen={setEditModalOpen}
-                type={"Leave Stage"}
+                open={hrEditSettingModalOpen}
+                setOpen={setHrEditSettingModalOpen}
+                type={"Position Definition"}
                 data={editData}
             />
         </>
     );
 };
 
-export default LeaveStages;
+export default PositionDefinition;

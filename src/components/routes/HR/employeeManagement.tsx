@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { batchDelete } from '@/backend/api/batch';
 import { db, deleteEmployee } from '@/backend/api/firebase';
 import HRManagerAddEmployeeModal from '@/components/modals/LM/HR-Manager/addEmployeeModal';
-import HRManagerEditEmployeeModal from '@/components/modals/LM/HR-Manager/editEmployeeModal';
+import HRManagerEditEmployeeModal from '@/components/modals/HR-Manager/editEmployeeModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Modal, Space, Tag, message } from 'antd';

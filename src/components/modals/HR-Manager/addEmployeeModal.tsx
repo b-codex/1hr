@@ -1,26 +1,22 @@
-import { db, updateEmployee } from '@/backend/api/firebase';
+import { db } from '@/backend/api/firebase';
 import generateID from '@/backend/constants/generateID';
 import { groupBy } from '@/backend/constants/groupBy';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, DatePicker, Divider, Form, Input, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
-import { EmployeeData } from '@/backend/models/employeeData';
-import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
+import CustomModal from '../customModal';
+import { addEmployee } from '@/backend/api/HR-Manager/addEmployee';
 
-export default function HRManagerEditEmployeeModal(
+export default function HRManagerAddEmployeeModal(
     {
         open,
         setOpen,
-        data,
-        docID,
     }: {
         open: boolean,
         setOpen: any,
-        data: EmployeeData,
-        docID: string,
     }
 ) {
     const matches = useMediaQuery('(min-width:900px)');
@@ -30,24 +26,20 @@ export default function HRManagerEditEmployeeModal(
             <CustomModal
                 open={open}
                 setOpen={setOpen}
-                modalTitle='Edit Employee'
+                modalTitle='Add New Employee'
                 width={matches ? "50%" : "100%"}
             >
-                <EditEmployee setOpen={setOpen} data={data} docID={docID} />
+                <AddEmployee setOpen={setOpen} />
             </CustomModal>
         </>
     );
 }
 
-function EditEmployee(
+function AddEmployee(
     {
         setOpen,
-        data,
-        docID,
     }: {
         setOpen: any,
-        data: any,
-        docID: string,
     }
 ) {
     const [loading, setLoading] = useState<boolean>(false);
@@ -82,7 +74,6 @@ function EditEmployee(
 
     const [contractTypes, setContractTypes] = useState<any[]>([]);
     const [shiftTypes, setShiftTypes] = useState<any[]>([]);
-    const [employmentPositions, setEmploymentPositions] = useState<any[]>([]);
     const [sections, setSections] = useState<any[]>([]);
     const [departments, setDepartments] = useState<any[]>([]);
     const [reasonOfLeaving, setReasonOfLeaving] = useState<any[]>([]);
@@ -124,25 +115,6 @@ function EditEmployee(
 
     }), []);
 
-    useEffect(() => {
-        if (data && docID) {
-            const dates: string[] = [
-                'birthDate',
-                'contractStartingDate',
-                'contractTerminationDate',
-                'contractTerminationDate',
-                'probationPeriodEndDate',
-                'lastDateOfProbation',
-            ];
-
-            const keys: string[] = Object.keys(data);
-            keys.forEach((key) => {
-                if (dates.includes(key)) form.setFieldValue(key, dayjs(data[key], "MMMM DD, YYYY"));
-                else form.setFieldValue(key, data[key]);
-            });
-        }
-    }, [data, docID, form]);
-
     const success = () => {
         message.success('Success.');
     };
@@ -176,7 +148,7 @@ function EditEmployee(
 
             // console.log("values: ", values);
 
-            await updateEmployee(values, docID)
+            await addEmployee(values)
                 .then((res: boolean) => {
 
                     if (res === true) {

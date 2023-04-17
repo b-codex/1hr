@@ -9,7 +9,7 @@ import { deleteLeaveRequest } from '@/backend/api/LM/deleteLeaveRequest';
 import { db } from '@/backend/api/firebase';
 import { EmployeeData } from '@/backend/models/employeeData';
 import AppContext from '@/components/context/AppContext';
-import EmployeeAddLeaveRequestModal from '@/components/modals/LM/Employee/addLeaveRequestModal';
+import EmployeeAddLeaveRequestModal from '@/components/modals/LM/addLeaveRequestModal';
 import EmployeeEditLeaveRequestModal from '@/components/modals/LM/Employee/editLeaveRequestModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Col, Modal, Row, message } from 'antd';

@@ -7,12 +7,12 @@ import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, message } from 'antd';
 
-const PositionDefinition = () => {
+const MonitoringPeriods = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,9 +38,9 @@ const PositionDefinition = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const filtered: any[] = groupedSettings['Position Definition'] ?? [];
+        const monitoringPeriod: any[] = groupedSettings['Monitoring Period'] ?? [];
 
-        setDataSource(filtered);
+        setDataSource(monitoringPeriod);
         setLoading(false);
     }), []);
 
@@ -74,26 +74,20 @@ const PositionDefinition = () => {
             // hideable: false,
         },
         {
-            field: 'pid',
-            headerName: 'Position ID',
+            field: 'period',
+            headerName: 'Period',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'name',
-            headerName: 'Name',
+            field: 'round',
+            headerName: 'Round',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'responsibility',
-            headerName: 'Responsibility',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'active',
-            headerName: 'Active',
+            field: 'monitoringPeriodName',
+            headerName: 'Monitoring Period Name',
             flex: 1,
             // hideable: false,
         },
@@ -175,7 +169,7 @@ const PositionDefinition = () => {
 
     return (
         <>
-            <DashboardCard title="Position Definition" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Monitoring Periods" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -199,17 +193,17 @@ const PositionDefinition = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Position Definition"}
+                type={"Monitoring Period"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Position Definition"}
+                type={"Monitoring Period"}
                 data={editData}
             />
         </>
     );
 };
 
-export default PositionDefinition;
+export default MonitoringPeriods;

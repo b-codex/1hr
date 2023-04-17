@@ -1,15 +1,15 @@
 
 import { Tabs } from 'antd';
-import LeaveStages from './HR-Settings/LM/leaveStages';
-import LeaveStates from './HR-Settings/LM/leaveStates';
-import LeaveTypes from './HR-Settings/LM/leaveTypes';
-import EvaluationCampaigns from './HR-Settings/PE/evaluationCampaigns';
-import MonitoringPeriods from './HR-Settings/PE/monitoringPeriods';
-import PeriodicOptions from './HR-Settings/PE/periodicOptions';
-import ShiftTypes from './HR-Settings/TAM/shiftTypes';
-import CompetencyDefinition from './HR-Settings/PE/competencyDefinition';
-import PositionDefinition from './HR-Settings/PE/positionDefinition';
-import CompetencyPositionAssociation from './HR-Settings/PE/competencyPositionAssociation';
+import LeaveStages from './HR-Settings/Module/LM/leaveStages';
+import LeaveStates from './HR-Settings/Module/LM/leaveStates';
+import LeaveTypes from './HR-Settings/Module/LM/leaveTypes';
+import EvaluationCampaigns from './HR-Settings/Module/PE/evaluationCampaigns';
+import MonitoringPeriods from './HR-Settings/Module/PE/monitoringPeriods';
+import PeriodicOptions from './HR-Settings/Module/PE/periodicOptions';
+import ShiftTypes from './HR-Settings/Module/TAM/shiftTypes';
+import CompetencyDefinition from './HR-Settings/Module/PE/competencyDefinition';
+import PositionDefinition from './HR-Settings/Module/PE/positionDefinition';
+import CompetencyPositionAssociation from './HR-Settings/Module/PE/competencyPositionAssociation';
 
 // TAM Settings
 const timeAndAttendanceManagementSettings: any[] = [

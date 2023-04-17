@@ -6,13 +6,14 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
-import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
-import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, Space, Tag, message } from 'antd';
+import { Button, Modal, message } from 'antd';
 
-const ShiftTypes = () => {
+import { groupBy } from '@/backend/constants/groupBy';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
+import DashboardCard from '@/components/shared/DashboardCard';
+
+const LeaveStages = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,13 +39,13 @@ const ShiftTypes = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const leaveRequests: any[] = groupedSettings['Shift Type'] ?? [];
+        const leaveStages: any[] = groupedSettings['Leave Stage'] ?? [];
 
-        setDataSource(leaveRequests);
+        setDataSource(leaveStages);
         setLoading(false);
     }), []);
 
-    const leaveTypeDelete = (id: string) => {
+    const leaveStageDelete = (id: string) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -80,23 +81,6 @@ const ShiftTypes = () => {
             // hideable: false,
         },
         {
-            field: 'workingDays',
-            headerName: 'Working Days',
-            flex: 3,
-            // hideable: false,
-            renderCell: (params: any) => {
-                const workingDays: string[] = params.row.workingDays;
-
-                return (
-                    <>
-                        <Space direction='horizontal'>
-                            {workingDays.map(day => <Tag key={day}>{day}</Tag>)}
-                        </Space>
-                    </>
-                );
-            },
-        },
-        {
             field: 'active',
             headerName: 'Active',
             flex: 1,
@@ -125,7 +109,7 @@ const ShiftTypes = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            leaveTypeDelete(params.row.id);
+                            leaveStageDelete(params.row.id);
                         }}
                         showInMenu
                     />
@@ -166,7 +150,7 @@ const ShiftTypes = () => {
 
     return (
         <>
-            <DashboardCard title="Shift Types" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Leave Stages" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -190,17 +174,17 @@ const ShiftTypes = () => {
             <HRAddSetting
                 open={addModalOpen}
                 setOpen={setAddModalOpen}
-                type={"Shift Type"}
+                type={"Leave Stage"}
             />
 
             <HREditSetting
                 open={editModalOpen}
                 setOpen={setEditModalOpen}
-                type={"Shift Type"}
+                type={"Leave Stage"}
                 data={editData}
             />
         </>
     );
 };
 
-export default ShiftTypes;
+export default LeaveStages;

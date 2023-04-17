@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EllipsisOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
@@ -7,18 +7,21 @@ import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
+import ViewEvaluationRoundsModal from '@/components/modals/View/viewEvaluationRounds';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, Row, message } from 'antd';
 
-const CompetencyDefinition = () => {
+const PeriodicOptions = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const [hrAddSettingModalOpen, setHrAddSettingModalOpen] = useState<boolean>(false);
     const [hrEditSettingModalOpen, setHrEditSettingModalOpen] = useState<boolean>(false);
     const [editData, setEditData] = useState<any>({});
+    const [evaluationRoundsModalOpen, setEvaluationRoundsModalOpen] = useState<boolean>(false);
+    const [rounds, setRounds] = useState<any[]>([]);
 
     useEffect(() => onSnapshot(collection(db, "hrSettings"), (snapshot: QuerySnapshot<DocumentData>) => {
         const data: any[] = [];
@@ -38,13 +41,13 @@ const CompetencyDefinition = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const filtered: any[] = groupedSettings['Competency Definition'] ?? [];
+        const periodicOptions: any[] = groupedSettings['Periodic Option'] ?? [];
 
-        setDataSource(filtered);
+        setDataSource(periodicOptions);
         setLoading(false);
     }), []);
 
-    const hrSettingDelete = (id: string) => {
+    const hrSettingDelete = (id: string, data?: any) => {
         Modal.confirm({
             title: 'Confirm',
             icon: <ExclamationCircleOutlined />,
@@ -52,7 +55,7 @@ const CompetencyDefinition = () => {
             okText: 'Yes',
             cancelText: 'No',
             onOk: async () => {
-                await deleteHRSetting(id)
+                await deleteHRSetting(id, data)
                     .then((res: boolean) => {
                         if (res) {
                             message.success('Deleted Successfully');
@@ -74,46 +77,38 @@ const CompetencyDefinition = () => {
             // hideable: false,
         },
         {
-            field: 'cid',
-            headerName: 'Competency ID',
+            field: 'periodName',
+            headerName: 'Period Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'name',
-            headerName: 'Name',
+            field: 'year',
+            headerName: 'Year',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'competencyType',
-            headerName: 'Competency Type',
+            field: 'evaluations',
+            headerName: 'Evaluations',
             flex: 1,
             // hideable: false,
-        },
-        {
-            field: 'level',
-            headerName: 'Level',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'active',
-            headerName: 'Active',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'startDate',
-            headerName: 'Start Date',
-            flex: 1,
-            // hideable: false,
-        },
-        {
-            field: 'endDate',
-            headerName: 'End Date',
-            flex: 1,
-            // hideable: false,
+            renderCell: (params: any) => {
+                return (
+                    <Row justify={'center'} align={'middle'}>
+                        <Button
+                            type='primary'
+                            icon={<EllipsisOutlined />}
+                            onClick={() => {
+                                setRounds(params.row.evaluations);
+                                setEvaluationRoundsModalOpen(true);
+                            }}
+                        >
+                            View
+                        </Button>
+                    </Row>
+                );
+            },
         },
         {
             field: "actions",
@@ -138,7 +133,7 @@ const CompetencyDefinition = () => {
                         icon={<DeleteOutlined />}
                         label='Delete'
                         onClick={() => {
-                            hrSettingDelete(params.row.id);
+                            hrSettingDelete(params.row.id, params.row);
                         }}
                         showInMenu
                     />
@@ -181,7 +176,7 @@ const CompetencyDefinition = () => {
 
     return (
         <>
-            <DashboardCard title="Competency Definition" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Periodic Options" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -205,17 +200,23 @@ const CompetencyDefinition = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Periodic Option"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Competency Definition"}
+                type={"Periodic Option"}
                 data={editData}
+            />
+
+            <ViewEvaluationRoundsModal
+                open={evaluationRoundsModalOpen}
+                setOpen={setEvaluationRoundsModalOpen}
+                data={rounds}
             />
         </>
     );
 };
 
-export default CompetencyDefinition;
+export default PeriodicOptions;

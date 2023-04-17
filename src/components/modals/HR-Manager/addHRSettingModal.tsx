@@ -1,22 +1,23 @@
-import { addHRSetting, db } from '@/backend/api/firebase';
+import { db } from '@/backend/api/firebase';
+import { days } from '@/backend/constants/days';
+import generateID from '@/backend/constants/generateID';
+import { groupBy } from '@/backend/constants/groupBy';
 import { months } from '@/backend/constants/months';
+import { CompetencyDefinitionData } from '@/backend/models/competencyDefinitionData';
+import { DepartmentData } from '@/backend/models/departmentData';
+import { ObjectiveData } from '@/backend/models/objectiveData';
+import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
+import { SectionData } from '@/backend/models/sectionData';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Typography } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Button, Col, DatePicker, Divider, Form, Input, InputNumber, Row, Select, message } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-import CustomModal from '../../customModal';
-import { groupBy } from '@/backend/constants/groupBy';
-import { onSnapshot, collection, QuerySnapshot, DocumentData } from 'firebase/firestore';
+import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
-import { days } from '@/backend/constants/days';
-import generateID from '@/backend/constants/generateID';
-import { PositionDefinitionData } from '@/backend/models/positionDefinitionData';
-import { CompetencyDefinitionData } from '@/backend/models/competencyDefinitionData';
-import { ObjectiveData } from '@/backend/models/objectiveData';
-import { DepartmentData } from '@/backend/models/departmentData';
-import { SectionData } from '@/backend/models/sectionData';
+import { useEffect, useState } from 'react';
+import CustomModal from '../customModal';
+import { addHRSetting } from '@/backend/api/HR-Setting/addHRSetting';
 
 export default function HRAddSetting(
     {
@@ -1146,7 +1147,7 @@ function Section({ departments, employees }: { departments: any[], employees: an
             <Form.Item
                 label="Associated Employees"
                 name="associatedEmployees"
-                // rules={[{ required: true, message: "" }]}
+            // rules={[{ required: true, message: "" }]}
             >
                 <Select
                     style={{ width: "100" }}

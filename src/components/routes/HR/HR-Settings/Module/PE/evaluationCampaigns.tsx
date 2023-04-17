@@ -1,18 +1,18 @@
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { db, deleteHRSetting } from '@/backend/api/firebase';
 import { groupBy } from '@/backend/constants/groupBy';
-import HRAddSetting from '@/components/modals/PE/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
+import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
-import { Button, Modal, Space, Tag, message } from 'antd';
+import { Button, Modal, message } from 'antd';
 
-const CompetencyPositionAssociation = () => {
+const EvaluationCampaigns = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -38,9 +38,9 @@ const CompetencyPositionAssociation = () => {
         });
 
         const groupedSettings: any = groupBy("type", data);
-        const filtered: any[] = groupedSettings['Competency Position Association'] ?? [];
+        const evaluationCampaigns: any[] = groupedSettings['Evaluation Campaign'] ?? [];
 
-        setDataSource(filtered);
+        setDataSource(evaluationCampaigns);
         setLoading(false);
     }), []);
 
@@ -74,32 +74,32 @@ const CompetencyPositionAssociation = () => {
             // hideable: false,
         },
         {
-            field: 'pid',
-            headerName: 'Position ID',
+            field: 'period',
+            headerName: 'Period',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'cid',
-            headerName: 'Competency ID',
-            flex: 2,
-            // hideable: false,
-        },
-        {
-            field: 'grade',
-            headerName: 'Grade',
+            field: 'round',
+            headerName: 'Round',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'threshold',
-            headerName: 'Threshold',
+            field: 'campaignName',
+            headerName: 'Campaign Name',
             flex: 1,
             // hideable: false,
         },
         {
-            field: 'active',
-            headerName: 'Active',
+            field: 'startDate',
+            headerName: 'Start Date',
+            flex: 1,
+            // hideable: false,
+        },
+        {
+            field: 'endDate',
+            headerName: 'End Date',
             flex: 1,
             // hideable: false,
         },
@@ -169,7 +169,7 @@ const CompetencyPositionAssociation = () => {
 
     return (
         <>
-            <DashboardCard title="Competency Position Association" className='myCard2' action={<AddButton />}>
+            <DashboardCard title="Evaluation Campaigns" className='myCard2' action={<AddButton />}>
                 <Box sx={{ overflow: 'auto', width: { xs: 'auto', sm: 'auto' } }}>
                     <div style={{ height: "calc(100vh - 200px)", width: '100%' }}>
                         <DataGrid
@@ -193,17 +193,17 @@ const CompetencyPositionAssociation = () => {
             <HRAddSetting
                 open={hrAddSettingModalOpen}
                 setOpen={setHrAddSettingModalOpen}
-                type={"Competency Position Association"}
+                type={"Evaluation Campaign"}
             />
 
             <HREditSetting
                 open={hrEditSettingModalOpen}
                 setOpen={setHrEditSettingModalOpen}
-                type={"Competency Position Association"}
+                type={"Evaluation Campaign"}
                 data={editData}
             />
         </>
     );
 };
 
-export default CompetencyPositionAssociation;
+export default EvaluationCampaigns;
