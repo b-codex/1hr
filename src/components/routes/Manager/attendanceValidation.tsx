@@ -11,14 +11,13 @@ import { db } from '@/backend/api/firebase';
 import { calculateAbsentDays } from '@/backend/functions/absentDays';
 import { calculatePeriodWorkingDays } from '@/backend/functions/periodWorkingDays';
 import { calculateWorkedDays } from '@/backend/functions/workedDays';
+import { AttendanceData } from '@/backend/models/attendanceData';
 import { EmployeeData } from '@/backend/models/employeeData';
 import AppContext from '@/components/context/AppContext';
+import ManagerAttendanceListView from '@/components/modals/Manager/viewAttendanceListModal';
 import EmployeeAttendanceEdit from '@/components/modals/TAM/Employee/editAttendanceListModal';
-import EmployeeAttendanceListView from '@/components/modals/TAM/Employee/viewAttendanceListModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { Button, Modal, Space, message } from 'antd';
-import { AttendanceData } from '@/backend/models/attendanceData';
-import ManagerAttendanceListView from '@/components/modals/TAM/Manager/viewAttendanceListModal';
 
 const AttendanceValidation = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);

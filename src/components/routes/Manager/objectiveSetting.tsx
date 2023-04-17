@@ -10,8 +10,8 @@ import { db } from '@/backend/api/firebase';
 import ManagerAddObjectiveModal from '@/components/modals/Manager/addObjectiveModal';
 import { Button, Modal, Space, Tag, message } from 'antd';
 import { ObjectiveData } from '@/backend/models/objectiveData';
-import ManagerEditObjectiveModal from '@/components/modals/TAM/Manager/editObjectiveModal';
-import { deleteObjective } from '@/backend/api/PE/deleteObjective';
+import ManagerEditObjectiveModal from '@/components/modals/Manager/editObjectiveModal';
+import { deleteObjective } from '@/backend/api/Manager/deleteObjective';
 
 const ObjectiveSetting = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
