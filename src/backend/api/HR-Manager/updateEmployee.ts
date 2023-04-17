@@ -1,7 +1,9 @@
 import { EmployeeData } from "@/backend/models/employeeData";
-import { log } from "console";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+
+/* A shorthand for console.log. */
+const log = console.log;
 
 // update employee
 export async function updateEmployee(data: EmployeeData | any, docID: string) {

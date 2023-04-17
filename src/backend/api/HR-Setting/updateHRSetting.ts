@@ -1,6 +1,8 @@
-import { log } from "console";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+
+/* A shorthand for console.log. */
+const log = console.log;
 
 // update hrSetting
 export async function updateHRSetting(data: any, docID: string) {

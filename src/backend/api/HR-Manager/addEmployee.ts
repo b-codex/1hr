@@ -3,7 +3,6 @@ import { groupBy } from "@/backend/constants/groupBy";
 import { daysInMonth } from "@/backend/functions/periodWorkingDays";
 import { AttendanceData } from "@/backend/models/attendanceData";
 import { EmployeeData } from "@/backend/models/employeeData";
-import { log } from "console";
 import dayjs from "dayjs";
 import { doc, setDoc } from "firebase/firestore";
 import moment from "moment";
@@ -11,6 +10,8 @@ import { batchAdd } from "../batch";
 import { employeeCollection } from "../firebase";
 import { fetchEmployees, fetchHRSettings } from "../getFunctions";
 import { months } from "@/backend/constants/months";
+/* A shorthand for console.log. */
+const log = console.log;
 
 // add employee
 export const addEmployee = async (data: EmployeeData) => {
