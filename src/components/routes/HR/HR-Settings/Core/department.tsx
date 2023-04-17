@@ -5,13 +5,14 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import { db, deleteHRSetting } from '@/backend/api/firebase';
+import { db } from '@/backend/api/firebase';
 import { Button, Modal, Row, Space, Tag, message } from 'antd';
 
 import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
+import { deleteHRSetting } from '@/backend/api/HR-Setting/deleteHRSetting';
 
 const Department = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);

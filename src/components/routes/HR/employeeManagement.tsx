@@ -1,15 +1,16 @@
 import { Box, useMediaQuery } from '@mui/material';
 import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
-import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
+import { collection, DocumentData, onSnapshot, QuerySnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 import { batchDelete } from '@/backend/api/batch';
-import { db, deleteEmployee } from '@/backend/api/firebase';
-import HRManagerAddEmployeeModal from '@/components/modals/LM/HR-Manager/addEmployeeModal';
+import { db } from '@/backend/api/firebase';
 import HRManagerEditEmployeeModal from '@/components/modals/HR-Manager/editEmployeeModal';
 import DashboardCard from '@/components/shared/DashboardCard';
 import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Modal, Space, Tag, message } from 'antd';
+import { Button, message, Modal, Space, Tag } from 'antd';
+import HRManagerAddEmployeeModal from '@/components/modals/HR-Manager/addEmployeeModal';
+import { deleteEmployee } from '@/backend/api/HR-Manager/deleteEmployee';
 
 const EmployeeManagement = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);

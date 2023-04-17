@@ -5,7 +5,8 @@ import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/fi
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import { db, deleteHRSetting } from '@/backend/api/firebase';
+import { db } from '@/backend/api/firebase';
+import { deleteHRSetting } from '@/backend/api/HR-Setting/deleteHRSetting';
 import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
 import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';

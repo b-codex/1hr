@@ -1,17 +1,18 @@
-import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Box, useMediaQuery } from '@mui/material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridColumnVisibilityModel, GridToolbar } from '@mui/x-data-grid';
 import { DocumentData, QuerySnapshot, collection, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import { db, deleteHRSetting } from '@/backend/api/firebase';
-import { Button, Modal, Row, Space, Tag, message } from 'antd';
+import { db } from '@/backend/api/firebase';
+import { Button, Modal, Space, Tag, message } from 'antd';
 
 import { groupBy } from '@/backend/constants/groupBy';
 import HRAddSetting from '@/components/modals/HR-Manager/addHRSettingModal';
-import HREditSetting from '@/components/modals/PE/HR-Manager/editHRSettingModal';
 import DashboardCard from '@/components/shared/DashboardCard';
+import { deleteHRSetting } from '@/backend/api/HR-Setting/deleteHRSetting';
+import HREditSetting from '@/components/modals/HR-Manager/editHRSettingModal';
 
 const Section = () => {
     const [dataSource, setDataSource] = useState<any[]>([]);
