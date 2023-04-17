@@ -5,8 +5,9 @@ import { EmployeeData } from "@/backend/models/employeeData";
 import { LeaveData } from "@/backend/models/leaveData";
 import { doc, updateDoc } from "firebase/firestore";
 import { batchUpdate } from "../batch";
-import { db, updateEmployee } from "../firebase";
+import { db } from "../firebase";
 import { fetchEmployees } from "../getFunctions";
+import { updateEmployee } from "../HR-Manager/updateEmployee";
 
 // approve leave request
 export async function approveLeaveRequest(docID: string, leaveData: LeaveData) {
